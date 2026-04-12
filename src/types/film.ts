@@ -6,3 +6,11 @@ export interface FilmCardData {
   image: string;
   rating: number;
 }
+
+export interface WeeklyFilmData {
+  id: string;
+  title: string;
+  image: string;
+  reviewCount: string;
+  isFeatured?: boolean;
+}

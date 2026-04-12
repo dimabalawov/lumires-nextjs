@@ -1,6 +1,7 @@
 import Header from "@/components/layout/Header";
 import HeroSection from "@/components/sections/HeroSection";
 import TrendingSection from "@/components/sections/TrendingSection";
+import WeeklySection from "@/components/sections/WeeklySection";
 
 export default function Home() {
   return (
@@ -9,6 +10,7 @@ export default function Home() {
         <Header />
         <HeroSection />
         <TrendingSection />
+        <WeeklySection />
       </div>
     </main>
   );
