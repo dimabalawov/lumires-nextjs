@@ -28,12 +28,10 @@ export default function FilmCard({ film, isCenter }: FilmCardProps) {
           className="object-cover transition-transform duration-500 group-hover:scale-105"
           sizes={isCenter ? `${CENTER_W}px` : `${SIDE_W}px`}
         />
-        {/* Center: gradient from bottom-left → top-right */}
         <div
           className="absolute inset-0 bg-gradient-to-tl from-brand-dark via-brand-dark/40 to-transparent"
           style={{ opacity: isCenter ? 0.9 : 0, transition: "opacity 0.5s" }}
         />
-        {/* Side: gradient bottom → top */}
         <div
           className="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/70 to-transparent"
           style={{ opacity: isCenter ? 0 : 0.9, transition: "opacity 0.5s" }}
@@ -54,10 +52,7 @@ export default function FilmCard({ film, isCenter }: FilmCardProps) {
         }}
       >
         <div className="w-[318px] flex flex-col items-end">
-          <h3
-            className="uppercase text-brand-gold font-oswald tracking-[0.06em] leading-[48px]"
-            style={{ fontWeight: 400, fontSize: 40 }}
-          >
+          <h3 className="uppercase text-brand-gold font-oswald font-normal tracking-[0.06em] leading-[48px] text-[40px]">
             {film.title}
           </h3>
           <p className="text-brand-muted font-manrope text-[18px] italic leading-[24.6px] mt-4 mb-6">
@@ -72,8 +67,7 @@ export default function FilmCard({ film, isCenter }: FilmCardProps) {
           </div>
           <Link
             href="#"
-            className="uppercase text-brand-light font-oswald text-[20px] leading-[48px] tracking-[0.06em] hover:opacity-70 transition-opacity flex items-center gap-2"
-            style={{ fontWeight: 300 }}
+            className="uppercase text-brand-light font-oswald font-light text-[20px] leading-[48px] tracking-[0.06em] hover:opacity-70 transition-opacity flex items-center gap-2"
           >
             <span className="border-b border-brand-light/50 pb-[2px]">SEE ALL REVIEWS</span>
             <span className="text-xl leading-none -translate-y-px">→</span>
@@ -91,10 +85,7 @@ export default function FilmCard({ film, isCenter }: FilmCardProps) {
         }}
       >
         <div className="w-[198px] flex flex-col items-end">
-          <h3
-            className="uppercase text-brand-gold font-oswald tracking-[0.06em] leading-[48px]"
-            style={{ fontWeight: 400, fontSize: 24 }}
-          >
+          <h3 className="uppercase text-brand-gold font-oswald font-normal tracking-[0.06em] leading-[48px] text-[24px]">
             {film.title}
           </h3>
           <p className="text-brand-muted text-[11px] italic leading-[15px] font-manrope mt-2 mb-6">
@@ -108,8 +99,7 @@ export default function FilmCard({ film, isCenter }: FilmCardProps) {
             </div>
             <Link
               href="#"
-              className="uppercase text-brand-light font-oswald text-[15px] leading-[23px] tracking-[0.06em] hover:opacity-70 transition-opacity flex items-center gap-1.5"
-              style={{ fontWeight: 300 }}
+              className="uppercase text-brand-light font-oswald font-light text-[15px] leading-[23px] tracking-[0.06em] hover:opacity-70 transition-opacity flex items-center gap-1.5"
             >
               <span className="border-b border-brand-light/50 pb-[2px]">SEE ALL REVIEWS</span>
               <span>→</span>
