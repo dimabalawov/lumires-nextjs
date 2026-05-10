@@ -66,7 +66,7 @@ export default function FilmCard({ film, isCenter }: FilmCardProps) {
             Review by {film.reviewer}
           </div>
           <Link
-            href="#"
+            href={`/films/${film.id}`}
             className="uppercase text-brand-light font-oswald font-light text-[20px] leading-[48px] tracking-[0.06em] hover:opacity-70 transition-opacity flex items-center gap-2"
           >
             <span className="border-b border-brand-light/50 pb-[2px]">SEE ALL REVIEWS</span>
@@ -98,7 +98,7 @@ export default function FilmCard({ film, isCenter }: FilmCardProps) {
               Review by {film.reviewer}
             </div>
             <Link
-              href="#"
+              href={`/films/${film.id}`}
               className="uppercase text-brand-light font-oswald font-light text-[15px] leading-[23px] tracking-[0.06em] hover:opacity-70 transition-opacity flex items-center gap-1.5"
             >
               <span className="border-b border-brand-light/50 pb-[2px]">SEE ALL REVIEWS</span>

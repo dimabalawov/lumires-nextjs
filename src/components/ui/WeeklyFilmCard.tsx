@@ -69,7 +69,7 @@ export default function WeeklyFilmCard({
         </div>
 
         <Link
-          href="#"
+          href={`/films/${film.id}`}
           className="uppercase font-oswald font-light text-brand-light hover:opacity-70 tracking-[0.06em] text-sm underline"
           style={{
             opacity: isActive ? 1 : 0,

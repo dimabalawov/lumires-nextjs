@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { FilmCardData } from "@/types/film";
 import StarRating from "./StarRating";
 
@@ -8,7 +9,10 @@ interface MobileFilmCardProps {
 
 export default function MobileFilmCard({ film }: MobileFilmCardProps) {
   return (
-    <div className="relative shrink-0 w-[220px] h-[160px] rounded-md overflow-hidden snap-start">
+    <Link
+      href={`/films/${film.id}`}
+      className="relative shrink-0 w-[220px] h-[160px] rounded-md overflow-hidden snap-start block"
+    >
       <Image
         src={film.image}
         alt={film.title}
@@ -28,6 +32,6 @@ export default function MobileFilmCard({ film }: MobileFilmCardProps) {
           {film.quote}
         </p>
       </div>
-    </div>
+    </Link>
   );
 }
