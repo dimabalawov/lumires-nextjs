@@ -9,7 +9,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-brand-dark: #12100e;
-  --color-brand-light: #f2eee9;
+  --color-brand-light: #dcd8d3;
   --color-brand-gold: #d2a66a;
   --color-brand-muted: #9b8f84;
   --font-sans: var(--font-oswald), ui-sans-serif, system-ui, sans-serif;
@@ -54,6 +54,31 @@ body {
 /* Warm subtitle color used in auth cards */
 @utility text-auth-subtitle {
   color: #dacbbd;
+}
+
+/* Film hero card: 1px gradient stroke (left→right), gold fading to transparent */
+.film-card-border {
+  position: relative;
+}
+
+.film-card-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(210, 166, 106, 0.73) 0%,
+    rgba(195, 154, 99, 0.86) 56%,
+    rgba(108, 85, 55, 0) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
 }
 
 /* Gradient border via pseudo-element mask — interior stays transparent */

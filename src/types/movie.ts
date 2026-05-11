@@ -18,4 +18,11 @@ export interface MovieDetail {
   backdropPath: string;
   localization: MovieLocalization;
   genres: { items: MovieGenre[] };
+  // Not yet exposed by the Lumires API; filled in by FILM_EXTRAS fallback in the page for now.
+  runtime?: string;
+  tagline?: string;
+  rating?: number;
+  cast?: string[];
+  director?: string;
+  studio?: string;
 }

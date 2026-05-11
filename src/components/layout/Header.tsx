@@ -40,12 +40,12 @@ export default function Header() {
 
   return (
     <header className="absolute top-0 left-0 w-full z-50">
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-transparent pointer-events-none h-[150%]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/70 to-transparent pointer-events-none h-[200%]" />
 
       <nav className="relative section-container flex items-center justify-between py-5">
         <Link
           href="/"
-          className="text-white uppercase font-light text-[18px] tracking-[0.2em] hover:opacity-70 transition-opacity"
+          className="text-brand-gold uppercase font-light text-[18px] tracking-[0.2em] hover:opacity-70 transition-opacity"
         >
           LOGO
         </Link>
@@ -87,7 +87,7 @@ export default function Header() {
               </Link>
               <Link
                 href="/signup"
-                className="text-white uppercase font-light text-base tracking-[0.12em] hover:opacity-70 transition-opacity"
+                className="text-brand-gold uppercase font-light text-base tracking-[0.12em] border border-brand-gold px-4 py-1.5 hover:bg-brand-gold hover:text-black transition-colors"
               >
                 SIGN UP
               </Link>
