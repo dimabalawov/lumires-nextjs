@@ -8,7 +8,7 @@ import CTASection from "@/components/sections/CTASection";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col bg-black overflow-hidden">
+    <main className="flex min-h-screen flex-col overflow-hidden">
       <div className="relative">
         <Header />
         <HeroSection />

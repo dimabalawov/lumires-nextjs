@@ -16,7 +16,7 @@ export interface FilmHeroData {
   overview?: string;
   cast: string[];
   genres: string[];
-  director?: string;
+  directors: string[];
   studio?: string;
 }
 
@@ -83,8 +83,34 @@ export default function FilmHero({ data }: { data: FilmHeroData }) {
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <Button
               variant="goldOutlined"
-              leftIcon={<span aria-hidden className="text-[9px]">▶</span>}
-              rightIcon={<span aria-hidden className="text-[11px]">⌄</span>}
+              leftIcon={
+                <svg
+                  width="8"
+                  height="10"
+                  viewBox="0 0 15 20"
+                  fill="currentColor"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden
+                >
+                  <path d="M0 0L15 10L0 20V0Z" />
+                </svg>
+              }
+              rightIcon={
+                <svg
+                  width="15"
+                  height="20"
+                  viewBox="0 0 15 20"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden
+                >
+                  <path d="M1 7L7.5 13L14 7" />
+                </svg>
+              }
             >
               Where to watch
             </Button>
@@ -142,7 +168,17 @@ export default function FilmHero({ data }: { data: FilmHeroData }) {
         </DetailColumn>
 
         <div className="flex flex-col gap-6">
-          <DetailColumn label="Director">{data.director ?? empty}</DetailColumn>
+          <DetailColumn label={data.directors.length > 1 ? "Directors" : "Director"}>
+            {data.directors.length > 0 ? (
+              <ul className="space-y-1.5">
+                {data.directors.map((name) => (
+                  <li key={name}>{name}</li>
+                ))}
+              </ul>
+            ) : (
+              empty
+            )}
+          </DetailColumn>
           <DetailColumn label="Studio">{data.studio ?? empty}</DetailColumn>
         </div>
       </div>

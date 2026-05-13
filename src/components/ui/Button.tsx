@@ -28,12 +28,14 @@ export default function Button({
 }: ButtonProps) {
   const sizing = iconOnly
     ? "h-[48px] w-[48px] shrink-0 justify-center"
-    : "h-[48px] px-[22px] py-[14px] gap-2";
+    : variant === "goldOutlined"
+      ? "h-[48px] px-[22px] py-[13px] gap-[10px]"
+      : "h-[48px] px-[22px] py-[14px] gap-2";
 
   return (
     <button
       type={type}
-      className={`inline-flex items-center rounded-[4px] uppercase font-oswald font-light tracking-[0.12em] text-[13px] hover:opacity-80 transition-opacity ${variantClasses[variant]} ${sizing} ${className}`}
+      className={`inline-flex items-center rounded-[4px] uppercase font-manrope font-medium tracking-[0.12em] text-[13px] hover:opacity-80 transition-opacity ${variantClasses[variant]} ${sizing} ${className}`}
       {...rest}
     >
       {leftIcon}

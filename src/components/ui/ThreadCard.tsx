@@ -27,9 +27,11 @@ export default function ThreadCard({ thread }: { thread: CommunityThread }) {
                 <span className="font-manrope font-normal text-[18px] leading-[1.333em] tracking-[0.06em] text-[#DCD8D3]">
                   {thread.username}
                 </span>
-                <span className="font-manrope font-normal text-[12px] leading-[1.5em] tracking-[0.06em] text-brand-gold underline underline-offset-2">
-                  on {thread.filmTitle}
-                </span>
+                {thread.filmTitle && (
+                  <span className="font-manrope font-normal text-[12px] leading-[1.5em] tracking-[0.06em] text-brand-gold underline underline-offset-2">
+                    on {thread.filmTitle}
+                  </span>
+                )}
               </div>
             </div>
 
@@ -73,7 +75,7 @@ export default function ThreadCard({ thread }: { thread: CommunityThread }) {
 
         <div className="mt-2.5">
           <span className="font-oswald font-light text-base leading-[2em] tracking-[0.06em] uppercase text-[#DACBBD] underline underline-offset-[3px] cursor-pointer inline">
-            see more replies→
+            see more replies ({thread.replies})→
           </span>
         </div>
       </div>

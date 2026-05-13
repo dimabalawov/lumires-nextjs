@@ -8,7 +8,7 @@ export async function getMovie(
   id: string,
   _locale: string = "en-US",
 ): Promise<MovieDetail | null> {
-  const url = `${BASE_URL}/movies/-/${encodeURIComponent(id)}`;
+  const url = `${BASE_URL}/films/-/${encodeURIComponent(id)}`;
 
   const res = await fetch(url, { next: { revalidate: 3600 } });
 

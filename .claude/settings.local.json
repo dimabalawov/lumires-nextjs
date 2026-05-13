@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(npx kill-port *)",
+      "Bash(Remove-Item -Force \"C:\\\\Users\\\\dmytr\\\\OneDrive\\\\Desktop\\\\lumires-nextjs\\\\.next\\\\dev\\\\lock\" -ErrorAction SilentlyContinue)",
+      "Bash(git merge *)",
+      "Bash(git worktree *)",
+      "Bash(curl -s https://lumires-api.supabase.win/movies/-/438631)",
+      "Bash(curl -s https://lumires-api.supabase.win/movies/-/693134)",
+      "mcp__chrome-devtools__list_pages",
+      "Bash(curl *)",
+      "mcp__chrome-devtools__navigate_page",
+      "mcp__chrome-devtools__resize_page",
+      "mcp__chrome-devtools__take_screenshot",
+      "Bash(npx tsc *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git fetch *)",
+      "Bash(del *)"
+    ]
+  }
+}

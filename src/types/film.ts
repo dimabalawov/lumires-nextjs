@@ -31,7 +31,7 @@ export interface CommunityReply {
 export interface CommunityThread {
   id: string;
   username: string;
-  filmTitle: string;
+  filmTitle?: string;
   avatarUrl: string;
   text: string;
   replies: number;
