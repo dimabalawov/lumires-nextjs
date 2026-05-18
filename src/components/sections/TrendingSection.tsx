@@ -8,7 +8,15 @@ import MobileFilmCard from "@/components/ui/MobileFilmCard";
 import { films } from "@/data/films";
 import { CENTER_W, CENTER_H, GAP } from "@/constants/carousel";
 
-export default function TrendingSection() {
+interface TrendingSectionProps {
+  title?: string;
+  titleAccent?: string;
+}
+
+export default function TrendingSection({
+  title = "Trending in the community",
+  titleAccent,
+}: TrendingSectionProps = {}) {
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -50,12 +58,18 @@ export default function TrendingSection() {
     <section className="w-full pt-16 lg:pt-24 pb-16 lg:pb-24 flex flex-col items-center bg-brand-dark">
       {/* Header row */}
       <div className="section-container mb-8 lg:mb-[68px] flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-end pb-4">
-        <h2 className="uppercase font-oswald font-light text-brand-light text-[28px] leading-[36px] lg:text-[56px] lg:leading-[64px] tracking-[0.06em]">
-          Trending in the community
+        <h2 className="font-manrope font-light text-brand-light opacity-90 text-[32px] leading-[40px] lg:text-[48px] lg:leading-[56px] tracking-[0.06em]">
+          {title}
+          {titleAccent ? (
+            <>
+              {" "}
+              <span className="text-brand-gold">{titleAccent}</span>
+            </>
+          ) : null}
         </h2>
         <Link
           href="#"
-          className="uppercase text-brand-muted hover:text-brand-light transition-colors flex items-center gap-2 sm:mb-2 font-oswald font-light text-sm tracking-[0.06em]"
+          className="uppercase text-brand-light hover:opacity-70 transition-opacity flex items-center gap-2 sm:mb-2 font-oswald font-light text-sm tracking-[0.06em]"
         >
           <span className="border-b border-current pb-0.5">SHOW ALL</span>
           <span>→</span>

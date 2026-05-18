@@ -1,24 +1,17 @@
 import Link from "next/link";
 
-import CollectionCard from "@/components/ui/CollectionCard";
-import { collections } from "@/data/collections";
+import EditorialCollectionRow from "@/components/ui/EditorialCollectionRow";
+import { editorialCollections } from "@/data/editorialCollections";
 
-interface CollectionsSectionProps {
-  title?: string;
-  titleAccent?: string;
-}
-
-export default function CollectionsSection({
-  title = "Collections Created By",
-  titleAccent = "Film Lovers",
-}: CollectionsSectionProps = {}) {
+export default function EditorialCollectionsSection() {
   return (
     <section className="w-full bg-brand-dark pt-16 lg:pt-24 pb-16 lg:pb-24">
       <div className="section-container">
+        {/* Section heading */}
         <div className="mb-10 lg:mb-14 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-end pb-4">
           <h2 className="font-manrope font-light text-brand-light opacity-90 text-[32px] leading-[40px] lg:text-[48px] lg:leading-[56px] tracking-[0.06em]">
-            {title}{" "}
-            <span className="text-brand-gold">{titleAccent}</span>
+            Editorial{" "}
+            <span className="text-brand-gold">Collections</span>
           </h2>
           <Link
             href="#"
@@ -29,9 +22,10 @@ export default function CollectionsSection({
           </Link>
         </div>
 
-        <div className="flex flex-col gap-6">
-          {collections.map((collection) => (
-            <CollectionCard key={collection.id} collection={collection} />
+        {/* Collections stack */}
+        <div className="flex flex-col gap-8 lg:gap-10">
+          {editorialCollections.map((collection) => (
+            <EditorialCollectionRow key={collection.id} collection={collection} />
           ))}
         </div>
       </div>
