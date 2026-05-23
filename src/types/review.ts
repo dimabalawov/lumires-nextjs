@@ -25,3 +25,41 @@ export interface ReviewsResponse {
   pageSize: number;
   totalPages: number;
 }
+
+// Editorial featured review used in the "Popular Reviews" carousel on /reviews.
+export interface FeaturedReview {
+  id: string;
+  tag: string; // "Editor's Pick"
+  timeAgo: string; // "4 days ago"
+  title: string;
+  posterUrl: string;
+  year: string;
+  genre: string;
+  runtime: string;
+  director: string;
+  pullQuote: string;
+  body: string[];
+  username: string;
+  avatarUrl: string;
+  date: string; // "May 2"
+  readTime: string; // "8 min read"
+  rating: number;
+  likes: number;
+  replies: number;
+}
+
+// Flat review item used in the "Recent Activity" feed on /reviews.
+export interface ActivityReview {
+  id: string;
+  avatarUrl: string;
+  username: string;
+  rating: number; // 0..5
+  timeAgo: string;
+  replies: number;
+  filmTitle: string;
+  filmHref: string;
+  title: string;
+  body: string[];
+  likes: number;
+  posterUrl: string;
+}

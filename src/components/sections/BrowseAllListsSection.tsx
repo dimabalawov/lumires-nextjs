@@ -1,6 +1,6 @@
-import EditorialPosterCard from "@/components/ui/EditorialPosterCard";
+import BrowseListCard from "@/components/ui/BrowseListCard";
 import Pagination from "@/components/ui/Pagination";
-import { allFilms } from "@/data/allFilms";
+import { browseLists } from "@/data/browseLists";
 
 const filterTabs = [
   { id: "all", label: "All Films", active: true },
@@ -11,6 +11,7 @@ const filterTabs = [
   { id: "hidden-gems", label: "Hidden Gems", active: false },
 ];
 
+// Filter styling lifted from AllFilmsSection (films page).
 const selectClass =
   "appearance-none bg-transparent border border-brand-gold/30 rounded-[4px] pl-3 pr-8 py-1.5 text-brand-light font-manrope font-normal text-[13px] tracking-[0.2em] uppercase cursor-pointer hover:border-brand-gold/60 transition-colors";
 
@@ -27,10 +28,15 @@ const chevron = (
   </svg>
 );
 
-export default function AllFilmsSection() {
+export default function BrowseAllListsSection() {
   return (
     <section className="w-full bg-brand-dark pt-16 lg:pt-24 pb-16 lg:pb-24">
       <div className="section-container">
+        <h2 className="mb-8 lg:mb-10 font-manrope font-light text-brand-light opacity-90 text-[32px] leading-[40px] lg:text-[48px] lg:leading-[56px] tracking-[0.06em]">
+          Browse <span className="text-brand-gold">Lists</span>
+        </h2>
+
+        {/* Filter tabs */}
         <div className="mb-6 flex flex-wrap items-center gap-2 lg:gap-3">
           {filterTabs.map((tab) => (
             <button
@@ -47,6 +53,7 @@ export default function AllFilmsSection() {
           ))}
         </div>
 
+        {/* Filter selects */}
         <div className="mb-10 lg:mb-12 flex flex-wrap items-center gap-6">
           <label className="flex items-center gap-3">
             <span className={labelClass}>Rating</span>
@@ -88,9 +95,10 @@ export default function AllFilmsSection() {
           </label>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
-          {allFilms.map((film) => (
-            <EditorialPosterCard key={film.id} film={film} />
+        {/* Lists grid — 2 columns (5 lists per column) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 lg:gap-x-12 gap-y-10 lg:gap-y-14">
+          {browseLists.map((list, i) => (
+            <BrowseListCard key={list.id} list={list} paletteIndex={i} />
           ))}
         </div>
 

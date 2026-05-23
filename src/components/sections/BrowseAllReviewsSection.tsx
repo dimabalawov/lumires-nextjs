@@ -1,16 +1,17 @@
-import EditorialPosterCard from "@/components/ui/EditorialPosterCard";
+import ActivityCard from "@/components/ui/ActivityCard";
 import Pagination from "@/components/ui/Pagination";
-import { allFilms } from "@/data/allFilms";
+import { recentActivity } from "@/data/recentActivity";
 
 const filterTabs = [
-  { id: "all", label: "All Films", active: true },
+  { id: "all", label: "All Reviews", active: true },
+  { id: "friends", label: "From Friends", active: false },
   { id: "popular", label: "Popular", active: false },
-  { id: "top-rated", label: "Top Rated", active: false },
-  { id: "new", label: "New Releases", active: false },
+  { id: "long-form", label: "Long-form", active: false },
   { id: "first-watches", label: "First Watches", active: false },
-  { id: "hidden-gems", label: "Hidden Gems", active: false },
+  { id: "spoiler-free", label: "Spoiler-free", active: false },
 ];
 
+// Filter styling lifted from AllFilmsSection (films page).
 const selectClass =
   "appearance-none bg-transparent border border-brand-gold/30 rounded-[4px] pl-3 pr-8 py-1.5 text-brand-light font-manrope font-normal text-[13px] tracking-[0.2em] uppercase cursor-pointer hover:border-brand-gold/60 transition-colors";
 
@@ -27,10 +28,15 @@ const chevron = (
   </svg>
 );
 
-export default function AllFilmsSection() {
+export default function BrowseAllReviewsSection() {
   return (
     <section className="w-full bg-brand-dark pt-16 lg:pt-24 pb-16 lg:pb-24">
       <div className="section-container">
+        <h2 className="mb-8 lg:mb-10 font-manrope font-light text-brand-light opacity-90 text-[32px] leading-[40px] lg:text-[48px] lg:leading-[56px] tracking-[0.06em]">
+          Browse <span className="text-brand-gold">All Reviews</span>
+        </h2>
+
+        {/* Filter tabs */}
         <div className="mb-6 flex flex-wrap items-center gap-2 lg:gap-3">
           {filterTabs.map((tab) => (
             <button
@@ -47,6 +53,7 @@ export default function AllFilmsSection() {
           ))}
         </div>
 
+        {/* Filter selects */}
         <div className="mb-10 lg:mb-12 flex flex-wrap items-center gap-6">
           <label className="flex items-center gap-3">
             <span className={labelClass}>Rating</span>
@@ -56,20 +63,6 @@ export default function AllFilmsSection() {
                 <option value="5">5★</option>
                 <option value="4">4★</option>
                 <option value="3">3★+</option>
-              </select>
-              {chevron}
-            </span>
-          </label>
-
-          <label className="flex items-center gap-3">
-            <span className={labelClass}>Genres</span>
-            <span className="relative inline-block">
-              <select className={selectClass} defaultValue="all">
-                <option value="all">All</option>
-                <option value="sci-fi">Sci-Fi</option>
-                <option value="drama">Drama</option>
-                <option value="thriller">Thriller</option>
-                <option value="comedy">Comedy</option>
               </select>
               {chevron}
             </span>
@@ -88,13 +81,14 @@ export default function AllFilmsSection() {
           </label>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
-          {allFilms.map((film) => (
-            <EditorialPosterCard key={film.id} film={film} />
+        {/* Review feed */}
+        <div className="flex flex-col">
+          {recentActivity.map((review, i) => (
+            <ActivityCard key={review.id} review={review} divider={i > 0} />
           ))}
         </div>
 
-        <Pagination />
+        <Pagination className="max-w-3xl mx-auto" />
       </div>
     </section>
   );

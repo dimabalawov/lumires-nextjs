@@ -1,5 +1,10 @@
 import Button from "@/components/ui/Button";
-import { filmsHeroCopy, filmsHeroStats } from "@/data/filmsHero";
+import {
+  filmsHeroCopy,
+  filmsHeroStats,
+  type FilmsHeroCopy,
+  type FilmsHeroStat,
+} from "@/data/filmsHero";
 
 function ChevronDown() {
   return (
@@ -21,7 +26,15 @@ function ChevronDown() {
   );
 }
 
-export default function FilmsHeroSection() {
+interface FilmsHeroSectionProps {
+  copy?: FilmsHeroCopy;
+  stats?: FilmsHeroStat[];
+}
+
+export default function FilmsHeroSection({
+  copy = filmsHeroCopy,
+  stats = filmsHeroStats,
+}: FilmsHeroSectionProps = {}) {
   return (
     <section
       className="relative w-full overflow-hidden"
@@ -37,17 +50,17 @@ export default function FilmsHeroSection() {
             <div className="flex items-center gap-3 mb-6 lg:mb-8">
               <span className="block h-px w-8 bg-brand-gold" />
               <span className="font-oswald uppercase text-brand-gold text-xs lg:text-sm tracking-[0.2em]">
-                {filmsHeroCopy.eyebrow}
+                {copy.eyebrow}
               </span>
             </div>
 
             <h1 className="font-oswald font-light text-brand-light text-[72px] leading-[1.02]">
-              {filmsHeroCopy.titleLead}{" "}
-              <span className="text-brand-gold">{filmsHeroCopy.titleAccent}</span>
+              {copy.titleLead}{" "}
+              <span className="text-brand-gold">{copy.titleAccent}</span>
             </h1>
 
             <p className="mt-6 lg:mt-8 font-manrope font-light text-auth-subtitle text-base lg:text-lg leading-relaxed max-w-[460px]">
-              {filmsHeroCopy.description}
+              {copy.description}
             </p>
 
             <div className="mt-8 lg:mt-10">
@@ -56,14 +69,14 @@ export default function FilmsHeroSection() {
                 rightIcon={<ChevronDown />}
                 className="!font-manrope !font-normal !text-[24px] !tracking-normal h-auto py-3 px-6"
               >
-                {filmsHeroCopy.ctaLabel}
+                {copy.ctaLabel}
               </Button>
             </div>
           </div>
 
           {/* Right column — stats */}
           <div className="flex flex-row lg:flex-col gap-10 lg:gap-12 lg:items-end lg:pr-2">
-            {filmsHeroStats.map((stat) => (
+            {stats.map((stat) => (
               <div key={stat.label} className="flex flex-col lg:items-end">
                 <span className="font-oswald font-extralight text-brand-gold text-[56px] leading-none">
                   {stat.value}

@@ -10,7 +10,6 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col overflow-hidden">
       <div className="relative">
-        <Header />
         <HeroSection />
         <TrendingSection />
         <WeeklySection />

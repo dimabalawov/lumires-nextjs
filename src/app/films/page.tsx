@@ -17,7 +17,6 @@ export const metadata: Metadata = {
 export default function FilmsPage() {
   return (
     <main className="relative flex min-h-screen flex-col bg-brand-dark">
-      <Header />
       <FilmsHeroSection />
       <TrendingSection title="Trending" titleAccent="This Week" />
       <EditorialCollectionsSection />

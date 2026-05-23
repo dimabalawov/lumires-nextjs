@@ -26,7 +26,8 @@
       "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\dmytr\\\\OneDrive\\\\Desktop\\\\lumires-nextjs\\\\public\\\\imgs\\\\editorial\" -Force)",
       "Bash(Select-Object Name, FullName)",
       "PowerShell(if \\(Test-Path \"C:\\\\Users\\\\dmytr\\\\OneDrive\\\\Desktop\\\\lumires-nextjs\\\\public\\\\imgs\\\\editorial\"\\) { Get-ChildItem -Path \"C:\\\\Users\\\\dmytr\\\\OneDrive\\\\Desktop\\\\lumires-nextjs\\\\public\\\\imgs\\\\editorial\" -Recurse | ForEach-Object { $_.FullName } } else { Write-Host \"Directory does not exist\" })",
-      "mcp__chrome-devtools__evaluate_script"
+      "mcp__chrome-devtools__evaluate_script",
+      "Bash(netstat -ano)"
     ]
   }
 }

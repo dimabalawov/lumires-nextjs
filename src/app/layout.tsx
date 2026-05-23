@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Oswald, Geist_Mono, Manrope } from "next/font/google";
 import "@/styles/globals.css";
 import Footer from "@/components/layout/Footer";
+import Header from "@/components/layout/Header";
 
 const oswald = Oswald({
   variable: "--font-oswald",
@@ -33,6 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${oswald.variable} ${geistMono.variable} ${manrope.variable} antialiased`}>
+        <Header />
         {children}
         <Footer />
       </body>

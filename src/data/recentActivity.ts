@@ -1,0 +1,69 @@
+import type { ActivityReview } from "@/types/review";
+
+const AVATAR = "/imgs/community/softlight.png";
+
+export const recentActivity: ActivityReview[] = [
+  {
+    id: "blade-runner-2049",
+    avatarUrl: AVATAR,
+    username: "@lightandshadow",
+    rating: 5,
+    timeAgo: "1 min ago",
+    replies: 0,
+    filmTitle: "Blade Runner 2049",
+    filmHref: "#",
+    title: "Power Demands Belief.",
+    body: [
+      "What impressed me the most is how patient the film is. It doesn't rush anything, even though the scale is huge. The tension builds slowly, and when it finally releases, it feels earned. Villeneuve treats silence as a weapon — long stretches where almost nothing is said, and yet the screen feels louder than any score could make it.",
+      "There's also a strong emotional layer underneath all the visuals — especially in Paul's transformation. It's not just a hero's journey, it's something more complex and uncomfortable. By the end, you're not sure if you should be cheering for him or quietly afraid of what he's becoming.",
+    ],
+    likes: 2,
+    posterUrl: "https://image.tmdb.org/t/p/w342/gajva2L0rPYkEWjzgFlBXCAVBE5.jpg",
+  },
+  {
+    id: "dune-part-two",
+    avatarUrl: AVATAR,
+    username: "@lightandshadow",
+    rating: 4,
+    timeAgo: "6 mins ago",
+    replies: 1,
+    filmTitle: "Dune: Part Two",
+    filmHref: "#",
+    title: "Worth The IMAX Ticket. Twice.",
+    body: [
+      "Watched it on a regular screen first and thought it was great. Watched it on IMAX a week later and realized I had only seen half the film. The sound design alone is its own kind of storytelling — every dune and footstep has weight.",
+    ],
+    likes: 8,
+    posterUrl: "https://image.tmdb.org/t/p/w342/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg",
+  },
+  {
+    id: "oppenheimer",
+    avatarUrl: AVATAR,
+    username: "@lightandshadow",
+    rating: 4,
+    timeAgo: "15 mins ago",
+    replies: 1,
+    filmTitle: "Oppenheimer",
+    filmHref: "#",
+    title: "Not My Favorite.",
+    body: ["Watched it on a regular screen and thought it was mid."],
+    likes: 8,
+    posterUrl: "https://image.tmdb.org/t/p/w342/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg",
+  },
+  {
+    id: "interstellar",
+    avatarUrl: AVATAR,
+    username: "@lightandshadow",
+    rating: 5,
+    timeAgo: "32 mins ago",
+    replies: 2,
+    filmTitle: "Interstellar",
+    filmHref: "#",
+    title: "A Quiet Kind Of Awe.",
+    body: [
+      "It sneaks up on you. Half spectacle, half love letter to the people we leave behind — and somehow the math is the least of what stays with you afterwards.",
+    ],
+    likes: 14,
+    posterUrl: "https://image.tmdb.org/t/p/w342/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",
+  },
+];

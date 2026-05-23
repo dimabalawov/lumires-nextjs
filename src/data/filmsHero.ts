@@ -3,12 +3,20 @@ export interface FilmsHeroStat {
   label: string;
 }
 
+export interface FilmsHeroCopy {
+  eyebrow: string;
+  titleLead: string;
+  titleAccent: string;
+  description: string;
+  ctaLabel: string;
+}
+
 export const filmsHeroStats: FilmsHeroStat[] = [
   { value: "1.1m", label: "Films" },
   { value: "19", label: "Genres" },
 ];
 
-export const filmsHeroCopy = {
+export const filmsHeroCopy: FilmsHeroCopy = {
   eyebrow: "The Archive",
   titleLead: "Explore The",
   titleAccent: "Films.",
