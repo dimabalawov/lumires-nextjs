@@ -31,11 +31,120 @@ export interface ListCardData {
   posters: string[]; // exactly 4 poster image paths, left-to-right
 }
 
+export interface HotTakeCardData {
+  id: string;
+  image: string; // film still
+  title: string; // the hot-take headline
+  author: string; // handle without leading "@"
+  date: string; // pre-formatted, e.g. "MAY 02 · 2026"
+  replies: string; // pre-formatted, e.g. "1.2k"
+}
+
+export interface WeeklyQuote {
+  id: string;
+  text: string; // normal case; the featured quote is capitalized via CSS
+  author: string; // handle without leading "@"
+  film: string;
+}
+
+export interface DirectorCardData {
+  id: string;
+  name: string;
+  image: string;
+  mentions: string; // pre-formatted, e.g. "1.8k"
+  currentFilm: string; // film "currently discussed"
+}
+
+export interface DirectorApiResponse {
+  directorId: number;
+  lang: string;
+  biography: string;
+  birthday: string | null; // YYYY-MM-DD
+  deathday: string | null; // YYYY-MM-DD
+  gender: number;
+  placeOfBirth: string | null;
+  profilePath: string | null; // TMDB path, e.g. "/abc.jpg"
+}
+
+export interface DirectorStats {
+  featureFilms: number;
+  avgRating: number; // e.g. 4.4
+  reviewsCount: string; // pre-formatted, e.g. "28.7K"
+}
+
+export interface DirectorProfile {
+  id: number;
+  slug: string;
+  name: string;
+  imageUrl: string | null; // resolved (TMDB)
+  birthYear: number | null;
+  deathYear: number | null;
+  birthplace: string | null;
+  bio: string;
+  stats: DirectorStats;
+}
+
+export interface ActiveMember {
+  id: string;
+  username: string; // with leading "@"
+  avatarUrl: string;
+  reviews: number;
+  films: number;
+}
+
+export interface PopularMember {
+  id: string;
+  rank: string; // e.g. "01"
+  username: string; // with leading "@"
+  quote: string; // short, shown uppercase
+  replies: string; // pre-formatted, e.g. "324"
+}
+
+export interface EditorialReply {
+  id: string;
+  username: string; // with leading "@"
+  replyTo: string; // with leading "@"
+  avatarUrl: string;
+  date: string; // pre-formatted, e.g. "MAY 02 · 2026"
+  text: string;
+  likes: string; // pre-formatted, e.g. "186"
+}
+
+export interface EditorialPick {
+  image: string; // hero still
+  title: string;
+  body: string;
+  author: string; // handle without leading "@"
+  date: string; // pre-formatted, e.g. "MAY 02 · 2026"
+  replies: string; // pre-formatted, e.g. "1.2k"
+  views: string; // pre-formatted, e.g. "58.2k"
+  topReplies: EditorialReply[];
+}
+
 export interface CommunityReply {
   username: string;
   replyTo: string;
   avatarUrl: string;
   text: string;
+}
+
+export interface UserProfileStats {
+  totalFilmsRated: string; // pre-formatted, e.g. "2,341"
+  listsCreated: string; // e.g. "8"
+  reviewsWritten: string; // e.g. "187"
+  joined: string; // e.g. "Mar 2021"
+}
+
+export interface UserProfile {
+  slug: string;
+  username: string; // with leading "@"
+  avatarUrl: string;
+  tagline: string; // shown uppercase under the username
+  bio: string; // multi-paragraph, "\n\n" separated
+  followers: string; // pre-formatted, e.g. "120"
+  following: string; // pre-formatted, e.g. "342"
+  friends: string; // pre-formatted, e.g. "12" (mobile-only stat row)
+  stats: UserProfileStats;
 }
 
 export interface CommunityThread {

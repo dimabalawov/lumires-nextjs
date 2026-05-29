@@ -2,10 +2,26 @@ import FilmColumn from "@/components/ui/FilmColumn";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { mostReviewedFilms, topRatedFilms } from "@/data/weeklyFilms";
 
-export default function WeeklySection() {
+interface WeeklySectionProps {
+  title?: string;
+  titleAccent?: string;
+}
+
+export default function WeeklySection({
+  title = "This Week in Cinema",
+  titleAccent,
+}: WeeklySectionProps = {}) {
   return (
     <section className="w-full pt-16 lg:pt-24 pb-16 lg:pb-24 flex flex-col items-center bg-brand-dark">
-      <SectionHeader title="This Week in Cinema" />
+      {titleAccent ? (
+        <div className="section-container mb-8 lg:mb-12">
+          <h2 className="font-manrope font-light text-brand-light opacity-90 text-[32px] leading-[40px] lg:text-[48px] lg:leading-[56px] tracking-[0.06em]">
+            {title} <span className="text-brand-gold">{titleAccent}</span>
+          </h2>
+        </div>
+      ) : (
+        <SectionHeader title={title} />
+      )}
 
       <div
         className="section-container rounded-md flex flex-col lg:flex-row gap-6 lg:gap-[47px] px-5 py-6 lg:px-[49px] lg:pt-[30px] lg:pb-[44px]"

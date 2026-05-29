@@ -13,12 +13,30 @@ function ThreadColumn({ threads }: { threads: CommunityThread[] }) {
   );
 }
 
-export default function CommunitySection() {
+interface CommunitySectionProps {
+  title?: string;
+  titleAccent?: string;
+  uppercaseTitle?: boolean;
+}
+
+export default function CommunitySection({
+  title = "Thoughts from the community",
+  titleAccent,
+  uppercaseTitle = true,
+}: CommunitySectionProps = {}) {
   return (
     <section className="w-full pt-24 pb-24 flex flex-col items-center bg-brand-dark">
       <div className="section-container mb-8 lg:mb-12 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-end">
-        <h2 className="uppercase font-manrope font-light text-[24px] lg:text-[48px] leading-[1.333em] tracking-[0.06em] text-[#DCD8D3] opacity-90">
-          Thoughts from the community
+        <h2
+          className={`${uppercaseTitle ? "uppercase" : ""} font-manrope font-light text-[24px] lg:text-[48px] leading-[1.333em] tracking-[0.06em] text-[#DCD8D3] opacity-90`}
+        >
+          {title}
+          {titleAccent ? (
+            <>
+              {" "}
+              <span className="text-brand-gold">{titleAccent}</span>
+            </>
+          ) : null}
         </h2>
         <Link
           href="#"

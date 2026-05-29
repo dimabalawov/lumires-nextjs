@@ -11,3 +11,10 @@ export const LIST_STRIP_RATIO = 2.05; // poster-strip width : height
 export const LIST_GAP = 40;
 export const LIST_SIDE_SCALE = 0.84;
 export const LIST_VIEWPORT_H = 520;
+
+// Hot-takes carousel (still + headline cards) — see HotTakeCard / HotTakesCarouselSection
+export const HOTTAKE_CARD_W = 562;
+export const HOTTAKE_GAP = 40;
+export const HOTTAKE_SIDE_SCALE = 0.84;
+export const HOTTAKE_SIDE_OPACITY = 0.55;
+export const HOTTAKE_VIEWPORT_H = 540;

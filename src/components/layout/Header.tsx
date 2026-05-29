@@ -6,6 +6,7 @@ import { NavLink } from "@/types/nav";
 import { createClient } from "@/lib/supabase/client";
 import { signOut } from "@/lib/actions/auth";
 import type { User } from "@supabase/supabase-js";
+import Logo from "@/components/ui/Logo";
 
 const navLinks: NavLink[] = [
   { label: "FILMS", href: "/films" },
@@ -45,9 +46,10 @@ export default function Header() {
       <nav className="relative section-container flex items-center justify-between py-5">
         <Link
           href="/"
-          className="text-brand-gold uppercase font-light text-[18px] tracking-[0.2em] hover:opacity-70 transition-opacity"
+          aria-label="Lumieres home"
+          className="inline-flex items-center hover:opacity-70 transition-opacity"
         >
-          LOGO
+          <Logo />
         </Link>
 
         {/* Desktop nav */}
