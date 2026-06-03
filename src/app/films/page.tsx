@@ -7,7 +7,7 @@ import EditorialCollectionsSection from "@/components/sections/EditorialCollecti
 import MostReviewedSection from "@/components/sections/MostReviewedSection";
 import CollectionsSection from "@/components/sections/CollectionsSection";
 import AllFilmsSection from "@/components/sections/AllFilmsSection";
-import { getThisWeekPopular } from "@/lib/api/films";
+import { getThisWeekMostReviewed } from "@/lib/api/films";
 import { tmdbImage } from "@/lib/images/tmdb";
 import type { FilmCardData } from "@/types/film";
 
@@ -19,13 +19,15 @@ export const metadata: Metadata = {
 
 async function getTrendingFilms(): Promise<FilmCardData[] | undefined> {
   try {
-    const { items } = await getThisWeekPopular();
+    const { items } = await getThisWeekMostReviewed();
     if (!items?.length) return undefined; // fall back to static demo data
     return items.map((item) => ({
       id: String(item.externalId),
       title: item.title,
       image: tmdbImage(item.backdropPath, "w780") ?? "",
-      year: item.releaseYear ? String(item.releaseYear) : undefined,
+      quote: item.quote ?? undefined,
+      reviewer: item.reviewerName || undefined,
+      rating: item.rating ?? undefined,
     }));
   } catch {
     return undefined;
