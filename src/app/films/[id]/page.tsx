@@ -28,8 +28,8 @@ export async function generateMetadata({ params }: FilmPageProps): Promise<Metad
   if (!movie) return { title: "Film not found · Lumires" };
 
   return {
-    title: `${movie.localization.title} · Lumires`,
-    description: movie.localization.overview,
+    title: `${movie.localization?.title ?? "Film"} · Lumires`,
+    description: movie.localization?.overview,
   };
 }
 
@@ -89,7 +89,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
 
   const extras = filmExtras[String(movie.id)] ?? {};
   const backdrop = tmdbImage(movie.backdropPath, "original");
-  const genres = movie.genres.items.map((g) => genreShortName[g.name] ?? g.name);
+  const genres = movie.genres?.items?.map((g) => genreShortName[g.name] ?? g.name) ?? [];
 
   const apiReviews = reviewsResponse?.results ?? [];
   const placeholderReviews: CommunityThread[] = [...leftColumnThreads, ...rightColumnThreads].map(
@@ -98,17 +98,17 @@ export default async function FilmPage({ params }: FilmPageProps) {
   const reviews = apiReviews.length > 0 ? mapReviewsToThreads(apiReviews) : placeholderReviews;
 
   const data: FilmHeroData = {
-    title: movie.localization.title,
+    title: movie.localization?.title ?? "Untitled",
     posterUrl: tmdbImage(movie.posterPath, "w500"),
     year: movie.releaseDate?.slice(0, 4),
     primaryGenre: genres[0],
     runtime: formatRuntime(movie.runtime),
     rating: extras.rating,
     tagline: extras.tagline,
-    overview: movie.localization.overview,
-    cast: movie.cast.map((c) => c.name),
+    overview: movie.localization?.overview,
+    cast: movie.cast?.map((c) => c.name) ?? [],
     genres,
-    directors: movie.directors.map((d) => d.name),
+    directors: movie.directors?.map((d) => d.name) ?? [],
     studio: movie.productionCompany,
   };
 
@@ -136,7 +136,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
           className="mb-6"
           items={[
             { label: "Films", href: "/films" },
-            { label: movie.localization.title },
+            { label: movie.localization?.title ?? "Untitled" },
           ]}
         />
         <FilmHero data={data} />
