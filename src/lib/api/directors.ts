@@ -1,21 +1,16 @@
 import "server-only";
+import { apiRequest, nullOn404 } from "./client";
 import type { DirectorApiResponse } from "@/types/film";
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_LUMIRES_API_URL ?? "https://lumires-api.supabase.win";
-
+/** GET /directors/{slug}/{id} — director biography & metadata. Returns null on 404. */
 export async function getDirector(
   slug: string,
-  id: string,
+  id: string | number,
 ): Promise<DirectorApiResponse | null> {
-  const url = `${BASE_URL}/directors/${encodeURIComponent(slug)}/${encodeURIComponent(id)}`;
-
-  const res = await fetch(url, { next: { revalidate: 3600 } });
-
-  if (res.status === 404) return null;
-  if (!res.ok) {
-    throw new Error(`getDirector(${slug}/${id}) failed: ${res.status} ${res.statusText}`);
-  }
-
-  return (await res.json()) as DirectorApiResponse;
+  return nullOn404(
+    apiRequest<DirectorApiResponse>(
+      `/directors/${encodeURIComponent(slug)}/${encodeURIComponent(String(id))}`,
+      { cache: { revalidate: 3600 } },
+    ),
+  );
 }

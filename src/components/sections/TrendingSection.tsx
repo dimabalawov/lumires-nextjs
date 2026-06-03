@@ -1,22 +1,27 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, useCallback, useEffect } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import FilmCard from "@/components/ui/FilmCard";
 import MobileFilmCard from "@/components/ui/MobileFilmCard";
-import { films } from "@/data/films";
+import { films as defaultFilms } from "@/data/films";
+import type { FilmCardData } from "@/types/film";
 import { CENTER_W, CENTER_H, GAP } from "@/constants/carousel";
 
 interface TrendingSectionProps {
   title?: string;
   titleAccent?: string;
+  films?: FilmCardData[];
 }
 
 export default function TrendingSection({
   title = "Trending in the community",
   titleAccent,
+  films = defaultFilms,
 }: TrendingSectionProps = {}) {
+  const router = useRouter();
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -44,14 +49,18 @@ export default function TrendingSection({
   }, [emblaApi, onSelect]);
 
   const handleSlideClick = useCallback(
-    (slideIndex: number) => {
+    (slideIndex: number, filmId: string) => {
       if (!emblaApi) return;
       const current = emblaApi.selectedScrollSnap();
-      if (slideIndex === current) return;
+      // Clicking the focused card opens the film; side cards scroll into focus.
+      if (slideIndex === current) {
+        router.push(`/films/${filmId}`);
+        return;
+      }
       if (slideIndex < current) emblaApi.scrollPrev();
       else emblaApi.scrollNext();
     },
-    [emblaApi]
+    [emblaApi, router]
   );
 
   return (
@@ -96,7 +105,7 @@ export default function TrendingSection({
                 key={film.id}
                 className="relative shrink-0 flex items-center justify-center"
                 style={{ flex: `0 0 ${CENTER_W}px`, width: CENTER_W, marginRight: GAP }}
-                onClick={() => handleSlideClick(i)}
+                onClick={() => handleSlideClick(i, film.id)}
               >
                 <FilmCard film={film} isCenter={i === selectedIndex} />
               </div>

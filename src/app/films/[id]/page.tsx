@@ -106,9 +106,9 @@ export default async function FilmPage({ params }: FilmPageProps) {
     rating: extras.rating,
     tagline: extras.tagline,
     overview: movie.localization.overview,
-    cast: movie.cast,
+    cast: movie.cast.map((c) => c.name),
     genres,
-    directors: movie.directors,
+    directors: movie.directors.map((d) => d.name),
     studio: movie.productionCompany,
   };
 

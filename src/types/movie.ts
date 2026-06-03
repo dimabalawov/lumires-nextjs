@@ -10,6 +10,11 @@ export interface MovieLocalization {
   overview: string;
 }
 
+export interface MoviePerson {
+  id: number;
+  name: string;
+}
+
 export interface MovieDetail {
   id: number;
   releaseDate: string;
@@ -18,10 +23,12 @@ export interface MovieDetail {
   backdropPath: string;
   localization: MovieLocalization;
   genres: { items: MovieGenre[] };
-  cast: string[];
-  directors: string[];
+  cast: MoviePerson[];
+  directors: MoviePerson[];
   productionCompany: string;
   runtime: number;
+  voteAverage?: number;
+  voteCount?: number;
   // Not yet exposed by the Lumires API; filled in by FILM_EXTRAS fallback in the page for now.
   tagline?: string;
   rating?: number;

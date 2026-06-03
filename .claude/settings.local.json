@@ -29,7 +29,13 @@
       "mcp__chrome-devtools__evaluate_script",
       "Bash(netstat -ano)",
       "Bash(rm \"C:/Users/dmytr/OneDrive/Desktop/lumires-nextjs/src/app/directors/[slug]/page.tsx\" \"C:/Users/dmytr/OneDrive/Desktop/lumires-nextjs/src/app/directors/[slug]/not-found.tsx\")",
-      "Bash(mkdir -p \"C:/Users/dmytr/OneDrive/Desktop/lumires-nextjs/src/app/directors/[slug]/[id]\")"
+      "Bash(mkdir -p \"C:/Users/dmytr/OneDrive/Desktop/lumires-nextjs/src/app/directors/[slug]/[id]\")",
+      "WebFetch(domain:lumires-api.supabase.win)",
+      "Bash(echo '__TRACKED_VAR__  /__TRACKED_VAR__')",
+      "Bash(node -e \"const s=require\\('/tmp/lumires-openapi.json'\\); const paths=s.paths||{}; for\\(const p of Object.keys\\(paths\\)\\){for\\(const m of Object.keys\\(paths[p]\\)\\){const op=paths[p][m]; console.log\\(m.toUpperCase\\(\\).padEnd\\(6\\), p, '   ::', op.tags?\\('['+op.tags.join\\(','\\)+'] '\\):'', op.summary||op.operationId||''\\)}}\")",
+      "Bash(node *)",
+      "Bash(echo \"HTTP: $\\(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/films\\)\")",
+      "Bash(git diff *)"
     ]
   }
 }

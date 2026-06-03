@@ -1,10 +1,14 @@
 export interface FilmCardData {
   id: string;
   title: string;
-  quote: string;
-  reviewer: string;
   image: string;
-  rating: number;
+  // Review-centric fields — present for editorial/static cards, absent for
+  // catalogue data (e.g. /films/popular/weekly).
+  quote?: string;
+  reviewer?: string;
+  rating?: number;
+  // Shown in the meta line when no reviewer is available (e.g. "2019").
+  year?: string;
 }
 
 export interface WeeklyFilmData {

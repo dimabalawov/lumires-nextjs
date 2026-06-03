@@ -5,7 +5,8 @@ import Image from "next/image";
 
 import GradientDivider from "@/components/ui/GradientDivider";
 import StarRating from "@/components/ui/StarRating";
-import { popularReviews } from "@/data/popularReviews";
+import { popularReviews as defaultPopularReviews } from "@/data/popularReviews";
+import type { FeaturedReview } from "@/types/review";
 
 // Card fill + stroke per Figma: gold (D2A66A) gradient 10%→0% over dark, 1px gold @18% inside stroke.
 const CARD_GRADIENT =
@@ -68,10 +69,16 @@ function CommentIcon() {
 const arrowClasses =
   "absolute top-1/2 -translate-y-1/2 z-10 size-10 rounded-full border border-brand-gold/60 text-brand-gold flex items-center justify-center hover:bg-brand-gold hover:text-brand-dark transition-colors";
 
-export default function PopularReviewsSection() {
+interface PopularReviewsSectionProps {
+  reviews?: FeaturedReview[];
+}
+
+export default function PopularReviewsSection({
+  reviews = defaultPopularReviews,
+}: PopularReviewsSectionProps = {}) {
   const [index, setIndex] = useState(0);
-  const review = popularReviews[index];
-  const total = popularReviews.length;
+  const review = reviews[index];
+  const total = reviews.length;
 
   const prev = () => setIndex((i) => (i - 1 + total) % total);
   const next = () => setIndex((i) => (i + 1) % total);

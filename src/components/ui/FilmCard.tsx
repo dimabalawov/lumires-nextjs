@@ -10,9 +10,10 @@ interface FilmCardProps {
 }
 
 export default function FilmCard({ film, isCenter }: FilmCardProps) {
+  const meta = film.reviewer ? `Review by ${film.reviewer}` : film.year;
   return (
     <div
-      className={`relative shrink-0 group overflow-hidden ${isCenter ? "cursor-default" : "cursor-pointer"}`}
+      className="relative shrink-0 group overflow-hidden cursor-pointer"
       style={{
         width: CENTER_W,
         height: isCenter ? CENTER_H : SIDE_H,
@@ -21,13 +22,17 @@ export default function FilmCard({ film, isCenter }: FilmCardProps) {
     >
       {/* Image + gradient overlays */}
       <div className="absolute inset-0 z-0 border border-white/5 overflow-hidden">
-        <Image
-          src={film.image}
-          alt={film.title}
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-          sizes={isCenter ? `${CENTER_W}px` : `${SIDE_W}px`}
-        />
+        {film.image ? (
+          <Image
+            src={film.image}
+            alt={film.title}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            sizes={isCenter ? `${CENTER_W}px` : `${SIDE_W}px`}
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-brand-dark to-[#1d1a17]" />
+        )}
         <div
           className="absolute inset-0 bg-gradient-to-tl from-brand-dark via-brand-dark/40 to-transparent"
           style={{ opacity: isCenter ? 0.9 : 0, transition: "opacity 0.5s" }}
@@ -55,16 +60,20 @@ export default function FilmCard({ film, isCenter }: FilmCardProps) {
           <h3 className="uppercase text-brand-gold font-oswald font-normal tracking-[0.06em] leading-[48px] text-[40px]">
             {film.title}
           </h3>
-          <p className="text-brand-muted font-manrope text-[18px] italic leading-[24.6px] mt-4 mb-6">
-            {film.quote}
-          </p>
-          <StarRating count={film.rating} />
+          {film.quote ? (
+            <p className="text-brand-muted font-manrope text-[18px] italic leading-[24.6px] mt-4 mb-6">
+              {film.quote}
+            </p>
+          ) : null}
+          {film.rating != null ? <StarRating count={film.rating} /> : null}
         </div>
 
         <div className="flex flex-col items-end">
-          <div className="text-[14px] text-brand-muted font-manrope leading-[19px] mb-2">
-            Review by {film.reviewer}
-          </div>
+          {meta ? (
+            <div className="text-[14px] text-brand-muted font-manrope leading-[19px] mb-2">
+              {meta}
+            </div>
+          ) : null}
           <Link
             href={`/films/${film.id}`}
             className="uppercase text-brand-light font-oswald font-light text-[20px] leading-[48px] tracking-[0.06em] hover:opacity-70 transition-opacity flex items-center gap-2"
@@ -88,15 +97,19 @@ export default function FilmCard({ film, isCenter }: FilmCardProps) {
           <h3 className="uppercase text-brand-gold font-oswald font-normal tracking-[0.06em] leading-[48px] text-[24px]">
             {film.title}
           </h3>
-          <p className="text-brand-muted text-[11px] italic leading-[15px] font-manrope mt-2 mb-6">
-            {film.quote}
-          </p>
-          <StarRating count={film.rating} />
+          {film.quote ? (
+            <p className="text-brand-muted text-[11px] italic leading-[15px] font-manrope mt-2 mb-6">
+              {film.quote}
+            </p>
+          ) : null}
+          {film.rating != null ? <StarRating count={film.rating} /> : null}
 
           <div className="flex flex-col items-end mt-[69px]">
-            <div className="text-[11px] leading-[15px] font-manrope text-brand-muted mb-1">
-              Review by {film.reviewer}
-            </div>
+            {meta ? (
+              <div className="text-[11px] leading-[15px] font-manrope text-brand-muted mb-1">
+                {meta}
+              </div>
+            ) : null}
             <Link
               href={`/films/${film.id}`}
               className="uppercase text-brand-light font-oswald font-light text-[15px] leading-[23px] tracking-[0.06em] hover:opacity-70 transition-opacity flex items-center gap-1.5"

@@ -1,21 +1,14 @@
 import "server-only";
 import type { MovieDetail } from "@/types/movie";
+import { getFilm } from "./films";
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_LUMIRES_API_URL ?? "https://lumires-api.supabase.win";
-
+/**
+ * GET /films/-/{id} — full film detail by numeric id.
+ * Thin wrapper around {@link getFilm} kept for existing call sites.
+ */
 export async function getMovie(
   id: string,
   _locale: string = "en-US",
 ): Promise<MovieDetail | null> {
-  const url = `${BASE_URL}/films/-/${encodeURIComponent(id)}`;
-
-  const res = await fetch(url, { next: { revalidate: 3600 } });
-
-  if (res.status === 404) return null;
-  if (!res.ok) {
-    throw new Error(`getMovie(${id}) failed: ${res.status} ${res.statusText}`);
-  }
-
-  return (await res.json()) as MovieDetail;
+  return getFilm(id);
 }
