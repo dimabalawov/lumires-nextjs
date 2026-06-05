@@ -12,26 +12,35 @@ const r16   = p("Rectangle 16");
 const r17   = p("Rectangle 17");
 const r18   = p("Rectangle 18");
 
-// 5 entries per list — index 2 (middle) is the featured/center image.
+// 5 entries per list — index 0 is the featured (wide) image; the rest peek out
+// as right-side strips.
 export const appearsInLists: CollectionData[] = [
   {
     id: "slow-cinema-evenings",
     title: "Slow Cinema Evenings",
     films: [r17, r18, r13, r14, r15],
+    filmCount: 43,
+    author: "velvetcinema",
   },
   {
     id: "modern-sci-fi-essentials",
     title: "Modern Sci-Fi Essentials",
     films: [r15, r16, r13_1, r17, r18],
+    filmCount: 28,
+    author: "cosmicframe",
   },
   {
     id: "films-about-power-and-destiny",
     title: "Films About Power And Destiny",
     films: [r13, r14, r13_2, r15, r16],
+    filmCount: 31,
+    author: "ironcanon",
   },
   {
     id: "epic-worlds",
     title: "Epic Worlds",
     films: [r14, r15, r13_3, r17, r18],
+    filmCount: 56,
+    author: "vastreel",
   },
 ];

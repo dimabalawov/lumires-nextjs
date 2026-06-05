@@ -23,11 +23,21 @@ export interface DirectorMostDiscussed {
   topReplies: EditorialReply[];
 }
 
-// Portraits live in /public/imgs/directors (image 21 variants); mapped in order.
-export const discussedDirectors: DirectorCardData[] = [
+// Discussed-director roster for the "Most Discussed Directors This Week" section.
+// `mentions` here is the fallback/seed value used until an admin overrides it in
+// the discussed_directors Supabase table; the section sorts by it descending.
+// The first three use local portraits in /public/imgs/directors; the rest use
+// TMDB profile images (profilePath verified live against the Lumires director API).
+const TMDB_PROFILE = (path: string) => `https://image.tmdb.org/t/p/w500${path}`;
+
+/** Roster entry: display fields + the TMDB person id used to sync popularity. */
+export type DiscussedDirectorSeed = DirectorCardData & { tmdbId?: number };
+
+export const discussedDirectors: DiscussedDirectorSeed[] = [
   {
     id: "paul-thomas-anderson",
     name: "Paul Thomas Anderson",
+    tmdbId: 4762,
     image: "/imgs/directors/image 21.png",
     mentions: "1.8k",
     currentFilm: "There Will Be Blood",
@@ -35,6 +45,7 @@ export const discussedDirectors: DirectorCardData[] = [
   {
     id: "denis-villeneuve",
     name: "Denis Villeneuve",
+    tmdbId: 137427,
     image: "/imgs/directors/image 21 (1).png",
     mentions: "2.4k",
     currentFilm: "Dune: Part Two",
@@ -42,9 +53,98 @@ export const discussedDirectors: DirectorCardData[] = [
   {
     id: "david-lynch",
     name: "David Lynch",
+    tmdbId: 5602,
     image: "/imgs/directors/image 21 (2).png",
     mentions: "1.5k",
     currentFilm: "Mulholland Drive",
+  },
+  {
+    id: "christopher-nolan",
+    name: "Christopher Nolan",
+    tmdbId: 525,
+    image: TMDB_PROFILE("/xuAIuYSmsUzKlUMBFGVZaWsY3DZ.jpg"),
+    mentions: "3.4k",
+    currentFilm: "Oppenheimer",
+  },
+  {
+    id: "bong-joon-ho",
+    name: "Bong Joon-ho",
+    tmdbId: 21684,
+    image: TMDB_PROFILE("/stwnTvZAoD8gEJEDHpDQyLCyDy5.jpg"),
+    mentions: "2.9k",
+    currentFilm: "Parasite",
+  },
+  {
+    id: "quentin-tarantino",
+    name: "Quentin Tarantino",
+    tmdbId: 138,
+    image: TMDB_PROFILE("/1gjcpAa99FAOWGnrUvHEXXsRs7o.jpg"),
+    mentions: "2.6k",
+    currentFilm: "Pulp Fiction",
+  },
+  {
+    id: "hayao-miyazaki",
+    name: "Hayao Miyazaki",
+    tmdbId: 608,
+    image: TMDB_PROFILE("/ouhjt9KugzhWtdEyBPipihB3ic8.jpg"),
+    mentions: "2.3k",
+    currentFilm: "The Boy and the Heron",
+  },
+  {
+    id: "wes-anderson",
+    name: "Wes Anderson",
+    tmdbId: 5655,
+    image: TMDB_PROFILE("/s03CeUeC5yAXyB1acqP0zGNo2SC.jpg"),
+    mentions: "2.1k",
+    currentFilm: "Asteroid City",
+  },
+  {
+    id: "guillermo-del-toro",
+    name: "Guillermo del Toro",
+    tmdbId: 10828,
+    image: TMDB_PROFILE("/gldeyCtKcaqnK1v4Vu9vqayhzUQ.jpg"),
+    mentions: "1.9k",
+    currentFilm: "Pinocchio",
+  },
+  {
+    id: "steven-spielberg",
+    name: "Steven Spielberg",
+    tmdbId: 488,
+    image: TMDB_PROFILE("/tZxcg19YQ3e8fJ0pOs7hjlnmmr6.jpg"),
+    mentions: "1.7k",
+    currentFilm: "The Fabelmans",
+  },
+  {
+    id: "stanley-kubrick",
+    name: "Stanley Kubrick",
+    tmdbId: 240,
+    image: TMDB_PROFILE("/yFT0VyIelI9aegZrsAwOG5iVP4v.jpg"),
+    mentions: "1.6k",
+    currentFilm: "The Shining",
+  },
+  {
+    id: "francis-ford-coppola",
+    name: "Francis Ford Coppola",
+    tmdbId: 1776,
+    image: TMDB_PROFILE("/IwGgkmW6IoJ9vuNF0T9CU3FYUX.jpg"),
+    mentions: "1.3k",
+    currentFilm: "Megalopolis",
+  },
+  {
+    id: "alfred-hitchcock",
+    name: "Alfred Hitchcock",
+    tmdbId: 2636,
+    image: TMDB_PROFILE("/108fiNM6poRieMg7RIqLJRxdAwG.jpg"),
+    mentions: "1.2k",
+    currentFilm: "Psycho",
+  },
+  {
+    id: "ridley-scott",
+    name: "Ridley Scott",
+    tmdbId: 578,
+    image: TMDB_PROFILE("/97SO7H0UlS3racqjeW5JTy8c6GM.jpg"),
+    mentions: "1.1k",
+    currentFilm: "Napoleon",
   },
 ];
 

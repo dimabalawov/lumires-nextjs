@@ -5,6 +5,9 @@ export interface MostReviewedFilm {
   rating: number;
   reviewer: string;
   still: string;
+  // Link to the full review page (/review/{reviewId}). Absent for static/demo
+  // cards or when the backing review id can't be resolved.
+  href?: string;
 }
 
 const interstellar = "/imgs/trending/interstellar.jpg";

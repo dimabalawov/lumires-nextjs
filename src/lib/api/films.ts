@@ -5,9 +5,11 @@ import {
   FilmContentFilter,
   FilmContentOrder,
   RatingEnum,
+  type FilmsResponse,
   type FilmSourcesResponse,
   type FilmsSummary,
   type RateFilmCommand,
+  type SimilarFilmsResponse,
   type WeeklyReviewedResponse,
   type WeeklyPopularResponse,
   type WeeklyRecentResponse,
@@ -28,13 +30,21 @@ export interface GetFilmsParams {
 
 /**
  * GET /films — paginated, filterable film catalogue.
- * The API does not document the 200 body, so the result is returned untyped.
+ * `genres` is sent as a comma-separated list (the API accepts repeated keys or
+ * a single joined string); empty/zero filters mean "all".
  */
 export async function getFilms(
   { rating, content, genres, sortBy, page = 1, pageSize = 24 }: GetFilmsParams = {},
-): Promise<unknown> {
-  return apiRequest<unknown>("/films", {
-    query: { rating, content, genres, sortBy, page, pageSize },
+): Promise<FilmsResponse> {
+  return apiRequest<FilmsResponse>("/films", {
+    query: {
+      rating,
+      content,
+      genres: genres?.length ? genres.join(",") : undefined,
+      sortBy,
+      page,
+      pageSize,
+    },
     cache: { revalidate: 300 },
   });
 }
@@ -70,15 +80,15 @@ export async function getFilmSources(
   );
 }
 
-/** GET /films/{slug}/{id}/similar — related films (auth required). Undocumented body. */
+/** GET /films/{slug}/{id}/similar — related films. Served anonymously. */
 export async function getSimilarFilms(
   id: string | number,
   slug: string = DEFAULT_SLUG,
-): Promise<unknown> {
+): Promise<SimilarFilmsResponse | null> {
   return nullOn404(
-    apiRequest<unknown>(
+    apiRequest<SimilarFilmsResponse>(
       `/films/${encodeURIComponent(slug)}/${encodeURIComponent(String(id))}/similar`,
-      { auth: true, cache: { revalidate: 3600 } },
+      { cache: { revalidate: 3600 } },
     ),
   );
 }

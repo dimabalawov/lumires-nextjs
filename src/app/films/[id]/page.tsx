@@ -9,12 +9,15 @@ import FilmReviewsSection from "@/components/sections/FilmReviewsSection";
 import AppearsInListsSection from "@/components/sections/AppearsInListsSection";
 import SimilarFilmsSection from "@/components/sections/SimilarFilmsSection";
 import { appearsInLists } from "@/data/appearsInLists";
-import { films as similarFilms } from "@/data/films";
+import { allFilms } from "@/data/allFilms";
 import { getMovie } from "@/lib/api/movies";
+import { getSimilarFilms } from "@/lib/api/films";
 import { getFilmReviews } from "@/lib/api/reviews";
 import { tmdbImage } from "@/lib/images/tmdb";
 import { filmExtras, genreShortName } from "@/data/filmExtras";
 import { leftColumnThreads, rightColumnThreads } from "@/data/communityThreads";
+import type { SimilarFilmItem } from "@/types/api";
+import type { EditorialFilm } from "@/data/editorialCollections";
 import type { CommunityThread } from "@/types/film";
 import type { Review } from "@/types/review";
 
@@ -52,40 +55,60 @@ const REVIEW_BORDER_VARIANTS = [
 ];
 const FALLBACK_AVATAR = "/imgs/community/noirviewer.png";
 
-function mapReviewsToThreads(reviews: Review[]): CommunityThread[] {
+function mapReviewsToThreads(reviews: Review[], filmId: string): CommunityThread[] {
   return reviews.map((r, i) => ({
     id: String(r.id),
-    username: r.username,
+    username: r.username.startsWith("@") ? r.username : `@${r.username}`,
     avatarUrl: r.avatarUrl || FALLBACK_AVATAR,
+    href: `/review/${encodeURIComponent(r.id)}?film=${encodeURIComponent(filmId)}`,
     text: r.text,
-    replies: r.replies,
-    likes: r.likes,
-    reply: r.topReply
-      ? {
-          username: r.topReply.username,
-          replyTo: r.username,
-          avatarUrl: r.topReply.avatarUrl || FALLBACK_AVATAR,
-          text: r.topReply.text,
-        }
-      : {
-          username: "",
-          replyTo: r.username,
-          avatarUrl: FALLBACK_AVATAR,
-          text: "",
-        },
+    replies: r.repliesCount ?? 0,
+    likes: r.likesCount ?? 0,
+    reply: {
+      username: "",
+      replyTo: r.username,
+      avatarUrl: FALLBACK_AVATAR,
+      text: "",
+    },
     bgGradient: REVIEW_BG_VARIANTS[i % 2],
     borderGradient: REVIEW_BORDER_VARIANTS[i % 2],
   }));
 }
 
+function genreName(genre: SimilarFilmItem["genres"][number] | undefined): string {
+  if (!genre) return "";
+  if (typeof genre === "string") return genre;
+  return genre.name ?? "";
+}
+
+function mapSimilarToCards(items: SimilarFilmItem[]): EditorialFilm[] {
+  return items.map((f) => ({
+    id: String(f.externalId),
+    title: f.title,
+    poster: tmdbImage(f.posterPath, "w500") ?? "",
+    year: f.releaseYear != null ? String(f.releaseYear) : "",
+    // The API documents genres as string[] but actually returns {id, name}
+    // objects; pull the name so we never render an object into the card.
+    genre: genreName(f.genres?.[0]),
+    // API rating is a 0–10 vote average; the card renders an out-of-5 score
+    // (halves preserved, e.g. 8.6 → 4.5).
+    rating: f.rating != null ? Math.round(f.rating) / 2 : 0,
+  }));
+}
+
 export default async function FilmPage({ params }: FilmPageProps) {
   const { id } = await params;
-  const [movie, reviewsResponse] = await Promise.all([
+  const [movie, reviewsResponse, similarResponse] = await Promise.all([
     getMovie(id),
     getFilmReviews(id, { pageSize: 6 }).catch(() => null),
+    getSimilarFilms(id).catch(() => null),
   ]);
 
   if (!movie) notFound();
+
+  const apiSimilar = similarResponse?.films ?? [];
+  const similarFilms =
+    apiSimilar.length > 0 ? mapSimilarToCards(apiSimilar.slice(0, 12)) : allFilms.slice(0, 12);
 
   const extras = filmExtras[String(movie.id)] ?? {};
   const backdrop = tmdbImage(movie.backdropPath, "original");
@@ -95,7 +118,7 @@ export default async function FilmPage({ params }: FilmPageProps) {
   const placeholderReviews: CommunityThread[] = [...leftColumnThreads, ...rightColumnThreads].map(
     ({ filmTitle: _unused, ...rest }) => rest,
   );
-  const reviews = apiReviews.length > 0 ? mapReviewsToThreads(apiReviews) : placeholderReviews;
+  const reviews = apiReviews.length > 0 ? mapReviewsToThreads(apiReviews, id) : placeholderReviews;
 
   const data: FilmHeroData = {
     title: movie.localization?.title ?? "Untitled",

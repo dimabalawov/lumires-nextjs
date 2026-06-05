@@ -1,100 +1,96 @@
+import Link from "next/link";
 import EditorialPosterCard from "@/components/ui/EditorialPosterCard";
 import Pagination from "@/components/ui/Pagination";
+import FilmFilters from "@/components/sections/FilmFilters";
+import { getFilms } from "@/lib/api/films";
+import { getGenres } from "@/lib/api/genres";
+import { tmdbImage } from "@/lib/images/tmdb";
 import { allFilms } from "@/data/allFilms";
+import type { EditorialFilm } from "@/data/editorialCollections";
+import type { FilmCatalogueItem } from "@/types/api";
 
-const filterTabs = [
-  { id: "all", label: "All Films", active: true },
-  { id: "popular", label: "Popular", active: false },
-  { id: "top-rated", label: "Top Rated", active: false },
-  { id: "new", label: "New Releases", active: false },
-  { id: "first-watches", label: "First Watches", active: false },
-  { id: "hidden-gems", label: "Hidden Gems", active: false },
-];
+const PAGE_SIZE = 20;
 
-const selectClass =
-  "appearance-none bg-transparent border border-brand-gold/30 rounded-[4px] pl-3 pr-8 py-1.5 text-brand-light font-manrope font-normal text-[13px] tracking-[0.2em] uppercase cursor-pointer hover:border-brand-gold/60 transition-colors";
+function toInt(value: string | undefined, fallback = 0): number {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : fallback;
+}
 
-const labelClass =
-  "uppercase text-brand-muted text-[12px] tracking-[0.18em] font-manrope font-normal";
+function mapToCards(items: FilmCatalogueItem[]): EditorialFilm[] {
+  return items.map((f) => ({
+    id: String(f.id),
+    title: f.title,
+    poster: tmdbImage(f.posterPath, "w500") ?? "",
+    year: f.releaseYear != null ? String(f.releaseYear) : "",
+    genre: f.genres?.[0] ?? "",
+    // API voteAverage is 0–10; the card renders an out-of-5 score.
+    rating: f.voteAverage ? Math.round(f.voteAverage) / 2 : 0,
+  }));
+}
 
-const chevron = (
-  <svg
-    aria-hidden
-    viewBox="0 0 12 8"
-    className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-2 w-3 text-brand-muted"
-  >
-    <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="1.2" fill="none" />
-  </svg>
-);
+interface AllFilmsSectionProps {
+  searchParams?: Record<string, string | string[] | undefined>;
+}
 
-export default function AllFilmsSection() {
+export default async function AllFilmsSection({ searchParams = {} }: AllFilmsSectionProps) {
+  const read = (key: string) => {
+    const v = searchParams[key];
+    return Array.isArray(v) ? v[0] : v;
+  };
+
+  const content = toInt(read("content"));
+  const rating = toInt(read("rating"));
+  const sortBy = toInt(read("sortBy"));
+  const genre = read("genres") ?? "";
+  const requestedPage = Math.max(1, toInt(read("page"), 1));
+
+  const [filmsResult, genresResult] = await Promise.all([
+    getFilms({
+      content,
+      rating,
+      sortBy,
+      genres: genre ? [genre] : undefined,
+      page: requestedPage,
+      pageSize: PAGE_SIZE,
+    }).catch(() => null),
+    getGenres().catch(() => null),
+  ]);
+
+  const apiFilms = filmsResult?.results ?? [];
+  const films = apiFilms.length > 0 ? mapToCards(apiFilms) : allFilms; // static demo on API failure
+  const isLive = apiFilms.length > 0;
+  const currentPage = filmsResult?.page ?? requestedPage;
+  const totalPages = filmsResult?.totalPages ?? 1;
+  const genreNames = genresResult?.genres?.map((g) => g.name) ?? [];
+
   return (
     <section className="w-full bg-brand-dark pt-16 lg:pt-24 pb-16 lg:pb-24">
       <div className="section-container">
-        <div className="mb-6 flex flex-wrap items-center gap-2 lg:gap-3">
-          {filterTabs.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              className={
-                tab.active
-                  ? "border border-brand-gold/45 text-brand-gold uppercase font-manrope font-normal text-[13px] tracking-[0.2em] px-[18px] py-[10px] rounded-[4px]"
-                  : "border border-transparent text-brand-light hover:opacity-70 uppercase font-manrope font-normal text-[13px] tracking-[0.2em] px-[18px] py-[10px] rounded-[4px] transition-opacity"
-              }
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <FilmFilters value={{ content, rating, sortBy, genre }} genres={genreNames} />
 
-        <div className="mb-10 lg:mb-12 flex flex-wrap items-center gap-6">
-          <label className="flex items-center gap-3">
-            <span className={labelClass}>Rating</span>
-            <span className="relative inline-block">
-              <select className={selectClass} defaultValue="all">
-                <option value="all">All</option>
-                <option value="5">5★</option>
-                <option value="4">4★</option>
-                <option value="3">3★+</option>
-              </select>
-              {chevron}
-            </span>
-          </label>
+        {films.length === 0 ? (
+          <p className="py-16 text-center font-manrope font-light text-brand-muted">
+            No films match these filters.
+          </p>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 lg:gap-8">
+            {films.map((film) =>
+              isLive ? (
+                <Link
+                  key={film.id}
+                  href={`/films/${film.id}`}
+                  className="block transition-opacity hover:opacity-90"
+                >
+                  <EditorialPosterCard film={film} />
+                </Link>
+              ) : (
+                <EditorialPosterCard key={film.id} film={film} />
+              ),
+            )}
+          </div>
+        )}
 
-          <label className="flex items-center gap-3">
-            <span className={labelClass}>Genres</span>
-            <span className="relative inline-block">
-              <select className={selectClass} defaultValue="all">
-                <option value="all">All</option>
-                <option value="sci-fi">Sci-Fi</option>
-                <option value="drama">Drama</option>
-                <option value="thriller">Thriller</option>
-                <option value="comedy">Comedy</option>
-              </select>
-              {chevron}
-            </span>
-          </label>
-
-          <label className="flex items-center gap-3">
-            <span className={labelClass}>Sort</span>
-            <span className="relative inline-block">
-              <select className={selectClass} defaultValue="recent">
-                <option value="recent">Most Recent</option>
-                <option value="top">Top Rated</option>
-                <option value="oldest">Oldest</option>
-              </select>
-              {chevron}
-            </span>
-          </label>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
-          {allFilms.map((film) => (
-            <EditorialPosterCard key={film.id} film={film} />
-          ))}
-        </div>
-
-        <Pagination />
+        <Pagination page={currentPage} totalPages={totalPages} />
       </div>
     </section>
   );

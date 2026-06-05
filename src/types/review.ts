@@ -8,27 +8,68 @@ export interface ReviewReply {
   text: string;
 }
 
+// One item from GET /films/{slug}/{id}/reviews. Field names mirror the live API.
 export interface Review {
-  id: string | number;
+  id: string;
+  userId?: string;
   username: string;
-  avatarUrl: string;
+  avatarUrl: string | null;
+  title?: string | null;
   text: string;
-  replies: number;
-  likes: number;
-  topReply?: ReviewReply;
+  rating?: number | null;
+  repliesCount?: number;
+  likesCount?: number;
+  createdAt?: string; // date-time
+  isLikedByMe?: boolean;
+  isSpoilerFree?: boolean;
 }
 
 export interface ReviewsResponse {
   results: Review[];
-  totalCount: number;
+  totalResults: number;
   page: number;
   pageSize: number;
   totalPages: number;
 }
 
+// One comment/reply on a review (from GET /films/{slug}/{id}/reviews/{reviewId}
+// `comments[]`). Field names mirror the live payload. NOTE: the API currently
+// does NOT return the reply body, so `text` is optional and usually absent.
+export interface ReviewComment {
+  id: string;
+  userId?: string;
+  username: string;
+  avatarUrl: string | null;
+  text?: string | null;
+  likesCount?: number;
+  createdAt?: string; // date-time
+  targetedUserId?: string | null;
+  targetedUserUsername?: string | null;
+  isLikedByMe?: boolean;
+  isSpoilerFree?: boolean;
+}
+
+// GET /films/{slug}/{filmId}/reviews/{reviewId} — a single review with its comments.
+export interface ReviewDetail {
+  id: string;
+  userId: string;
+  username: string;
+  avatarUrl: string | null;
+  title: string | null;
+  text: string;
+  rating: number | null;
+  repliesCount: number;
+  likesCount: number;
+  createdAt: string; // date-time
+  isLikedByMe: boolean;
+  isSpoilerFree: boolean;
+  comments: ReviewComment[];
+}
+
 // Editorial featured review used in the "Popular Reviews" carousel on /reviews.
 export interface FeaturedReview {
   id: string;
+  href?: string; // link to the full review page (/review/{reviewId})
   tag: string; // "Editor's Pick"
   timeAgo: string; // "4 days ago"
   title: string;
@@ -51,6 +92,7 @@ export interface FeaturedReview {
 // Flat review item used in the "Recent Activity" feed on /reviews.
 export interface ActivityReview {
   id: string;
+  href?: string; // link to the full review page (/review/{reviewId})
   avatarUrl: string;
   username: string;
   rating: number; // 0..5

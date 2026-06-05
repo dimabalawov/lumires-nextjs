@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 import GradientDivider from "@/components/ui/GradientDivider";
 import StarRating from "@/components/ui/StarRating";
@@ -138,7 +139,13 @@ export default function PopularReviewsSection({
 
             {/* Title */}
             <h3 className="mt-4 font-oswald font-light text-brand-gold leading-[1.02] tracking-[0.01em] text-4xl lg:text-[52px]">
-              {review.title}
+              {review.href ? (
+                <Link href={review.href} className="hover:opacity-80 transition-opacity">
+                  {review.title}
+                </Link>
+              ) : (
+                review.title
+              )}
             </h3>
 
             {/* Meta */}

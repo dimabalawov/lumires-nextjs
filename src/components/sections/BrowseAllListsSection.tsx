@@ -1,4 +1,4 @@
-import BrowseListCard from "@/components/ui/BrowseListCard";
+import ListCard from "@/components/ui/ListCard";
 import Pagination from "@/components/ui/Pagination";
 import { browseLists } from "@/data/browseLists";
 
@@ -98,7 +98,7 @@ export default function BrowseAllListsSection() {
         {/* Lists grid — 2 columns (5 lists per column) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 lg:gap-x-12 gap-y-10 lg:gap-y-14">
           {browseLists.map((list, i) => (
-            <BrowseListCard key={list.id} list={list} paletteIndex={i} />
+            <ListCard key={list.id} list={list} paletteIndex={i} />
           ))}
         </div>
 

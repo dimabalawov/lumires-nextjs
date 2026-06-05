@@ -11,10 +11,14 @@ export default function Home() {
     <main className="flex min-h-screen flex-col overflow-hidden">
       <div className="relative">
         <HeroSection />
-        <TrendingSection />
-        <WeeklySection />
-        <CollectionsSection />
-        <CommunitySection />
+        <TrendingSection title="Trending In The" titleAccent="Community" />
+        <WeeklySection title="This Week In" titleAccent="Cinema" />
+        <CollectionsSection title="Lists Created By" titleAccent="Film Lovers" />
+        <CommunitySection
+          title="Reviews From The"
+          titleAccent="Community"
+          uppercaseTitle={false}
+        />
         <CTASection />
       </div>
     </main>

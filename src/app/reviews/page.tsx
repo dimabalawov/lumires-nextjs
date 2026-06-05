@@ -32,8 +32,13 @@ function formatRuntime(minutes: number | null | undefined): string {
 function toFeaturedReview(item: PopularReviewItem, i: number): FeaturedReview {
   const poster =
     tmdbImage(item.posterPath, "w780") ?? tmdbImage(item.backdropPath, "w780") ?? "";
+  const filmQuery =
+    item.externalId != null
+      ? `?film=${item.externalId}${item.slug ? `&slug=${encodeURIComponent(item.slug)}` : ""}`
+      : "";
   return {
     id: item.reviewId ?? (item.externalId != null ? String(item.externalId) : String(i)),
+    href: item.reviewId ? `/review/${encodeURIComponent(item.reviewId)}${filmQuery}` : undefined,
     tag: "Popular",
     timeAgo: "",
     title: item.filmTitle ?? item.title ?? "Untitled",

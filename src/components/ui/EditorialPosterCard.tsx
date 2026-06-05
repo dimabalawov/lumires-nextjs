@@ -1,4 +1,4 @@
-import Image from "next/image";
+import PosterImage from "@/components/ui/PosterImage";
 import type { EditorialFilm } from "@/data/editorialCollections";
 
 interface EditorialPosterCardProps {
@@ -7,13 +7,11 @@ interface EditorialPosterCardProps {
 
 export default function EditorialPosterCard({ film }: EditorialPosterCardProps) {
   return (
-    <article className="relative aspect-[167/250] w-full overflow-hidden rounded-md">
-      <Image
+    <article className="relative aspect-[167/250] w-full overflow-hidden rounded-md bg-white/[0.04]">
+      <PosterImage
         src={film.poster}
         alt={film.title}
-        fill
         sizes="(min-width: 1024px) 18vw, (min-width: 768px) 22vw, (min-width: 640px) 30vw, 45vw"
-        className="object-cover"
       />
       <div
         className="pointer-events-none absolute inset-0"

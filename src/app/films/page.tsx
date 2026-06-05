@@ -22,7 +22,7 @@ async function getTrendingFilms(): Promise<FilmCardData[] | undefined> {
     const { items } = await getThisWeekMostReviewed();
     if (!items?.length) return undefined; // fall back to static demo data
     return items.map((item) => ({
-      id: String(item.externalId),
+      id: String(item.filmId),
       title: item.title,
       image: tmdbImage(item.backdropPath, "w780") ?? "",
       quote: item.quote ?? undefined,
@@ -34,8 +34,15 @@ async function getTrendingFilms(): Promise<FilmCardData[] | undefined> {
   }
 }
 
-export default async function FilmsPage() {
-  const trendingFilms = await getTrendingFilms();
+interface FilmsPageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
+
+export default async function FilmsPage({ searchParams }: FilmsPageProps) {
+  const [trendingFilms, resolvedSearchParams] = await Promise.all([
+    getTrendingFilms(),
+    searchParams,
+  ]);
 
   return (
     <main className="relative flex min-h-screen flex-col bg-brand-dark">
@@ -44,7 +51,7 @@ export default async function FilmsPage() {
       <EditorialCollectionsSection />
       <MostReviewedSection />
       <CollectionsSection title="Lists Created By" titleAccent="Film Lovers" />
-      <AllFilmsSection />
+      <AllFilmsSection searchParams={resolvedSearchParams} />
     </main>
   );
 }

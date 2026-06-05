@@ -59,6 +59,13 @@ export interface DirectorCardData {
   currentFilm: string; // film "currently discussed"
 }
 
+/** A discussed-director card enriched with its raw numeric mention count
+ *  (for sorting / admin editing). `mentions` stays the formatted display string. */
+export interface DiscussedDirectorRow extends DirectorCardData {
+  mentionsCount: number;
+  tmdbId?: number; // TMDB person id, present when the row can be synced from TMDB
+}
+
 export interface DirectorApiResponse {
   directorId: number;
   lang: string;
@@ -155,6 +162,9 @@ export interface CommunityThread {
   id: string;
   username: string;
   filmTitle?: string;
+  // Link to the full review page (/review/{reviewId}). Absent for static/demo
+  // threads that have no backing review.
+  href?: string;
   avatarUrl: string;
   text: string;
   replies: number;

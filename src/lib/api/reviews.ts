@@ -1,6 +1,6 @@
 import "server-only";
-import { apiRequest } from "./client";
-import type { ReviewsResponse } from "@/types/review";
+import { apiRequest, nullOn404 } from "./client";
+import type { ReviewDetail, ReviewsResponse } from "@/types/review";
 import {
   ContentFilterEnum,
   ContentOrderEnum,
@@ -67,15 +67,21 @@ export async function getReviewsByFilmPreview(
   );
 }
 
-/** GET /films/{slug}/{filmId}/reviews/{reviewId} — a single review. Undocumented body. */
+/**
+ * GET /films/{slug}/{filmId}/reviews/{reviewId} — a single review with comments.
+ * The backend resolves the review by reviewId alone (slug/filmId are not
+ * validated), so a placeholder slug/filmId is acceptable. Returns null on 404.
+ */
 export async function getReview(
   filmId: string | number,
   reviewId: string,
   slug: string = DEFAULT_SLUG,
-): Promise<unknown> {
-  return apiRequest<unknown>(
-    `/films/${encodeURIComponent(slug)}/${encodeURIComponent(String(filmId))}/reviews/${encodeURIComponent(reviewId)}`,
-    { cache: { revalidate: 300 } },
+): Promise<ReviewDetail | null> {
+  return nullOn404(
+    apiRequest<ReviewDetail>(
+      `/films/${encodeURIComponent(slug)}/${encodeURIComponent(String(filmId))}/reviews/${encodeURIComponent(reviewId)}`,
+      { cache: { revalidate: 300 } },
+    ),
   );
 }
 

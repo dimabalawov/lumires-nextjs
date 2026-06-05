@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useTransition } from "react";
-import { signIn, signUp, signInWithOAuth, signInWithMagicLink } from "@/lib/actions/auth";
+import { useState, useEffect, useTransition } from "react";
+import { signIn, signUp, signInWithMagicLink } from "@/lib/actions/auth";
+import { createClient } from "@/lib/supabase/client";
 
 interface AuthFormCardProps {
   variant: "login" | "signup";
@@ -17,6 +18,12 @@ export default function AuthFormCard({ variant }: AuthFormCardProps) {
 
   const inputClass =
     "w-full bg-transparent border border-brand-muted rounded-[4px] px-2.5 py-2.5 font-manrope text-[16px] leading-[1.125em] tracking-[0.06em] text-brand-light placeholder:text-brand-muted focus:outline-none focus:border-brand-gold transition-colors";
+
+  // Surface ?error=… handed back by /auth/callback on a failed OAuth exchange.
+  useEffect(() => {
+    const err = new URLSearchParams(window.location.search).get("error");
+    if (err) setError(err);
+  }, []);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -45,12 +52,18 @@ export default function AuthFormCard({ variant }: AuthFormCardProps) {
     });
   }
 
-  function handleOAuth(provider: "google" | "github") {
+  async function handleOAuth(provider: "google" | "github") {
     setError(null);
-    startTransition(async () => {
-      const result = await signInWithOAuth(provider);
-      if (result?.error) setError(result.error);
+    // Initiate OAuth from the browser client so the PKCE code-verifier is stored
+    // client-side and is reliably present when /auth/callback exchanges the code.
+    // window.location.origin makes this work on both localhost and production.
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
     });
+    if (error) setError(error.message);
+    // On success the browser is redirected to the provider.
   }
 
   return (

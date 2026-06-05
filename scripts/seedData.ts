@@ -91,3 +91,25 @@ export const REVIEW_TITLES: string[] = [
  * floats on a 5-point scale (API accepts a nullable float).
  */
 export const RATING_POOL: number[] = [5, 5, 4.5, 4.5, 4, 4, 4, 3.5, 3.5, 3, 2.5, 5];
+
+/**
+ * Reply-copy fragments for seeding comments on reviews. Each is 5–255 chars
+ * (the reply endpoint's bounds) and reads as a natural response to a review.
+ */
+export const REPLY_TEXTS: string[] = [
+  "Totally agree with your take on the third act.",
+  "I had the same feeling — it slowly shifts your perspective without you noticing.",
+  "Exactly this. It's almost uncomfortable to watch, but that's what makes it powerful.",
+  "Hadn't thought of it that way, but you're right about the pacing.",
+  "The soundtrack carries so much of the emotion for me too.",
+  "I didn't expect it to feel this personal. It really stayed with me.",
+  "Beautifully put. The quiet moments are doing all the heavy lifting.",
+  "Respectfully disagree on the ending, but I see where you're coming from.",
+  "This is the review that finally convinced me to watch it.",
+  "Couldn't have said it better — every department is firing.",
+  "The performances are what sell it for me, completely agree.",
+  "Great write-up. You captured exactly why it lingers.",
+  "I went in skeptical too and walked out a believer.",
+  "That third-act turn recontextualizes the whole film, so well observed.",
+  "Saw it twice and your read holds up even better the second time.",
+];

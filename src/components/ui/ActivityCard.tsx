@@ -121,7 +121,13 @@ export default function ActivityCard({
 
         {/* Title */}
         <h3 className="font-oswald font-light text-brand-light text-[24px] lg:text-[28px] leading-[1.1]">
-          {review.title}
+          {review.href ? (
+            <Link href={review.href} className="hover:text-brand-gold transition-colors">
+              {review.title}
+            </Link>
+          ) : (
+            review.title
+          )}
         </h3>
 
         {/* Body */}

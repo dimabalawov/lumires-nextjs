@@ -24,6 +24,7 @@ import {
   REVIEW_BEATS,
   REVIEW_TITLES,
   RATING_POOL,
+  REPLY_TEXTS,
 } from "./seedData";
 
 // --- Config ----------------------------------------------------------------
@@ -39,10 +40,14 @@ const API_BASE =
 
 const USER_COUNT = Number(process.env.USERS ?? 30);
 const TOTAL_REVIEWS = Number(process.env.TOTAL_REVIEWS ?? 150);
+const REPLIES_PER_REVIEW = Number(process.env.REPLIES_PER_REVIEW ?? 3);
+const REVIEW_PAGE_SIZE = 100;
 const SEED_DOMAIN = "lumires.test";
 const SEED_PASSWORD = process.env.SEED_PASSWORD ?? "SeedPass123!";
 
 const isReset = process.argv.includes("--reset");
+// --replies: skip review creation, just post replies on every existing review.
+const isReplies = process.argv.includes("--replies");
 
 function requireEnv(): { url: string; anon: string; service: string | null } {
   const missing: string[] = [];
@@ -240,6 +245,80 @@ async function postReviews(users: SeedUser[], films: Film[]): Promise<number> {
   return posted;
 }
 
+interface ReviewRow {
+  id: string;
+  userId: string;
+  username: string;
+}
+
+/** Fetch every review for a film, following pagination. */
+async function fetchReviews(film: Film): Promise<ReviewRow[]> {
+  const all: ReviewRow[] = [];
+  let page = 1;
+  for (;;) {
+    const res = await api<{ results: ReviewRow[]; totalPages: number }>(
+      "GET",
+      `/films/${encodeURIComponent(film.slug)}/${film.externalId}/reviews?page=${page}&pageSize=${REVIEW_PAGE_SIZE}`,
+    );
+    all.push(...(res.results ?? []));
+    if (!res.totalPages || page >= res.totalPages) break;
+    page++;
+  }
+  return all;
+}
+
+/**
+ * Post REPLIES_PER_REVIEW replies on every review of every film. The replier is
+ * always someone other than the review's author, and targetedUserId points back
+ * at the author so the reply renders as "→ reply to @author". Returns count posted.
+ */
+async function postReplies(users: SeedUser[], films: Film[]): Promise<number> {
+  let posted = 0;
+  let attempted = 0;
+  let reviewerIdx = 0;
+  const failures: string[] = [];
+
+  for (const film of films) {
+    const reviews = await fetchReviews(film);
+    for (const review of reviews) {
+      for (let r = 0; r < REPLIES_PER_REVIEW; r++) {
+        attempted++;
+        // Pick a replier who isn't the review's author.
+        let user = users[reviewerIdx % users.length];
+        if (user.id === review.userId) {
+          reviewerIdx++;
+          user = users[reviewerIdx % users.length];
+        }
+        reviewerIdx++;
+        const body = {
+          text: pick(REPLY_TEXTS, reviewerIdx + r),
+          targetedUserId: review.userId,
+          isSpoilerFree: reviewerIdx % 3 !== 0,
+        };
+        try {
+          await api(
+            "POST",
+            `/films/${encodeURIComponent(film.slug)}/${film.externalId}/reviews/${encodeURIComponent(review.id)}/reply`,
+            { token: user.token, body },
+          );
+          posted++;
+        } catch (err) {
+          failures.push((err as Error).message);
+        }
+        process.stdout.write(`\r  replies posted: ${posted}/${attempted}`);
+        await sleep(40); // gentle pacing to avoid rate limits
+      }
+    }
+  }
+  process.stdout.write("\n");
+
+  if (failures.length) {
+    console.warn(`  ! ${failures.length} reply(ies) failed. First few:`);
+    for (const m of failures.slice(0, 5)) console.warn(`    - ${m}`);
+  }
+  return posted;
+}
+
 /** Delete previously-seeded auth users (email @lumires.test). */
 async function resetUsers(admin: SupabaseClient): Promise<void> {
   let page = 1;
@@ -284,6 +363,34 @@ async function main() {
   }
 
   const authClient = createClient(url, anon, { auth: { persistSession: false } });
+
+  if (isReplies) {
+    console.log(
+      `Seeding ~${REPLIES_PER_REVIEW} replies per review against ${API_BASE}\n` +
+        `Mode: ${admin ? "admin API (service-role key)" : "public signUp (no service key)"}\n`,
+    );
+
+    console.log("1/3  Creating / signing in users...");
+    const users = await createUsers(authClient, admin);
+    if (!users.length) {
+      console.error("No users available — aborting.");
+      process.exit(1);
+    }
+
+    console.log("2/3  Registering Lumires profiles...");
+    await registerProfiles(users);
+
+    console.log("3/3  Fetching films & posting replies on every review...");
+    const films = await fetchFilms();
+    if (!films.length) {
+      console.error("No films returned from /films/popular/weekly — aborting.");
+      process.exit(1);
+    }
+    const posted = await postReplies(users, films);
+
+    console.log(`\nDone. ${posted} replies posted across ${films.length} films.`);
+    return;
+  }
 
   console.log(
     `Seeding ~${USER_COUNT} users and ~${TOTAL_REVIEWS} reviews against ${API_BASE}\n` +

@@ -82,6 +82,25 @@ export interface FilmsSummary {
   genreCount: number;
 }
 
+/** One item in GET /films (paginated catalogue). */
+export interface FilmCatalogueItem {
+  id: number;
+  title: string;
+  releaseYear: number | null;
+  genres: string[];
+  voteAverage: number; // 0–10
+  posterPath: string | null;
+}
+
+/** GET /films — sorted, filtered, paginated catalogue. */
+export interface FilmsResponse {
+  results: FilmCatalogueItem[];
+  totalResults: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
 export interface FilmSource {
   externalId: number;
   providerName: string;
@@ -116,7 +135,8 @@ export interface WeeklyPopularItem {
 }
 
 export interface WeeklyReviewedItem {
-  externalId: number;
+  filmId: number;
+  id: string; // guid — the featured review's id (deep-link target)
   title: string;
   quote: string | null;
   slug: string;
@@ -124,6 +144,23 @@ export interface WeeklyReviewedItem {
   reviewerId: string; // guid
   reviewerName: string;
   rating: number | null;
+}
+
+/** One item in GET /films/{slug}/{id}/similar. */
+export interface SimilarFilmItem {
+  externalId: number;
+  posterPath: string | null;
+  title: string;
+  slug: string;
+  releaseYear: number | null;
+  // Spec documents this as string[], but the API returns {id, name} objects.
+  // Accept both so callers must resolve the display name explicitly.
+  genres: (string | { id: string; name: string })[];
+  rating: number | null; // 0–10 vote average
+}
+
+export interface SimilarFilmsResponse {
+  films: SimilarFilmItem[];
 }
 
 export interface WeeklyRecentResponse {

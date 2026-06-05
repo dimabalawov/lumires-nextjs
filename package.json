@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "seed": "tsx --env-file=.env.local scripts/seed.ts",
+    "seed:replies": "tsx --env-file=.env.local scripts/seed.ts --replies",
     "seed:reset": "tsx --env-file=.env.local scripts/seed.ts --reset",
     "seed:diag": "tsx --env-file=.env.local scripts/diag.ts"
   },
