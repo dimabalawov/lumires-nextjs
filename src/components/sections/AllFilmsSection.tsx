@@ -4,6 +4,7 @@ import Pagination from "@/components/ui/Pagination";
 import FilmFilters from "@/components/sections/FilmFilters";
 import { getFilms } from "@/lib/api/films";
 import { getGenres } from "@/lib/api/genres";
+import { optionalData } from "@/lib/api/client";
 import { tmdbImage } from "@/lib/images/tmdb";
 import { allFilms } from "@/data/allFilms";
 import type { EditorialFilm } from "@/data/editorialCollections";
@@ -23,8 +24,8 @@ function mapToCards(items: FilmCatalogueItem[]): EditorialFilm[] {
     poster: tmdbImage(f.posterPath, "w500") ?? "",
     year: f.releaseYear != null ? String(f.releaseYear) : "",
     genre: f.genres?.[0] ?? "",
-    // API voteAverage is 0–10; the card renders an out-of-5 score.
-    rating: f.voteAverage ? Math.round(f.voteAverage) / 2 : 0,
+    // API voteAverage is already 0–5; round to the nearest half-star for display.
+    rating: f.voteAverage ? Math.round(f.voteAverage * 2) / 2 : 0,
   }));
 }
 
@@ -45,15 +46,17 @@ export default async function AllFilmsSection({ searchParams = {} }: AllFilmsSec
   const requestedPage = Math.max(1, toInt(read("page"), 1));
 
   const [filmsResult, genresResult] = await Promise.all([
-    getFilms({
-      content,
-      rating,
-      sortBy,
-      genres: genre ? [genre] : undefined,
-      page: requestedPage,
-      pageSize: PAGE_SIZE,
-    }).catch(() => null),
-    getGenres().catch(() => null),
+    optionalData(
+      getFilms({
+        content,
+        rating,
+        sortBy,
+        genres: genre ? [genre] : undefined,
+        page: requestedPage,
+        pageSize: PAGE_SIZE,
+      }),
+    ),
+    optionalData(getGenres()),
   ]);
 
   const apiFilms = filmsResult?.results ?? [];

@@ -2,11 +2,12 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
-import Header from "@/components/layout/Header";
 import Breadcrumb, { type BreadcrumbItem } from "@/components/ui/Breadcrumb";
 import StarRating from "@/components/ui/StarRating";
-import { getReview } from "@/lib/api/reviews";
+import LikeButton from "@/components/ui/LikeButton";
+import { getReview, getReviewReplies } from "@/lib/api/reviews";
 import { getMovie } from "@/lib/api/movies";
+import { createClient } from "@/lib/supabase/server";
 import type { ReviewComment } from "@/types/review";
 
 const FALLBACK_AVATAR = "/imgs/community/noirviewer.png";
@@ -38,6 +39,33 @@ function withAt(username: string): string {
   return username.startsWith("@") ? username : `@${username}`;
 }
 
+function ReplyIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 14 14"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      aria-hidden
+    >
+      <g clipPath="url(#reply-icon-clip)">
+        <path
+          d="M12.25 8.75C12.25 9.36884 12.0042 9.96233 11.5666 10.3999C11.129 10.8375 10.5355 11.0833 9.91667 11.0833H4.66667L1.75 13.4167V4.08333C1.75 3.46449 1.99583 2.871 2.43342 2.43342C2.871 1.99583 3.46449 1.75 4.08333 1.75H9.91667C10.5355 1.75 11.129 1.99583 11.5666 2.43342C12.0042 2.871 12.25 3.46449 12.25 4.08333V8.75Z"
+          stroke="#9B8F84"
+          strokeWidth="0.816667"
+        />
+      </g>
+      <defs>
+        <clipPath id="reply-icon-clip">
+          <rect width="14" height="14" fill="white" />
+        </clipPath>
+      </defs>
+    </svg>
+  );
+}
+
 export async function generateMetadata({ params }: ReviewPageProps): Promise<Metadata> {
   const { reviewId } = await params;
   const review = await getReview("-", reviewId);
@@ -53,8 +81,27 @@ export default async function ReviewPage({ params, searchParams }: ReviewPagePro
   const { reviewId } = await params;
   const { film, slug } = await searchParams;
 
-  const review = await getReview(film ?? "-", reviewId, slug ?? "-");
+  // When logged in, fetch per-user (Bearer + no-store) so `isLikedByMe` is
+  // accurate; otherwise the read stays cached/anonymous.
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const isAuthed = !!user;
+
+  const review = await getReview(film ?? "-", reviewId, slug ?? "-", isAuthed);
   if (!review) notFound();
+
+  // Replies come from the dedicated paginated endpoint (source of truth). Fall
+  // back to the review's embedded comments[] only if that request fails.
+  const replies = await getReviewReplies(
+    film ?? "-",
+    reviewId,
+    { pageSize: 50, authed: isAuthed },
+    slug ?? "-",
+  ).catch(() => null);
+  const comments = replies?.results ?? review.comments ?? [];
+  const repliesCount = replies?.totalResults ?? review.repliesCount ?? 0;
 
   // Film title for the breadcrumb / back-link, only when film context is known.
   const movie = film ? await getMovie(film).catch(() => null) : null;
@@ -72,12 +119,10 @@ export default async function ReviewPage({ params, searchParams }: ReviewPagePro
 
   return (
     <main className="relative flex min-h-screen flex-col bg-brand-dark">
-      <Header />
-
       <section className="section-container pt-28 lg:pt-32 pb-24">
         <Breadcrumb className="mb-10" items={breadcrumb} />
 
-        {/* Review header */}
+        {/* Review: col 1 = avatar, col 2 = meta + title + body + actions */}
         <div className="flex items-start gap-4">
           <Image
             src={review.avatarUrl || FALLBACK_AVATAR}
@@ -86,52 +131,72 @@ export default async function ReviewPage({ params, searchParams }: ReviewPagePro
             height={48}
             className="shrink-0 rounded-full object-cover size-[44px] lg:size-[48px]"
           />
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1 font-manrope text-[13px]">
-            <StarRating count={rating} max={5} className="text-brand-gold text-[14px]" />
-            <span className="text-brand-muted">
-              review by <span className="font-medium text-brand-gold">{withAt(review.username)}</span>
-            </span>
-            {date && (
-              <span className="uppercase text-brand-muted text-[11px] tracking-[0.12em]">{date}</span>
+
+          <div className="min-w-0 flex-1">
+            {/* Meta row */}
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1 font-manrope text-[13px]">
+              <StarRating count={rating} max={5} className="text-brand-gold text-[14px]" />
+              <span className="text-brand-muted">
+                review by{" "}
+                <span className="font-medium text-brand-gold">{withAt(review.username)}</span>
+              </span>
+              {date && (
+                <span className="uppercase text-brand-muted text-[11px] tracking-[0.12em]">
+                  {date}
+                </span>
+              )}
+              <span className="flex items-center gap-1.5 text-brand-muted">
+                <span className="text-brand-gold">◆</span>
+                {repliesCount} {repliesCount === 1 ? "reply" : "replies"}
+              </span>
+            </div>
+
+            {/* Title */}
+            {review.title && (
+              <h1 className="mt-6 font-oswald font-normal text-brand-light text-[32px] leading-[42px] tracking-[0.06em]">
+                {review.title}
+              </h1>
             )}
-            <span className="flex items-center gap-1.5 text-brand-muted">
-              <span className="text-brand-gold">◆</span>
-              {review.repliesCount} {review.repliesCount === 1 ? "reply" : "replies"}
-            </span>
+
+            {/* Body */}
+            <div className="mt-6 flex max-w-[820px] flex-col gap-5">
+              {paragraphs.map((paragraph, i) => (
+                <p
+                  key={i}
+                  className="font-manrope font-normal text-auth-subtitle text-[15px] leading-[27px] tracking-[0.15px]"
+                >
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+
+            {/* Actions */}
+            <div className="mt-8 flex flex-wrap items-center gap-8 font-oswald uppercase text-[13px] tracking-[0.12em] text-brand-muted">
+              <LikeButton
+                liked={!!review.isLikedByMe}
+                count={review.likesCount ?? 0}
+                isAuthed={isAuthed}
+                reviewId={review.id}
+                filmId={film ?? "-"}
+                slug={slug ?? "-"}
+              />
+              <span className="flex items-center gap-2">
+                <ReplyIcon /> reply
+              </span>
+              <span className="flex items-center gap-2">··· share</span>
+            </div>
+
+            {/* Comments */}
+            <CommentsList
+              comments={comments}
+              reviewAuthor={review.username}
+              reviewId={review.id}
+              filmId={film ?? "-"}
+              slug={slug ?? "-"}
+              isAuthed={isAuthed}
+            />
           </div>
         </div>
-
-        {/* Title */}
-        {review.title && (
-          <h1 className="mt-6 font-oswald font-light text-brand-light text-[40px] lg:text-[56px] leading-[1.05] tracking-[0.01em]">
-            {review.title}
-          </h1>
-        )}
-
-        {/* Body */}
-        <div className="mt-6 flex max-w-[820px] flex-col gap-5">
-          {paragraphs.map((paragraph, i) => (
-            <p
-              key={i}
-              className="font-manrope font-normal text-auth-subtitle text-[15px] lg:text-[16px] leading-[26px] tracking-[0.3px]"
-            >
-              {paragraph}
-            </p>
-          ))}
-        </div>
-
-        {/* Actions */}
-        <div className="mt-8 flex flex-wrap items-center gap-8 font-oswald uppercase text-[13px] tracking-[0.12em] text-brand-muted">
-          <span className="flex items-center gap-2">
-            <span className="text-brand-gold">♥</span>
-            {review.likesCount} likes
-          </span>
-          <span className="flex items-center gap-2">⬚ reply</span>
-          <span className="flex items-center gap-2">··· share</span>
-        </div>
-
-        {/* Comments */}
-        <CommentsList comments={review.comments} reviewAuthor={review.username} />
       </section>
     </main>
   );
@@ -140,9 +205,17 @@ export default async function ReviewPage({ params, searchParams }: ReviewPagePro
 function CommentsList({
   comments,
   reviewAuthor,
+  reviewId,
+  filmId,
+  slug,
+  isAuthed,
 }: {
   comments: ReviewComment[];
   reviewAuthor: string;
+  reviewId: string;
+  filmId: string;
+  slug: string;
+  isAuthed: boolean;
 }) {
   if (!comments?.length) {
     return (
@@ -155,7 +228,10 @@ function CommentsList({
   return (
     <div className="mt-14 border-l border-brand-gold/30 pl-6 lg:pl-10 flex flex-col gap-10">
       {comments.map((comment) => {
-        const replyTo = comment.targetedUserUsername ?? reviewAuthor;
+        const target = comment.targetedUserUsername;
+        // Hide the "reply to" line when it points at the review author or the
+        // replier themselves — it carries no information in those cases.
+        const showReplyTo = !!target && target !== reviewAuthor && target !== comment.username;
         const date = formatDate(comment.createdAt);
         return (
           <article key={comment.id} className="flex items-start gap-4">
@@ -172,9 +248,11 @@ function CommentsList({
                   <span className="font-manrope text-[15px] text-[#DCD8D3]">
                     {withAt(comment.username)}
                   </span>
-                  <span className="font-manrope text-[12px] text-brand-gold underline underline-offset-2">
-                    → reply to {withAt(replyTo)}
-                  </span>
+                  {showReplyTo && target && (
+                    <span className="font-manrope text-[12px] text-brand-gold underline underline-offset-2">
+                      → reply to {withAt(target)}
+                    </span>
+                  )}
                 </div>
                 {date && (
                   <span className="uppercase text-brand-muted text-[11px] tracking-[0.12em]">
@@ -188,11 +266,18 @@ function CommentsList({
                 </p>
               )}
               <div className="mt-1 flex items-center gap-6 font-oswald uppercase text-[12px] tracking-[0.1em] text-brand-muted">
+                <LikeButton
+                  liked={!!comment.isLikedByMe}
+                  count={comment.likesCount ?? 0}
+                  isAuthed={isAuthed}
+                  reviewId={reviewId}
+                  replyId={comment.id}
+                  filmId={filmId}
+                  slug={slug}
+                />
                 <span className="flex items-center gap-2">
-                  <span className="text-brand-gold">♥</span>
-                  {comment.likesCount ?? 0} likes
+                  <ReplyIcon /> reply
                 </span>
-                <span className="flex items-center gap-2">⬚ reply</span>
               </div>
             </div>
           </article>

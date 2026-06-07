@@ -1,6 +1,27 @@
 // Static pools used by scripts/seed.ts. Kept separate so the main script stays
 // focused on flow. None of this is shipped with the app — dev-time seeding only.
 
+/**
+ * Temporary avatars for seeded users. Local files under public/imgs/community,
+ * stored on Users.AvatarUrl and served directly by next/image. Rotated across
+ * seeded users so review/reply cards show varied faces instead of one fallback.
+ * Swap for real uploaded avatars later.
+ */
+export const AVATARS: string[] = [
+  "/imgs/community/cinemalover.png",
+  "/imgs/community/cinephile.png",
+  "/imgs/community/filmjournal.png",
+  "/imgs/community/grainyfilm.png",
+  "/imgs/community/lina.png",
+  "/imgs/community/midnightframes.png",
+  "/imgs/community/nightviewer.png",
+  "/imgs/community/noirviewer.png",
+  "/imgs/community/quietobserver.png",
+  "/imgs/community/slowcinema.png",
+  "/imgs/community/softlight.png",
+  "/imgs/community/velvetcinema.png",
+];
+
 /** Reviewer display names. The script appends a numeric suffix on collision. */
 export const USERNAMES: string[] = [
   "noir_viewer",

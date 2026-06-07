@@ -1,11 +1,8 @@
 import Link from "next/link";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
 
 export default function FilmNotFound() {
   return (
     <main className="flex min-h-screen flex-col bg-brand-dark">
-      <Header />
       <section className="section-container flex flex-col items-center justify-center text-center flex-1 py-32">
         <h1 className="uppercase font-oswald font-normal text-brand-gold tracking-[0.06em] text-4xl md:text-5xl">
           Film not found

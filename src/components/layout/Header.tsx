@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { NavLink } from "@/types/nav";
 import { createClient } from "@/lib/supabase/client";
-import { signOut } from "@/lib/actions/auth";
 import type { User } from "@supabase/supabase-js";
 import Logo from "@/components/ui/Logo";
 
@@ -17,8 +17,18 @@ const navLinks: NavLink[] = [
 ];
 
 export default function Header() {
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+
+  // Sign out in the browser so the auth cookie clears and onAuthStateChange
+  // updates this header instantly; router.refresh() re-renders the current page's
+  // server components as logged-out without navigating away.
+  async function handleSignOut() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.refresh();
+  }
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
@@ -27,7 +37,11 @@ export default function Header() {
 
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => setUser(data.user));
+    // Read the session from the cookie locally. getUser() would hit the
+    // self-hosted Supabase /auth/v1/user over the network, which is CORS-blocked
+    // from the browser; getSession() needs no network. The session is kept fresh
+    // server-side by middleware.ts, and real authorization happens server-side.
+    supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null));
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => setUser(session?.user ?? null)
     );
@@ -73,7 +87,7 @@ export default function Header() {
                 {username}
               </span>
               <button
-                onClick={() => signOut()}
+                onClick={handleSignOut}
                 className="text-white uppercase font-light text-base tracking-[0.12em] hover:opacity-70 transition-opacity"
               >
                 SIGN OUT
@@ -181,7 +195,7 @@ export default function Header() {
                 {username}
               </span>
               <button
-                onClick={() => { setMenuOpen(false); signOut(); }}
+                onClick={() => { setMenuOpen(false); handleSignOut(); }}
                 className="text-brand-light uppercase font-oswald font-light text-[20px] tracking-[0.12em] hover:opacity-70 transition-opacity"
               >
                 SIGN OUT

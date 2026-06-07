@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 
-import Header from "@/components/layout/Header";
 import FilmsHeroSection from "@/components/sections/FilmsHeroSection";
 import TrendingSection from "@/components/sections/TrendingSection";
 import EditorialCollectionsSection from "@/components/sections/EditorialCollectionsSection";
@@ -8,6 +7,7 @@ import MostReviewedSection from "@/components/sections/MostReviewedSection";
 import CollectionsSection from "@/components/sections/CollectionsSection";
 import AllFilmsSection from "@/components/sections/AllFilmsSection";
 import { getThisWeekMostReviewed } from "@/lib/api/films";
+import { optionalData } from "@/lib/api/client";
 import { tmdbImage } from "@/lib/images/tmdb";
 import type { FilmCardData } from "@/types/film";
 
@@ -18,20 +18,20 @@ export const metadata: Metadata = {
 };
 
 async function getTrendingFilms(): Promise<FilmCardData[] | undefined> {
-  try {
-    const { items } = await getThisWeekMostReviewed();
-    if (!items?.length) return undefined; // fall back to static demo data
-    return items.map((item) => ({
-      id: String(item.filmId),
-      title: item.title,
-      image: tmdbImage(item.backdropPath, "w780") ?? "",
-      quote: item.quote ?? undefined,
-      reviewer: item.reviewerName || undefined,
-      rating: item.rating ?? undefined,
-    }));
-  } catch {
-    return undefined;
-  }
+  // `optionalData` rethrows transient origin errors (502/503/504) so the route
+  // error boundary can offer a retry; an empty/missing result falls back to
+  // static demo data.
+  const response = await optionalData(getThisWeekMostReviewed());
+  const items = response?.items;
+  if (!items?.length) return undefined;
+  return items.map((item) => ({
+    id: String(item.filmId),
+    title: item.title,
+    image: tmdbImage(item.backdropPath, "w780") ?? "",
+    quote: item.quote ?? undefined,
+    reviewer: item.reviewerName || undefined,
+    rating: item.rating ?? undefined,
+  }));
 }
 
 interface FilmsPageProps {

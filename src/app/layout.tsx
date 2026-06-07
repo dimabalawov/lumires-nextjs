@@ -33,7 +33,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${oswald.variable} ${geistMono.variable} ${manrope.variable} antialiased`}>
+      <body
+        suppressHydrationWarning
+        className={`${oswald.variable} ${geistMono.variable} ${manrope.variable} antialiased`}
+      >
         <Header />
         {children}
         <Footer />

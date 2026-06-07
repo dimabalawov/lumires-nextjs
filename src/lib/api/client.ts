@@ -82,7 +82,17 @@ export async function apiRequest<T>(
   if (cache === "no-store") init.cache = "no-store";
   else init.next = { revalidate: cache.revalidate };
 
-  const res = await fetch(url, init);
+  // Transient origin errors (Cloudflare 502/503/504) are flagged retryable. Retry
+  // GETs only — replaying a non-idempotent mutation could double-apply it.
+  const RETRYABLE = new Set([502, 503, 504]);
+  const MAX_RETRIES = method === "GET" ? 2 : 0;
+
+  let res: Response;
+  for (let attempt = 0; ; attempt++) {
+    res = await fetch(url, init);
+    if (res.ok || !RETRYABLE.has(res.status) || attempt >= MAX_RETRIES) break;
+    await new Promise((r) => setTimeout(r, 300 * (attempt + 1)));
+  }
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
@@ -101,5 +111,24 @@ export async function nullOn404<T>(promise: Promise<T>): Promise<T | null> {
   } catch (err) {
     if (err instanceof ApiError && err.status === 404) return null;
     throw err;
+  }
+}
+
+/** True for transient origin/edge failures (502/503/504) worth a "try again". */
+export function isTransientError(err: unknown): err is ApiError {
+  return err instanceof ApiError && [502, 503, 504].includes(err.status);
+}
+
+/**
+ * Degrade to `null` on expected / non-critical failures, but rethrow transient
+ * origin errors (502/503/504) so the route's error boundary can offer a retry
+ * instead of silently rendering stale/fallback data during an outage.
+ */
+export async function optionalData<T>(promise: Promise<T>): Promise<T | null> {
+  try {
+    return await promise;
+  } catch (err) {
+    if (isTransientError(err)) throw err;
+    return null;
   }
 }

@@ -88,7 +88,7 @@ export interface FilmCatalogueItem {
   title: string;
   releaseYear: number | null;
   genres: string[];
-  voteAverage: number; // 0–10
+  voteAverage: number; // 0–5
   posterPath: string | null;
 }
 

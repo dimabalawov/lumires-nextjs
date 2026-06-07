@@ -2,6 +2,7 @@
 
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { ensureProfile } from '@/lib/api/auth'
 
 export async function signIn(formData: FormData) {
   const supabase = await createClient()
@@ -14,6 +15,9 @@ export async function signIn(formData: FormData) {
   if (error) {
     return { error: error.message }
   }
+
+  // Make sure the Lumires profile exists (older accounts may lack one).
+  await ensureProfile()
 
   redirect('/')
 }
@@ -34,6 +38,9 @@ export async function signUp(formData: FormData) {
   if (error) {
     return { error: error.message }
   }
+
+  // Register the Lumires profile for the new user (when a session is available).
+  await ensureProfile()
 
   redirect('/')
 }
@@ -72,10 +79,4 @@ export async function signInWithMagicLink(formData: FormData) {
   }
 
   return { success: true }
-}
-
-export async function signOut() {
-  const supabase = await createClient()
-  await supabase.auth.signOut()
-  redirect('/login')
 }

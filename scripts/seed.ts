@@ -20,6 +20,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import {
   USERNAMES,
+  AVATARS,
   REVIEW_OPENERS,
   REVIEW_BEATS,
   REVIEW_TITLES,
@@ -87,6 +88,30 @@ async function api<T = unknown>(
     throw new Error(`${method} ${path} -> ${res.status} ${res.statusText}: ${text || "(no body)"}`);
   }
   return (text ? JSON.parse(text) : undefined) as T;
+}
+
+/**
+ * Run raw SQL against the backend Postgres via the service-role-only /pg/query
+ * endpoint. Used for the cleanup pass and for setting avatars (the API exposes
+ * no delete or avatar-update routes). Requires SUPABASE_SERVICE_ROLE_KEY.
+ */
+async function pgq<T = unknown>(sql: string): Promise<T> {
+  const key = SERVICE_ROLE_KEY!;
+  const base = (SUPABASE_URL ?? "").replace(/\/$/, "");
+  for (let attempt = 0; ; attempt++) {
+    const res = await fetch(`${base}/pg/query`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", apikey: key, Authorization: `Bearer ${key}` },
+      body: JSON.stringify({ query: sql }),
+    });
+    const text = await res.text();
+    if (res.ok) return (text ? JSON.parse(text) : null) as T;
+    if ([502, 503, 504].includes(res.status) && attempt < 4) {
+      await sleep(800 * (attempt + 1));
+      continue;
+    }
+    throw new Error(`pg/query ${res.status}: ${text.slice(0, 200)}`);
+  }
 }
 
 interface SeedUser {
@@ -186,6 +211,30 @@ async function registerProfiles(users: SeedUser[]): Promise<void> {
       else console.warn(`  ! register(${u.username}): ${msg}`);
     }
     process.stdout.write(`\r  profiles registered: ${ok}/${users.length}`);
+  }
+  process.stdout.write("\n");
+}
+
+/**
+ * Set each seeded user's avatar to a rotating local image (Users.AvatarUrl).
+ * The reviews API returns this on every review/reply, so cards render real faces.
+ * Requires the service-role key (uses /pg/query); skipped with a warning otherwise.
+ */
+async function setAvatars(users: SeedUser[]): Promise<void> {
+  if (!SERVICE_ROLE_KEY) {
+    console.warn("  ! No service-role key — skipping avatars (set SUPABASE_SERVICE_ROLE_KEY).");
+    return;
+  }
+  let ok = 0;
+  for (let i = 0; i < users.length; i++) {
+    const avatar = pick(AVATARS, i).replace(/'/g, "''");
+    try {
+      await pgq(`update "Users" set "AvatarUrl" = '${avatar}' where "Id" = '${users[i].id}'`);
+      ok++;
+    } catch (err) {
+      console.warn(`  ! avatar(${users[i].username}): ${(err as Error).message}`);
+    }
+    process.stdout.write(`\r  avatars set: ${ok}/${users.length}`);
   }
   process.stdout.write("\n");
 }
@@ -319,6 +368,48 @@ async function postReplies(users: SeedUser[], films: Film[]): Promise<number> {
   return posted;
 }
 
+/**
+ * Wipe review content created by SEEDED users only (email @SEED_DOMAIN), leaving
+ * any real users' reviews/replies untouched. Children are deleted before parents
+ * to respect FK constraints. Scoping subqueries:
+ *   seeded   = seeded user ids
+ *   reviews  = reviews authored by seeded users
+ *   comments = replies authored by seeded users OR sitting on a seeded review
+ */
+async function purgeContent(): Promise<void> {
+  const seeded = `(select "Id" from "Users" where "Email" like '%@${SEED_DOMAIN}')`;
+  const reviews = `(select "Id" from "Reviews" where "UserId" in ${seeded})`;
+  const comments = `(select "Id" from "ReviewComments" where "UserId" in ${seeded} or "ReviewId" in ${reviews})`;
+
+  const steps: Array<[string, string]> = [
+    [
+      "review comment likes",
+      `delete from "ReviewCommentLikes" where "ReviewCommentId" in ${comments} or "UserId" in ${seeded}`,
+    ],
+    [
+      "review likes",
+      `delete from "ReviewLikes" where "ReviewId" in ${reviews} or "UserId" in ${seeded}`,
+    ],
+    ["review tags", `delete from "ReviewTags" where "ReviewId" in ${reviews}`],
+    [
+      "replies",
+      `delete from "ReviewComments" where "UserId" in ${seeded} or "ReviewId" in ${reviews}`,
+    ],
+    ["reviews", `delete from "Reviews" where "UserId" in ${seeded}`],
+    ["notifications", `delete from "UserNotifications" where "UserId" in ${seeded}`],
+  ];
+  for (const [label, sql] of steps) {
+    await pgq(sql);
+    console.log(`  cleared seeded ${label}`);
+  }
+}
+
+/** Delete the seeded Lumires profile rows (Users) by their seed email domain. */
+async function deleteSeededProfiles(): Promise<void> {
+  await pgq(`delete from "Users" where "Email" like '%@${SEED_DOMAIN}'`);
+  console.log("  cleared seeded Lumires profiles");
+}
+
 /** Delete previously-seeded auth users (email @lumires.test). */
 async function resetUsers(admin: SupabaseClient): Promise<void> {
   let page = 1;
@@ -339,8 +430,7 @@ async function resetUsers(admin: SupabaseClient): Promise<void> {
     page++;
   }
   process.stdout.write("\n");
-  console.log(`Reset complete. Deleted ${deleted} seeded user(s).`);
-  console.log("(Reviews already posted on the backend are not removed by this step.)");
+  console.log(`  deleted ${deleted} seeded auth user(s).`);
 }
 
 // --- Main -------------------------------------------------------------------
@@ -357,8 +447,14 @@ async function main() {
       console.error("--reset requires SUPABASE_SERVICE_ROLE_KEY (admin API) in .env.local.");
       process.exit(1);
     }
-    console.log(`Resetting seeded users (@${SEED_DOMAIN})...`);
+    console.log("Resetting: purging all review content, seeded profiles, and auth users...");
+    console.log("1/3  Purging review content...");
+    await purgeContent();
+    console.log("2/3  Deleting seeded Lumires profiles...");
+    await deleteSeededProfiles();
+    console.log(`3/3  Deleting seeded auth users (@${SEED_DOMAIN})...`);
     await resetUsers(admin);
+    console.log("\nReset complete.");
     return;
   }
 
@@ -377,8 +473,9 @@ async function main() {
       process.exit(1);
     }
 
-    console.log("2/3  Registering Lumires profiles...");
+    console.log("2/3  Registering Lumires profiles & setting avatars...");
     await registerProfiles(users);
+    await setAvatars(users);
 
     console.log("3/3  Fetching films & posting replies on every review...");
     const films = await fetchFilms();
@@ -393,32 +490,36 @@ async function main() {
   }
 
   console.log(
-    `Seeding ~${USER_COUNT} users and ~${TOTAL_REVIEWS} reviews against ${API_BASE}\n` +
+    `Seeding ~${USER_COUNT} users, ~${TOTAL_REVIEWS} reviews and ~${REPLIES_PER_REVIEW}/review replies against ${API_BASE}\n` +
       `Mode: ${admin ? "admin API (service-role key)" : "public signUp (no service key)"}\n`,
   );
 
-  console.log("1/4  Creating users...");
+  console.log("1/5  Creating users...");
   const users = await createUsers(authClient, admin);
   if (!users.length) {
     console.error("No users available — aborting.");
     process.exit(1);
   }
 
-  console.log("2/4  Registering Lumires profiles...");
+  console.log("2/5  Registering Lumires profiles...");
   await registerProfiles(users);
 
-  console.log("3/4  Fetching films to review...");
+  console.log("3/5  Setting avatars...");
+  await setAvatars(users);
+
+  console.log("4/5  Fetching films & posting reviews...");
   const films = await fetchFilms();
   if (!films.length) {
     console.error("No films returned from /films/popular/weekly — aborting.");
     process.exit(1);
   }
   console.log(`     ${films.length} films: ${films.map((f) => f.title).join(", ")}`);
-
-  console.log("4/4  Posting reviews...");
   const posted = await postReviews(users, films);
 
-  console.log(`\nDone. ${users.length} users, ${posted} reviews posted.`);
+  console.log("5/5  Posting replies on every review...");
+  const replies = await postReplies(users, films);
+
+  console.log(`\nDone. ${users.length} users, ${posted} reviews, ${replies} replies posted.`);
   console.log("Verify:  curl https://lumires-api.supabase.win/films/most-reviewed/weekly");
 }
 

@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 
-export default function FilmError({
+export default function FilmsError({
   error,
   reset,
 }: {
@@ -21,7 +21,7 @@ export default function FilmError({
           Something went wrong
         </h1>
         <p className="mt-4 font-manrope text-brand-muted max-w-md">
-          We couldn&apos;t load this film right now. The service may be
+          We couldn&apos;t load the film catalogue right now. The service may be
           temporarily unavailable — please try again in a moment.
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-6">
@@ -33,10 +33,10 @@ export default function FilmError({
             Try again →
           </button>
           <Link
-            href="/films"
+            href="/"
             className="uppercase font-oswald text-brand-muted tracking-[0.06em] border-b border-brand-muted/50 pb-1 hover:opacity-70 transition-opacity"
           >
-            Back to films
+            Back home
           </Link>
         </div>
       </section>

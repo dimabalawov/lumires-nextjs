@@ -137,6 +137,8 @@ export interface CommunityReply {
   replyTo: string;
   avatarUrl: string;
   text: string;
+  // Like count on the reply; shown on the card only when > 0.
+  likes?: number;
 }
 
 export interface UserProfileStats {
@@ -169,6 +171,15 @@ export interface CommunityThread {
   text: string;
   replies: number;
   likes: number;
+  // Reviewer's star rating (0–5, half-steps). Present for real reviews; absent
+  // for static/demo threads that carry no rating.
+  rating?: number;
+  // Like context — present when the thread is backed by a real review, so the
+  // card renders the interactive (fetching) LikeButton instead of static text.
+  // `id` doubles as the reviewId.
+  filmId?: string;
+  slug?: string;
+  likedByMe?: boolean;
   reply: CommunityReply;
   bgGradient: string;
   borderGradient: string;

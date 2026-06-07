@@ -4,6 +4,9 @@ import Button from "@/components/ui/Button";
 import DetailColumn from "@/components/ui/DetailColumn";
 import GradientDivider from "@/components/ui/GradientDivider";
 import StarRating from "@/components/ui/StarRating";
+import WhereToWatch from "@/components/ui/WhereToWatch";
+import WriteReviewModal from "@/components/ui/WriteReviewModal";
+import type { WatchSources } from "@/lib/watch/sources";
 
 export interface FilmHeroData {
   title: string;
@@ -23,7 +26,19 @@ export interface FilmHeroData {
 const CARD_GRADIENT =
   "linear-gradient(90deg, rgba(18,16,14,0.90) 10%, rgba(16,14,12,0.91) 32%, rgba(14,12,11,0.78) 53%, rgba(0,0,0,0) 100%)";
 
-export default function FilmHero({ data }: { data: FilmHeroData }) {
+export default function FilmHero({
+  data,
+  filmId,
+  slug = "-",
+  isAuthed = false,
+  watchSources,
+}: {
+  data: FilmHeroData;
+  filmId: string;
+  slug?: string;
+  isAuthed?: boolean;
+  watchSources: WatchSources;
+}) {
   const metaParts = [data.year, data.primaryGenre, data.runtime].filter(Boolean) as string[];
   const rating = data.rating ?? 0;
   const empty = <span className="text-brand-muted/70">—</span>;
@@ -81,40 +96,13 @@ export default function FilmHero({ data }: { data: FilmHeroData }) {
           <GradientDivider className="mt-6" />
 
           <div className="mt-5 flex flex-wrap items-center gap-3">
-            <Button
-              variant="goldOutlined"
-              leftIcon={
-                <svg
-                  width="8"
-                  height="10"
-                  viewBox="0 0 15 20"
-                  fill="currentColor"
-                  xmlns="http://www.w3.org/2000/svg"
-                  aria-hidden
-                >
-                  <path d="M0 0L15 10L0 20V0Z" />
-                </svg>
-              }
-              rightIcon={
-                <svg
-                  width="15"
-                  height="20"
-                  viewBox="0 0 15 20"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  xmlns="http://www.w3.org/2000/svg"
-                  aria-hidden
-                >
-                  <path d="M1 7L7.5 13L14 7" />
-                </svg>
-              }
-            >
-              Where to watch
-            </Button>
-            <Button variant="goldFilled">Write a review</Button>
+            <WhereToWatch sources={watchSources} />
+            <WriteReviewModal
+              filmId={filmId}
+              slug={slug}
+              isAuthed={isAuthed}
+              variant="primary"
+            />
           </div>
 
           <div className="mt-3 flex items-center gap-3">

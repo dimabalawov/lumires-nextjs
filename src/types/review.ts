@@ -32,9 +32,12 @@ export interface ReviewsResponse {
   totalPages: number;
 }
 
-// One comment/reply on a review (from GET /films/{slug}/{id}/reviews/{reviewId}
-// `comments[]`). Field names mirror the live payload. NOTE: the API currently
-// does NOT return the reply body, so `text` is optional and usually absent.
+// One comment/reply on a review. This is both the item shape of the review
+// detail `comments[]` (GET /films/{slug}/{id}/reviews/{reviewId}) and of the
+// paginated GET /films/{slug}/{id}/reviews/{reviewId}/replies endpoint.
+// NOTE: the API currently does NOT return the reply body (`text` is absent) and
+// misattributes `username`/`targetedUserUsername` to the review author for every
+// reply — a backend serializer bug. Treat those fields as unreliable until fixed.
 export interface ReviewComment {
   id: string;
   userId?: string;
@@ -47,6 +50,21 @@ export interface ReviewComment {
   targetedUserUsername?: string | null;
   isLikedByMe?: boolean;
   isSpoilerFree?: boolean;
+}
+
+// POST .../like response — the authoritative new state after toggling.
+export interface LikeToggleResponse {
+  isLiked: boolean;
+  likesCount: number;
+}
+
+// GET /films/{slug}/{filmId}/reviews/{reviewId}/replies — paginated replies on a review.
+export interface ReviewRepliesResponse {
+  results: ReviewComment[];
+  totalResults: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
 }
 
 // GET /films/{slug}/{filmId}/reviews/{reviewId} — a single review with its comments.

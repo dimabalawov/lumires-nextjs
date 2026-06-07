@@ -2,7 +2,6 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
-import Header from "@/components/layout/Header";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import FilmHero, { type FilmHeroData } from "@/components/sections/FilmHero";
 import FilmReviewsSection from "@/components/sections/FilmReviewsSection";
@@ -11,15 +10,18 @@ import SimilarFilmsSection from "@/components/sections/SimilarFilmsSection";
 import { appearsInLists } from "@/data/appearsInLists";
 import { allFilms } from "@/data/allFilms";
 import { getMovie } from "@/lib/api/movies";
-import { getSimilarFilms } from "@/lib/api/films";
-import { getFilmReviews } from "@/lib/api/reviews";
+import { getSimilarFilms, getFilmSources } from "@/lib/api/films";
+import { getFilmReviews, getReviewReplies } from "@/lib/api/reviews";
+import { optionalData } from "@/lib/api/client";
+import { normalizeSources } from "@/lib/watch/sources";
+import { createClient } from "@/lib/supabase/server";
 import { tmdbImage } from "@/lib/images/tmdb";
 import { filmExtras, genreShortName } from "@/data/filmExtras";
 import { leftColumnThreads, rightColumnThreads } from "@/data/communityThreads";
 import type { SimilarFilmItem } from "@/types/api";
 import type { EditorialFilm } from "@/data/editorialCollections";
 import type { CommunityThread } from "@/types/film";
-import type { Review } from "@/types/review";
+import type { Review, ReviewComment } from "@/types/review";
 
 interface FilmPageProps {
   params: Promise<{ id: string }>;
@@ -55,24 +57,60 @@ const REVIEW_BORDER_VARIANTS = [
 ];
 const FALLBACK_AVATAR = "/imgs/community/noirviewer.png";
 
-function mapReviewsToThreads(reviews: Review[], filmId: string): CommunityThread[] {
-  return reviews.map((r, i) => ({
-    id: String(r.id),
-    username: r.username.startsWith("@") ? r.username : `@${r.username}`,
-    avatarUrl: r.avatarUrl || FALLBACK_AVATAR,
-    href: `/review/${encodeURIComponent(r.id)}?film=${encodeURIComponent(filmId)}`,
-    text: r.text,
-    replies: r.repliesCount ?? 0,
-    likes: r.likesCount ?? 0,
-    reply: {
-      username: "",
-      replyTo: r.username,
-      avatarUrl: FALLBACK_AVATAR,
-      text: "",
-    },
-    bgGradient: REVIEW_BG_VARIANTS[i % 2],
-    borderGradient: REVIEW_BORDER_VARIANTS[i % 2],
-  }));
+const withAt = (name: string) => (name.startsWith("@") ? name : `@${name}`);
+
+/**
+ * Pick a review's most-liked reply that has visible text. Returns null when the
+ * review has no usable reply. NOTE: the replies API currently omits the reply
+ * `text` and misattributes the author (backend serializer bug), so this yields
+ * null until that's fixed — the card then renders without a reply. Once the API
+ * returns real reply bodies, the most-liked one shows automatically.
+ */
+async function fetchTopReply(
+  filmId: string,
+  reviewId: string,
+  authed: boolean,
+): Promise<ReviewComment | null> {
+  const res = await optionalData(
+    getReviewReplies(filmId, reviewId, { pageSize: 50, authed }),
+  );
+  const items = (res?.results ?? []).filter((c) => (c.text ?? "").trim() !== "");
+  if (!items.length) return null;
+  return items.reduce((best, c) => ((c.likesCount ?? 0) > (best.likesCount ?? 0) ? c : best));
+}
+
+function mapReviewsToThreads(
+  reviews: Review[],
+  filmId: string,
+  topReplies: (ReviewComment | null)[],
+): CommunityThread[] {
+  return reviews.map((r, i) => {
+    const top = topReplies[i];
+    return {
+      id: String(r.id),
+      username: withAt(r.username),
+      avatarUrl: r.avatarUrl || FALLBACK_AVATAR,
+      href: `/review/${encodeURIComponent(r.id)}?film=${encodeURIComponent(filmId)}`,
+      text: r.text,
+      replies: r.repliesCount ?? 0,
+      likes: r.likesCount ?? 0,
+      rating: r.rating ?? undefined,
+      filmId,
+      slug: "-",
+      likedByMe: r.isLikedByMe ?? false,
+      reply: top
+        ? {
+            username: withAt(top.username),
+            replyTo: withAt(r.username),
+            avatarUrl: top.avatarUrl || FALLBACK_AVATAR,
+            text: top.text ?? "",
+            likes: top.likesCount ?? 0,
+          }
+        : { username: "", replyTo: withAt(r.username), avatarUrl: FALLBACK_AVATAR, text: "" },
+      bgGradient: REVIEW_BG_VARIANTS[i % 2],
+      borderGradient: REVIEW_BORDER_VARIANTS[i % 2],
+    };
+  });
 }
 
 function genreName(genre: SimilarFilmItem["genres"][number] | undefined): string {
@@ -98,13 +136,25 @@ function mapSimilarToCards(items: SimilarFilmItem[]): EditorialFilm[] {
 
 export default async function FilmPage({ params }: FilmPageProps) {
   const { id } = await params;
-  const [movie, reviewsResponse, similarResponse] = await Promise.all([
+
+  // When logged in, fetch reviews per-user (Bearer + no-store) so each card's
+  // `isLikedByMe` is accurate; otherwise the read stays cached/anonymous.
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const isAuthed = !!user;
+
+  const [movie, reviewsResponse, similarResponse, sourcesResponse] = await Promise.all([
     getMovie(id),
-    getFilmReviews(id, { pageSize: 6 }).catch(() => null),
-    getSimilarFilms(id).catch(() => null),
+    optionalData(getFilmReviews(id, { pageSize: 6, authed: isAuthed })),
+    optionalData(getSimilarFilms(id)),
+    optionalData(getFilmSources(id)),
   ]);
 
   if (!movie) notFound();
+
+  const watchSources = normalizeSources(sourcesResponse?.sources);
 
   const apiSimilar = similarResponse?.films ?? [];
   const similarFilms =
@@ -118,7 +168,15 @@ export default async function FilmPage({ params }: FilmPageProps) {
   const placeholderReviews: CommunityThread[] = [...leftColumnThreads, ...rightColumnThreads].map(
     ({ filmTitle: _unused, ...rest }) => rest,
   );
-  const reviews = apiReviews.length > 0 ? mapReviewsToThreads(apiReviews, id) : placeholderReviews;
+  // Fetch each review's most-liked reply (in parallel) so the card can preview it.
+  const topReplies =
+    apiReviews.length > 0
+      ? await Promise.all(apiReviews.map((r) => fetchTopReply(id, r.id, isAuthed)))
+      : [];
+  const reviews =
+    apiReviews.length > 0
+      ? mapReviewsToThreads(apiReviews, id, topReplies)
+      : placeholderReviews;
 
   const data: FilmHeroData = {
     title: movie.localization?.title ?? "Untitled",
@@ -152,8 +210,6 @@ export default async function FilmPage({ params }: FilmPageProps) {
         <div className="absolute inset-0 bg-gradient-to-b from-brand-dark/40 via-brand-dark/40 to-brand-dark" />
       </div>
 
-      <Header />
-
       <section className="section-container pt-28 lg:pt-32 pb-24 relative">
         <Breadcrumb
           className="mb-6"
@@ -162,10 +218,10 @@ export default async function FilmPage({ params }: FilmPageProps) {
             { label: movie.localization?.title ?? "Untitled" },
           ]}
         />
-        <FilmHero data={data} />
+        <FilmHero data={data} filmId={id} slug="-" isAuthed={isAuthed} watchSources={watchSources} />
       </section>
 
-      <FilmReviewsSection reviews={reviews} />
+      <FilmReviewsSection reviews={reviews} isAuthed={isAuthed} filmId={id} slug="-" />
 
       <AppearsInListsSection lists={appearsInLists} />
 

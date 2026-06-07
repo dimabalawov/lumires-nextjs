@@ -1,6 +1,11 @@
 import "server-only";
 import { apiRequest, nullOn404 } from "./client";
-import type { ReviewDetail, ReviewsResponse } from "@/types/review";
+import type {
+  LikeToggleResponse,
+  ReviewDetail,
+  ReviewRepliesResponse,
+  ReviewsResponse,
+} from "@/types/review";
 import {
   ContentFilterEnum,
   ContentOrderEnum,
@@ -19,6 +24,8 @@ export interface GetReviewsParams {
   sortBy?: ContentOrderEnum;
   page?: number;
   pageSize?: number;
+  /** Fetch per-user (Bearer + no-store) so each item's `isLikedByMe` is accurate. */
+  authed?: boolean;
 }
 
 /**
@@ -34,6 +41,7 @@ export async function getReviewsByFilm(
     sortBy = ContentOrderEnum.MostRecent,
     page = 1,
     pageSize = 6,
+    authed = false,
   }: GetReviewsParams = {},
   slug: string = DEFAULT_SLUG,
 ): Promise<ReviewsResponse> {
@@ -41,7 +49,7 @@ export async function getReviewsByFilm(
     `/films/${encodeURIComponent(slug)}/${encodeURIComponent(String(filmId))}/reviews`,
     {
       query: { filter, category, sortBy, page, pageSize },
-      cache: { revalidate: 300 },
+      ...(authed ? { auth: true, cache: "no-store" as const } : { cache: { revalidate: 300 } }),
     },
   );
 }
@@ -51,7 +59,7 @@ export async function getReviewsByFilm(
  */
 export async function getFilmReviews(
   filmId: string | number,
-  opts: { page?: number; pageSize?: number } = {},
+  opts: { page?: number; pageSize?: number; authed?: boolean } = {},
 ): Promise<ReviewsResponse> {
   return getReviewsByFilm(filmId, opts);
 }
@@ -71,17 +79,45 @@ export async function getReviewsByFilmPreview(
  * GET /films/{slug}/{filmId}/reviews/{reviewId} — a single review with comments.
  * The backend resolves the review by reviewId alone (slug/filmId are not
  * validated), so a placeholder slug/filmId is acceptable. Returns null on 404.
+ * Pass `authed` to fetch per-user (Bearer + no-store) so `isLikedByMe` is
+ * accurate; otherwise the response is cached anonymously.
  */
 export async function getReview(
   filmId: string | number,
   reviewId: string,
   slug: string = DEFAULT_SLUG,
+  authed = false,
 ): Promise<ReviewDetail | null> {
   return nullOn404(
     apiRequest<ReviewDetail>(
       `/films/${encodeURIComponent(slug)}/${encodeURIComponent(String(filmId))}/reviews/${encodeURIComponent(reviewId)}`,
-      { cache: { revalidate: 300 } },
+      authed ? { auth: true, cache: "no-store" } : { cache: { revalidate: 300 } },
     ),
+  );
+}
+
+/**
+ * GET /films/{slug}/{filmId}/reviews/{reviewId}/replies — paginated replies on a
+ * review. Resolves by reviewId alone (slug/filmId are not validated), so a
+ * placeholder slug/filmId is acceptable. Same item shape as the detail
+ * `comments[]`; prefer this endpoint as the source of truth for replies.
+ */
+export async function getReviewReplies(
+  filmId: string | number,
+  reviewId: string,
+  {
+    page = 1,
+    pageSize = 50,
+    authed = false,
+  }: { page?: number; pageSize?: number; authed?: boolean } = {},
+  slug: string = DEFAULT_SLUG,
+): Promise<ReviewRepliesResponse> {
+  return apiRequest<ReviewRepliesResponse>(
+    `/films/${encodeURIComponent(slug)}/${encodeURIComponent(String(filmId))}/reviews/${encodeURIComponent(reviewId)}/replies`,
+    {
+      query: { page, pageSize },
+      ...(authed ? { auth: true, cache: "no-store" as const } : { cache: { revalidate: 300 } }),
+    },
   );
 }
 
@@ -125,30 +161,35 @@ export async function createReviewComment(
   );
 }
 
-/** POST /films/{slug}/{filmId}/reviews/{reviewId}/like — like / unlike a review (auth required). */
+/**
+ * POST /films/{slug}/{filmId}/reviews/{reviewId}/like — toggle like on a review
+ * (auth required). The endpoint requires a JSON body (an empty `{}` is enough —
+ * without it the server replies 415/400) and returns the new like state.
+ */
 export async function likeReview(
-  filmId: number,
+  filmId: string | number,
   reviewId: string,
   slug: string = DEFAULT_SLUG,
-): Promise<void> {
-  await apiRequest<void>(
-    `/films/${encodeURIComponent(slug)}/${filmId}/reviews/${encodeURIComponent(reviewId)}/like`,
-    { method: "POST", auth: true },
+): Promise<LikeToggleResponse> {
+  return apiRequest<LikeToggleResponse>(
+    `/films/${encodeURIComponent(slug)}/${encodeURIComponent(String(filmId))}/reviews/${encodeURIComponent(reviewId)}/like`,
+    { method: "POST", body: {}, auth: true },
   );
 }
 
 /**
- * POST /films/{slug}/{filmId}/reviews/{reviewId}/replies/{replyId}/like —
- * like / unlike a reply on a review (auth required).
+ * POST /films/{slug}/{filmId}/reviews/{reviewId}/replies/{replyId}/like — toggle
+ * like on a reply (auth required). Same empty-JSON-body requirement as
+ * `likeReview`; returns the new like state.
  */
 export async function likeReviewComment(
-  filmId: number,
+  filmId: string | number,
   reviewId: string,
   replyId: string,
   slug: string = DEFAULT_SLUG,
-): Promise<void> {
-  await apiRequest<void>(
-    `/films/${encodeURIComponent(slug)}/${filmId}/reviews/${encodeURIComponent(reviewId)}/replies/${encodeURIComponent(replyId)}/like`,
-    { method: "POST", auth: true },
+): Promise<LikeToggleResponse> {
+  return apiRequest<LikeToggleResponse>(
+    `/films/${encodeURIComponent(slug)}/${encodeURIComponent(String(filmId))}/reviews/${encodeURIComponent(reviewId)}/replies/${encodeURIComponent(replyId)}/like`,
+    { method: "POST", body: {}, auth: true },
   );
 }
