@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 
@@ -26,10 +27,8 @@ function pageWindow(current: number, total: number): (number | null)[] {
 }
 
 export default function Pagination({ className = "", page, totalPages }: PaginationProps) {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
   // Static presentational fallback (review/list feeds that don't pass props).
+  // Renders no hooks, so it stays prerenderable without a Suspense boundary.
   if (page === undefined || totalPages === undefined) {
     return (
       <nav
@@ -94,6 +93,27 @@ export default function Pagination({ className = "", page, totalPages }: Paginat
   }
 
   if (totalPages <= 1) return null;
+
+  // useSearchParams() forces a client-side bailout, so the URL-driven nav
+  // must sit behind a Suspense boundary to stay prerenderable.
+  return (
+    <Suspense>
+      <PaginationNav className={className} page={page} totalPages={totalPages} />
+    </Suspense>
+  );
+}
+
+function PaginationNav({
+  className = "",
+  page,
+  totalPages,
+}: {
+  className?: string;
+  page: number;
+  totalPages: number;
+}) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   const hrefFor = (p: number) => {
     const params = new URLSearchParams(searchParams.toString());
