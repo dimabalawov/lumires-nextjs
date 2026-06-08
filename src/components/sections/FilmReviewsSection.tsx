@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type { CommunityThread } from "@/types/film";
 import ThreadCard from "@/components/ui/ThreadCard";
-import WriteReviewModal from "@/components/ui/WriteReviewModal";
 
 function ReviewColumn({ reviews, isAuthed }: { reviews: CommunityThread[]; isAuthed: boolean }) {
   return (
@@ -13,21 +12,76 @@ function ReviewColumn({ reviews, isAuthed }: { reviews: CommunityThread[]; isAut
   );
 }
 
+/** Numbered page links. Each link sets ?reviewsPage=N and jumps back to the
+ *  reviews anchor so the server re-renders this section for the chosen page. */
+function ReviewsPagination({
+  currentPage,
+  totalPages,
+}: {
+  currentPage: number;
+  totalPages: number;
+}) {
+  if (totalPages <= 1) return null;
+
+  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+  const linkBase =
+    "inline-flex h-9 min-w-9 items-center justify-center px-3 font-manrope text-sm tracking-[0.06em] rounded transition-colors";
+
+  return (
+    <nav
+      className="mt-12 flex items-center justify-center gap-2"
+      aria-label="Reviews pagination"
+    >
+      {currentPage > 1 && (
+        <Link
+          href={`?reviewsPage=${currentPage - 1}#reviews`}
+          className={`${linkBase} text-brand-muted hover:text-brand-light`}
+        >
+          ← Prev
+        </Link>
+      )}
+
+      {pages.map((p) => (
+        <Link
+          key={p}
+          href={`?reviewsPage=${p}#reviews`}
+          aria-current={p === currentPage ? "page" : undefined}
+          className={`${linkBase} ${
+            p === currentPage
+              ? "bg-brand-gold/15 text-brand-gold"
+              : "text-brand-muted hover:text-brand-light"
+          }`}
+        >
+          {p}
+        </Link>
+      ))}
+
+      {currentPage < totalPages && (
+        <Link
+          href={`?reviewsPage=${currentPage + 1}#reviews`}
+          className={`${linkBase} text-brand-muted hover:text-brand-light`}
+        >
+          Next →
+        </Link>
+      )}
+    </nav>
+  );
+}
+
 interface FilmReviewsSectionProps {
   reviews: CommunityThread[];
-  showAllHref?: string;
   isAuthed?: boolean;
-  /** When set, render the "write a review" modal trigger in the header. */
-  filmId?: string;
-  slug?: string;
+  /** Current reviews page (1-based) — used to drive the pagination control. */
+  currentPage?: number;
+  /** Total number of review pages reported by the API. */
+  totalPages?: number;
 }
 
 export default function FilmReviewsSection({
   reviews,
-  showAllHref = "#",
   isAuthed = false,
-  filmId,
-  slug = "-",
+  currentPage = 1,
+  totalPages = 1,
 }: FilmReviewsSectionProps) {
   if (reviews.length === 0) return null;
 
@@ -36,25 +90,17 @@ export default function FilmReviewsSection({
   const right = reviews.slice(mid);
 
   return (
-    <section className="section-container pb-24">
-      <div className="mb-8 lg:mb-12 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-end">
+    <section id="reviews" className="section-container pb-24 scroll-mt-28">
+      <div className="mb-8 lg:mb-12">
         <h2 className="font-manrope font-light text-[28px] lg:text-[48px] leading-[1.2em] tracking-[0.02em] text-[#DCD8D3] opacity-90">
           Reviews
         </h2>
-        <div className="flex items-center gap-6 sm:mb-2">
-          {filmId && <WriteReviewModal filmId={filmId} slug={slug} isAuthed={isAuthed} />}
-          <Link
-            href={showAllHref}
-            className="uppercase font-manrope font-light text-base leading-[1.625em] tracking-[0.06em] text-brand-light underline hover:opacity-70 transition-opacity"
-          >
-            show all →
-          </Link>
-        </div>
       </div>
       <div className="flex flex-col lg:flex-row gap-8">
         <ReviewColumn reviews={left} isAuthed={isAuthed} />
         <ReviewColumn reviews={right} isAuthed={isAuthed} />
       </div>
+      <ReviewsPagination currentPage={currentPage} totalPages={totalPages} />
     </section>
   );
 }

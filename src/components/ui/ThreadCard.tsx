@@ -41,7 +41,7 @@ export default function ThreadCard({
     <div className={`rounded-[5px] p-6 relative ${thread.bgGradient}`}>
       <div className="flex flex-col">
         {/* Original post: [avatar rail] [content]. The rail's line grows to fill
-            the post's height, so it always reaches the reply avatar below —
+            the post's height, so it always reaches the reply connector below —
             regardless of how long the review text is. */}
         <div className="flex gap-4">
           <div className="flex w-[40px] lg:w-[50px] shrink-0 flex-col items-center">
@@ -52,10 +52,10 @@ export default function ThreadCard({
               height={50}
               className="shrink-0 rounded-full object-cover size-[40px] lg:size-[50px]"
             />
-            {hasReply && <div className="mt-1 w-px grow bg-[#DACBBD] opacity-35" />}
+            {hasReply && <div className="mt-3 w-px grow bg-[#DACBBD] opacity-35" />}
           </div>
 
-          <div className={`min-w-0 flex-1 flex flex-col gap-1 ${hasReply ? "pb-8" : ""}`}>
+          <div className={`min-w-0 flex-1 flex flex-col gap-1 ${hasReply ? "pb-10" : ""}`}>
             <span className="font-manrope font-normal text-[18px] leading-[1.333em] tracking-[0.06em] text-[#DCD8D3]">
               {thread.username}
             </span>
@@ -91,11 +91,16 @@ export default function ThreadCard({
           </div>
         </div>
 
-        {/* Reply: avatar shares the rail's column, so the connector above lands on
-            its horizontal center. */}
+        {/* Reply: indented one level under the original post's text column. A
+            short connector keeps the gutter line going down to the reply
+            avatar's vertical center, matching the rail under the first avatar. */}
         {hasReply && (
           <div className="flex gap-4">
-            <div className="flex w-[40px] lg:w-[50px] shrink-0 flex-col items-center">
+            <div className="flex w-[40px] lg:w-[50px] shrink-0 justify-center">
+              <div className="w-px h-[20px] lg:h-[25px] bg-[#DACBBD] opacity-35" />
+            </div>
+
+            <div className="flex min-w-0 flex-1 gap-4">
               <Image
                 src={thread.reply.avatarUrl}
                 alt={thread.reply.username}
@@ -103,9 +108,8 @@ export default function ThreadCard({
                 height={50}
                 className="shrink-0 rounded-full object-cover size-[40px] lg:size-[50px]"
               />
-            </div>
 
-            <div className="min-w-0 flex-1 flex flex-col gap-1">
+              <div className="min-w-0 flex-1 flex flex-col gap-1">
               <span className="font-manrope font-normal text-[18px] leading-[1.333em] tracking-[0.06em] text-[#DCD8D3]">
                 {thread.reply.username}
               </span>
@@ -115,11 +119,12 @@ export default function ThreadCard({
               <p className="mt-1 font-manrope font-normal text-[14px] leading-[1.714em] tracking-[0.06em] text-[#DCD8D3] whitespace-pre-line">
                 {thread.reply.text}
               </p>
-              {(thread.reply.likes ?? 0) > 0 && (
-                <div className="flex items-center gap-4 font-manrope font-medium text-[11px] leading-[1.636em] tracking-[0.06em] text-[#DACBBD]">
-                  <span>{thread.reply.likes} likes</span>
-                </div>
-              )}
+                {(thread.reply.likes ?? 0) > 0 && (
+                  <div className="flex items-center gap-4 font-manrope font-medium text-[11px] leading-[1.636em] tracking-[0.06em] text-[#DACBBD]">
+                    <span>{thread.reply.likes} likes</span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}

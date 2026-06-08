@@ -15,10 +15,6 @@ import {
   type WeeklyRecentResponse,
 } from "@/types/api";
 
-// Slug is cosmetic in the route; the numeric id is the real key. Use "-" when
-// the human-readable slug is unknown.
-const DEFAULT_SLUG = "-";
-
 export interface GetFilmsParams {
   rating?: RatingEnum;
   content?: FilmContentFilter;
@@ -49,16 +45,12 @@ export async function getFilms(
   });
 }
 
-/** GET /films/{slug}/{id} — full film detail. Returns null on 404. */
-export async function getFilm(
-  id: string | number,
-  slug: string = DEFAULT_SLUG,
-): Promise<MovieDetail | null> {
+/** GET /films/{id} — full film detail. Returns null on 404. */
+export async function getFilm(id: string | number): Promise<MovieDetail | null> {
   return nullOn404(
-    apiRequest<MovieDetail>(
-      `/films/${encodeURIComponent(slug)}/${encodeURIComponent(String(id))}`,
-      { cache: { revalidate: 3600 } },
-    ),
+    apiRequest<MovieDetail>(`/films/${encodeURIComponent(String(id))}`, {
+      cache: { revalidate: 3600 },
+    }),
   );
 }
 
@@ -67,27 +59,25 @@ export async function getFilmsSummary(): Promise<FilmsSummary> {
   return apiRequest<FilmsSummary>("/films/summary", { cache: { revalidate: 3600 } });
 }
 
-/** GET /films/{slug}/{id}/sources — where-to-watch providers. */
+/** GET /films/{id}/sources — where-to-watch providers. */
 export async function getFilmSources(
   id: string | number,
-  slug: string = DEFAULT_SLUG,
 ): Promise<FilmSourcesResponse | null> {
   return nullOn404(
     apiRequest<FilmSourcesResponse>(
-      `/films/${encodeURIComponent(slug)}/${encodeURIComponent(String(id))}/sources`,
+      `/films/${encodeURIComponent(String(id))}/sources`,
       { cache: { revalidate: 3600 } },
     ),
   );
 }
 
-/** GET /films/{slug}/{id}/similar — related films. Served anonymously. */
+/** GET /films/{id}/similar — related films. Served anonymously. */
 export async function getSimilarFilms(
   id: string | number,
-  slug: string = DEFAULT_SLUG,
 ): Promise<SimilarFilmsResponse | null> {
   return nullOn404(
     apiRequest<SimilarFilmsResponse>(
-      `/films/${encodeURIComponent(slug)}/${encodeURIComponent(String(id))}/similar`,
+      `/films/${encodeURIComponent(String(id))}/similar`,
       { cache: { revalidate: 3600 } },
     ),
   );
@@ -122,26 +112,13 @@ export async function getThisWeekMostReviewed(): Promise<WeeklyReviewedResponse>
   });
 }
 
-/** POST /films/{slug}/{filmId}/rate — rate a film (auth required). */
-export async function rateFilm(
-  filmId: number,
-  rating: number,
-  slug: string = DEFAULT_SLUG,
-): Promise<void> {
+/** POST /films/{filmId}/rate — rate a film (auth required). */
+export async function rateFilm(filmId: number, rating: number): Promise<void> {
   const body: RateFilmCommand = { rating };
-  await apiRequest<void>(
-    `/films/${encodeURIComponent(slug)}/${filmId}/rate`,
-    { method: "POST", body, auth: true },
-  );
+  await apiRequest<void>(`/films/${filmId}/rate`, { method: "POST", body, auth: true });
 }
 
-/** POST /films/{slug}/{filmId}/unrate — remove a rating (auth required). */
-export async function unrateFilm(
-  filmId: number,
-  slug: string = DEFAULT_SLUG,
-): Promise<void> {
-  await apiRequest<void>(
-    `/films/${encodeURIComponent(slug)}/${filmId}/unrate`,
-    { method: "POST", auth: true },
-  );
+/** POST /films/{filmId}/unrate — remove a rating (auth required). */
+export async function unrateFilm(filmId: number): Promise<void> {
+  await apiRequest<void>(`/films/${filmId}/unrate`, { method: "POST", auth: true });
 }

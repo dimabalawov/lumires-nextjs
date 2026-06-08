@@ -83,6 +83,21 @@ export interface DirectorStats {
   reviewsCount: string; // pre-formatted, e.g. "28.7K"
 }
 
+/** Actor biography & metadata from GET /actors/{slug}/{id} — mirrors the
+ *  director payload (the backend may key the id as `actorId` or `directorId`;
+ *  the page resolves the profile id from the route param either way). */
+export interface ActorApiResponse {
+  actorId?: number;
+  directorId?: number;
+  lang: string;
+  biography: string;
+  birthday: string | null; // YYYY-MM-DD
+  deathday: string | null; // YYYY-MM-DD
+  gender: number;
+  placeOfBirth: string | null;
+  profilePath: string | null; // TMDB path, e.g. "/abc.jpg"
+}
+
 export interface DirectorProfile {
   id: number;
   slug: string;

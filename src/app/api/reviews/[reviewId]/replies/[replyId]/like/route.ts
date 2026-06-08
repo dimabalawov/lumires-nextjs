@@ -9,10 +9,10 @@ export async function POST(
   { params }: { params: Promise<{ reviewId: string; replyId: string }> },
 ) {
   const { reviewId, replyId } = await params;
-  const { filmId = "-", slug = "-" } = await req.json().catch(() => ({}));
+  const { filmId = "-" } = await req.json().catch(() => ({}));
 
   try {
-    const result = await withProfileRetry(() => likeReviewComment(filmId, reviewId, replyId, slug));
+    const result = await withProfileRetry(() => likeReviewComment(filmId, reviewId, replyId));
     return NextResponse.json(result);
   } catch (e) {
     if (e instanceof ApiError) {

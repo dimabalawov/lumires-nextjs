@@ -89,7 +89,7 @@ export default async function ReviewPage({ params, searchParams }: ReviewPagePro
   } = await supabase.auth.getUser();
   const isAuthed = !!user;
 
-  const review = await getReview(film ?? "-", reviewId, slug ?? "-", isAuthed);
+  const review = await getReview(film ?? "-", reviewId, isAuthed);
   if (!review) notFound();
 
   // Replies come from the dedicated paginated endpoint (source of truth). Fall
@@ -98,7 +98,6 @@ export default async function ReviewPage({ params, searchParams }: ReviewPagePro
     film ?? "-",
     reviewId,
     { pageSize: 50, authed: isAuthed },
-    slug ?? "-",
   ).catch(() => null);
   const comments = replies?.results ?? review.comments ?? [];
   const repliesCount = replies?.totalResults ?? review.repliesCount ?? 0;

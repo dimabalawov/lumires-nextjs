@@ -25,6 +25,16 @@ import type { Review, ReviewComment } from "@/types/review";
 
 interface FilmPageProps {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ reviewsPage?: string }>;
+}
+
+const REVIEWS_PAGE_SIZE = 6;
+
+/** TMDB vote average is on a 0–10 scale; the UI shows a 0–5 star score. */
+function toStarRating(voteAverage?: number): number | undefined {
+  if (voteAverage == null || voteAverage <= 0) return undefined;
+  const scaled = voteAverage > 5 ? voteAverage / 2 : voteAverage;
+  return Math.round(scaled * 10) / 10;
 }
 
 export async function generateMetadata({ params }: FilmPageProps): Promise<Metadata> {
@@ -134,8 +144,10 @@ function mapSimilarToCards(items: SimilarFilmItem[]): EditorialFilm[] {
   }));
 }
 
-export default async function FilmPage({ params }: FilmPageProps) {
+export default async function FilmPage({ params, searchParams }: FilmPageProps) {
   const { id } = await params;
+  const { reviewsPage } = await searchParams;
+  const reviewsPageNum = Math.max(1, Number.parseInt(reviewsPage ?? "1", 10) || 1);
 
   // When logged in, fetch reviews per-user (Bearer + no-store) so each card's
   // `isLikedByMe` is accurate; otherwise the read stays cached/anonymous.
@@ -147,7 +159,9 @@ export default async function FilmPage({ params }: FilmPageProps) {
 
   const [movie, reviewsResponse, similarResponse, sourcesResponse] = await Promise.all([
     getMovie(id),
-    optionalData(getFilmReviews(id, { pageSize: 6, authed: isAuthed })),
+    optionalData(
+      getFilmReviews(id, { page: reviewsPageNum, pageSize: REVIEWS_PAGE_SIZE, authed: isAuthed }),
+    ),
     optionalData(getSimilarFilms(id)),
     optionalData(getFilmSources(id)),
   ]);
@@ -173,10 +187,13 @@ export default async function FilmPage({ params }: FilmPageProps) {
     apiReviews.length > 0
       ? await Promise.all(apiReviews.map((r) => fetchTopReply(id, r.id, isAuthed)))
       : [];
-  const reviews =
-    apiReviews.length > 0
-      ? mapReviewsToThreads(apiReviews, id, topReplies)
-      : placeholderReviews;
+  const hasApiReviews = apiReviews.length > 0;
+  const reviews = hasApiReviews
+    ? mapReviewsToThreads(apiReviews, id, topReplies)
+    : placeholderReviews;
+  // Pagination only applies to real API data; placeholders are a single page.
+  const reviewsTotalPages = hasApiReviews ? reviewsResponse?.totalPages ?? 1 : 1;
+  const reviewsCurrentPage = hasApiReviews ? reviewsResponse?.page ?? reviewsPageNum : 1;
 
   const data: FilmHeroData = {
     title: movie.localization?.title ?? "Untitled",
@@ -184,12 +201,14 @@ export default async function FilmPage({ params }: FilmPageProps) {
     year: movie.releaseDate?.slice(0, 4),
     primaryGenre: genres[0],
     runtime: formatRuntime(movie.runtime),
-    rating: extras.rating,
+    // Prefer the live TMDB vote average; fall back to the static extras rating.
+    rating: toStarRating(movie.voteAverage) ?? extras.rating,
+    voteCount: movie.voteCount,
     tagline: extras.tagline,
     overview: movie.localization?.overview,
-    cast: movie.cast?.map((c) => c.name) ?? [],
+    cast: movie.cast ?? [],
     genres,
-    directors: movie.directors?.map((d) => d.name) ?? [],
+    directors: movie.directors ?? [],
     studio: movie.productionCompany,
   };
 
@@ -221,7 +240,12 @@ export default async function FilmPage({ params }: FilmPageProps) {
         <FilmHero data={data} filmId={id} slug="-" isAuthed={isAuthed} watchSources={watchSources} />
       </section>
 
-      <FilmReviewsSection reviews={reviews} isAuthed={isAuthed} filmId={id} slug="-" />
+      <FilmReviewsSection
+        reviews={reviews}
+        isAuthed={isAuthed}
+        currentPage={reviewsCurrentPage}
+        totalPages={reviewsTotalPages}
+      />
 
       <AppearsInListsSection lists={appearsInLists} />
 

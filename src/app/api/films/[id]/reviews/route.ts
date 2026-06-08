@@ -14,7 +14,6 @@ export async function POST(
     text,
     rating = null,
     isSpoilerFree = false,
-    slug = "-",
   } = await req.json().catch(() => ({}));
 
   if (typeof text !== "string" || text.trim() === "") {
@@ -23,7 +22,7 @@ export async function POST(
 
   try {
     await withProfileRetry(() =>
-      createReview(Number(id), { title, text, rating, isSpoilerFree }, slug),
+      createReview(Number(id), { title, text, rating, isSpoilerFree }),
     );
     return NextResponse.json({ ok: true });
   } catch (e) {

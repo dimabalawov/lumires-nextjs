@@ -1,12 +1,14 @@
 import Image from "next/image";
+import Link from "next/link";
 
 import Button from "@/components/ui/Button";
 import DetailColumn from "@/components/ui/DetailColumn";
 import GradientDivider from "@/components/ui/GradientDivider";
-import StarRating from "@/components/ui/StarRating";
 import WhereToWatch from "@/components/ui/WhereToWatch";
 import WriteReviewModal from "@/components/ui/WriteReviewModal";
 import type { WatchSources } from "@/lib/watch/sources";
+import type { MoviePerson } from "@/types/movie";
+import { slugifyName } from "@/lib/format/slug";
 
 export interface FilmHeroData {
   title: string;
@@ -15,12 +17,34 @@ export interface FilmHeroData {
   primaryGenre?: string;
   runtime?: string;
   rating?: number;
+  voteCount?: number;
   tagline?: string;
   overview?: string;
-  cast: string[];
+  cast: MoviePerson[];
   genres: string[];
-  directors: string[];
+  directors: MoviePerson[];
   studio?: string;
+}
+
+/** Compact vote-count label: 1240 → "1.2k", 980 → "980". */
+function formatVotes(n?: number): string | undefined {
+  if (!n || n <= 0) return undefined;
+  if (n < 1000) return String(n);
+  return `${(n / 1000).toFixed(1).replace(/\.0$/, "")}k`;
+}
+
+/** Link a cast/crew member to their internal profile page (/actors or
+ *  /directors), keyed by their TMDB id. Plain text when the id is missing. */
+function PersonLink({ person, basePath }: { person: MoviePerson; basePath: "/actors" | "/directors" }) {
+  if (!person.id) return <>{person.name}</>;
+  return (
+    <Link
+      href={`${basePath}/${slugifyName(person.name)}/${person.id}`}
+      className="underline underline-offset-2 decoration-brand-muted/50 hover:text-brand-gold hover:decoration-brand-gold transition-colors"
+    >
+      {person.name}
+    </Link>
+  );
 }
 
 const CARD_GRADIENT =
@@ -41,6 +65,7 @@ export default function FilmHero({
 }) {
   const metaParts = [data.year, data.primaryGenre, data.runtime].filter(Boolean) as string[];
   const rating = data.rating ?? 0;
+  const votes = formatVotes(data.voteCount);
   const empty = <span className="text-brand-muted/70">—</span>;
 
   return (
@@ -70,13 +95,15 @@ export default function FilmHero({
           </h1>
 
           <p className="mt-3 font-manrope font-normal text-auth-subtitle text-[14px] lg:text-[18px] leading-[25px]">
-            {metaParts.join(" • ")}
             {rating > 0 && (
-              <>
-                {" • "}
-                <StarRating count={rating} max={5} />
-              </>
+              <span className="text-brand-light">
+                {rating.toFixed(1)}
+                <span className="text-brand-gold">★</span>
+                {votes && <span className="text-brand-muted">({votes})</span>}
+              </span>
             )}
+            {rating > 0 && metaParts.length > 0 && " • "}
+            {metaParts.join(" • ")}
           </p>
 
           <GradientDivider className="mt-4" />
@@ -134,8 +161,10 @@ export default function FilmHero({
         <DetailColumn label="Main Cast">
           {data.cast.length > 0 ? (
             <ul className="space-y-1.5">
-              {data.cast.map((name) => (
-                <li key={name}>{name}</li>
+              {data.cast.map((person) => (
+                <li key={person.id || person.name}>
+                  <PersonLink person={person} basePath="/actors" />
+                </li>
               ))}
             </ul>
           ) : (
@@ -159,8 +188,10 @@ export default function FilmHero({
           <DetailColumn label={data.directors.length > 1 ? "Directors" : "Director"}>
             {data.directors.length > 0 ? (
               <ul className="space-y-1.5">
-                {data.directors.map((name) => (
-                  <li key={name}>{name}</li>
+                {data.directors.map((person) => (
+                  <li key={person.id || person.name}>
+                    <PersonLink person={person} basePath="/directors" />
+                  </li>
                 ))}
               </ul>
             ) : (

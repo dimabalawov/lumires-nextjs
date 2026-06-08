@@ -25,7 +25,7 @@ async function resolveReviewHref(item: WeeklyReviewedItem): Promise<string | und
     return `/review/${encodeURIComponent(item.id)}?film=${item.filmId}${slugQuery}`;
   }
   try {
-    const { results } = await getReviewsByFilm(item.filmId, { pageSize: 100 }, item.slug);
+    const { results } = await getReviewsByFilm(item.filmId, { pageSize: 100 });
     const byReviewer = results.filter((r) => r.userId === item.reviewerId);
     const match =
       byReviewer.find(
