@@ -7,8 +7,10 @@ import MostReviewedSection from "@/components/sections/MostReviewedSection";
 import CollectionsSection from "@/components/sections/CollectionsSection";
 import AllFilmsSection from "@/components/sections/AllFilmsSection";
 import { getThisWeekMostReviewed } from "@/lib/api/films";
+import { getFeaturedCollections } from "@/lib/collections/featured";
 import { optionalData } from "@/lib/api/client";
 import { tmdbImage } from "@/lib/images/tmdb";
+import { createClient } from "@/lib/supabase/server";
 import type { FilmCardData } from "@/types/film";
 
 export const metadata: Metadata = {
@@ -39,9 +41,15 @@ interface FilmsPageProps {
 }
 
 export default async function FilmsPage({ searchParams }: FilmsPageProps) {
-  const [trendingFilms, resolvedSearchParams] = await Promise.all([
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const [trendingFilms, resolvedSearchParams, featured] = await Promise.all([
     getTrendingFilms(),
     searchParams,
+    getFeaturedCollections(!!user),
   ]);
 
   return (
@@ -50,7 +58,12 @@ export default async function FilmsPage({ searchParams }: FilmsPageProps) {
       <TrendingSection title="Trending" titleAccent="This Week" films={trendingFilms} />
       <EditorialCollectionsSection />
       <MostReviewedSection />
-      <CollectionsSection title="Lists Created By" titleAccent="Film Lovers" />
+      <CollectionsSection
+        title="Lists Created By"
+        titleAccent="Film Lovers"
+        collections={featured.length > 0 ? featured : undefined}
+        isAuthed={!!user}
+      />
       <AllFilmsSection searchParams={resolvedSearchParams} />
     </main>
   );

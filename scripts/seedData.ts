@@ -2,6 +2,44 @@
 // focused on flow. None of this is shipped with the app — dev-time seeding only.
 
 /**
+ * Authors + lists seeded for the "Collections Created By Film Lovers" section
+ * (run via `npm run seed:collections`). Each becomes a confirmed @lumires.test
+ * user who owns one film list; the script then features those lists in the
+ * admin-curated `featured_collections` table.
+ */
+export const FEATURED_COLLECTIONS: {
+  username: string;
+  title: string;
+  description: string;
+}[] = [
+  {
+    username: "cinephile_canon",
+    title: "All-Time Greats — The Essential 250",
+    description: "The canon, condensed. Start here if you want the films everyone keeps citing.",
+  },
+  {
+    username: "worldbuilder_reel",
+    title: "Worlds Worth Getting Lost In",
+    description: "Sprawling, lived-in epics — the collections I return to again and again.",
+  },
+  {
+    username: "cozy_frames",
+    title: "Comfort Watches for a Rainy Day",
+    description: "Soft, warm, and easy — the films you put on when the world is too much.",
+  },
+  {
+    username: "synapse_reel",
+    title: "Mind-Bending Sci-Fi",
+    description: "Time loops, simulations, and questions that follow you out of the cinema.",
+  },
+  {
+    username: "goldreel_picks",
+    title: "Award Winners Worth the Hype",
+    description: "Best Picture honourees and festival darlings that actually earned the trophy.",
+  },
+];
+
+/**
  * Temporary avatars for seeded users. Local files under public/imgs/community,
  * stored on Users.AvatarUrl and served directly by next/image. Rotated across
  * seeded users so review/reply cards show varied faces instead of one fallback.

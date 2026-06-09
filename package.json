@@ -9,6 +9,7 @@
     "lint": "eslint",
     "seed": "tsx --env-file=.env.local scripts/seed.ts",
     "seed:replies": "tsx --env-file=.env.local scripts/seed.ts --replies",
+    "seed:collections": "tsx --env-file=.env.local scripts/seed.ts --collections",
     "seed:reset": "tsx --env-file=.env.local scripts/seed.ts --reset",
     "seed:diag": "tsx --env-file=.env.local scripts/diag.ts"
   },

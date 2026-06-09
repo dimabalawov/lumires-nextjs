@@ -3,12 +3,12 @@ import Link from "next/link";
 
 import Button from "@/components/ui/Button";
 import DetailColumn from "@/components/ui/DetailColumn";
+import FilmLikeButton from "@/components/ui/FilmLikeButton";
 import GradientDivider from "@/components/ui/GradientDivider";
 import WhereToWatch from "@/components/ui/WhereToWatch";
 import WriteReviewModal from "@/components/ui/WriteReviewModal";
 import type { WatchSources } from "@/lib/watch/sources";
 import type { MoviePerson } from "@/types/movie";
-import { slugifyName } from "@/lib/format/slug";
 
 export interface FilmHeroData {
   title: string;
@@ -33,13 +33,12 @@ function formatVotes(n?: number): string | undefined {
   return `${(n / 1000).toFixed(1).replace(/\.0$/, "")}k`;
 }
 
-/** Link a cast/crew member to their internal profile page (/actors or
- *  /directors), keyed by their TMDB id. Plain text when the id is missing. */
+/** Link a cast/crew member to their internal profile page, keyed by TMDB id. */
 function PersonLink({ person, basePath }: { person: MoviePerson; basePath: "/actors" | "/directors" }) {
   if (!person.id) return <>{person.name}</>;
   return (
     <Link
-      href={`${basePath}/${slugifyName(person.name)}/${person.id}`}
+      href={`${basePath}/${person.id}`}
       className="underline underline-offset-2 decoration-brand-muted/50 hover:text-brand-gold hover:decoration-brand-gold transition-colors"
     >
       {person.name}
@@ -134,20 +133,7 @@ export default function FilmHero({
 
           <div className="mt-3 flex items-center gap-3">
             <Button variant="neutralOutlined">+ Add to list</Button>
-            <Button variant="neutralOutlined" iconOnly aria-label="Add to favorites">
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-              </svg>
-            </Button>
+            <FilmLikeButton filmId={filmId} isAuthed={isAuthed} />
           </div>
         </div>
       </div>

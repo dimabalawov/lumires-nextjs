@@ -15,7 +15,7 @@ export default function ActorSimilarSection({ actors }: { actors: SimilarActor[]
         {actors.map((a, i) => (
           <Link
             key={`${a.id}-${i}`}
-            href={`/actors/${a.id}/${a.apiId}`}
+            href={`/actors/${a.apiId}`}
             className="flex flex-col items-center text-center group"
           >
             <div className="relative size-[160px] lg:size-[200px] overflow-hidden rounded-full">

@@ -4,8 +4,8 @@ import type { DirectorStats } from "@/types/film";
 
 /** Similar-actor card on an actor profile (mirrors SimilarDirector). */
 export interface SimilarActor {
-  id: string; // slug for href, e.g. "timothee-chalamet"
-  apiId: number; // actor id used in /actors/[slug]/[id]
+  id: string; // stable local key, e.g. "timothee-chalamet"
+  apiId: number; // actor id used in /actors/[id]
   name: string;
   image: string;
   matchPercent: number; // 0-100

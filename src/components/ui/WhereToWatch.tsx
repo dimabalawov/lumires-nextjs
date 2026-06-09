@@ -186,7 +186,7 @@ export default function WhereToWatch({ sources }: { sources: WatchSources }) {
               </div>
 
               {/* Provider list */}
-              <div className="mt-2 flex flex-col divide-y divide-brand-muted/10">
+              <div className="mt-2 flex max-h-[280px] flex-col divide-y divide-brand-muted/10 overflow-y-auto overscroll-contain pr-1">
                 {rows.length > 0 ? (
                   rows.map((p) => <ProviderRow key={`${p.name}-${p.category}`} provider={p} />)
                 ) : (

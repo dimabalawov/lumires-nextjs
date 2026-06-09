@@ -19,7 +19,7 @@ export default function DirectorSimilarSection({
         {directors.map((d, i) => (
           <Link
             key={`${d.id}-${i}`}
-            href={`/directors/${d.id}/${d.apiId}`}
+            href={`/directors/${d.apiId}`}
             className="flex flex-col items-center text-center group"
           >
             <div className="relative size-[160px] lg:size-[200px] overflow-hidden rounded-full">

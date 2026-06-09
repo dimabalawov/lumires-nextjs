@@ -6,6 +6,11 @@ const SECTIONS = [
     title: "Most Discussed Directors",
     description: "Set each director's weekly mention count. The section sorts high → low.",
   },
+  {
+    href: "/admin/collections",
+    title: "Collections Created By Film Lovers",
+    description: "Curate which film lists are featured in the Collections section on /lists.",
+  },
 ];
 
 export default function AdminHome() {

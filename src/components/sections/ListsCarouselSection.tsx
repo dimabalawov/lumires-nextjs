@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, useCallback, useEffect } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import ListCarouselCard from "@/components/ui/ListCarouselCard";
-import { lists } from "@/data/lists";
+import { lists as defaultLists } from "@/data/lists";
+import type { ListCardData } from "@/types/film";
 import {
   LIST_CARD_W,
   LIST_GAP,
@@ -16,12 +18,16 @@ import {
 interface ListsCarouselSectionProps {
   title?: string;
   titleAccent?: string;
+  /** Live trending lists; falls back to static demo data when empty/omitted. */
+  lists?: ListCardData[];
 }
 
 export default function ListsCarouselSection({
   title = "Trending",
   titleAccent,
+  lists = defaultLists,
 }: ListsCarouselSectionProps = {}) {
+  const router = useRouter();
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -52,11 +58,16 @@ export default function ListsCarouselSection({
     (slideIndex: number) => {
       if (!emblaApi) return;
       const current = emblaApi.selectedScrollSnap();
-      if (slideIndex === current) return;
+      // Clicking the centered card opens its detail page; side cards scroll in.
+      if (slideIndex === current) {
+        const list = lists[slideIndex];
+        if (list) router.push(`/lists/${list.id}`);
+        return;
+      }
       if (slideIndex < current) emblaApi.scrollPrev();
       else emblaApi.scrollNext();
     },
-    [emblaApi]
+    [emblaApi, lists, router]
   );
 
   return (
@@ -72,13 +83,6 @@ export default function ListsCarouselSection({
             </>
           ) : null}
         </h2>
-        <Link
-          href="#"
-          className="uppercase text-brand-light hover:opacity-70 transition-opacity flex items-center gap-2 sm:mb-2 font-oswald font-light text-sm tracking-[0.06em]"
-        >
-          <span className="border-b border-current pb-0.5">SHOW ALL</span>
-          <span>→</span>
-        </Link>
       </div>
 
       {/* Mobile: horizontal scroll (hidden on lg+) */}
@@ -86,9 +90,13 @@ export default function ListsCarouselSection({
         <div className="section-container">
           <div className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
             {lists.map((list) => (
-              <div key={list.id} className="shrink-0 w-[280px] snap-center">
+              <Link
+                key={list.id}
+                href={`/lists/${list.id}`}
+                className="shrink-0 w-[280px] snap-center"
+              >
                 <ListCarouselCard list={list} isCenter />
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -112,7 +120,7 @@ export default function ListsCarouselSection({
                   onClick={() => handleSlideClick(i)}
                 >
                   <div
-                    className={isCenter ? "cursor-default" : "cursor-pointer"}
+                    className="cursor-pointer"
                     style={{
                       width: LIST_CARD_W,
                       transform: `scale(${isCenter ? 1 : LIST_SIDE_SCALE})`,

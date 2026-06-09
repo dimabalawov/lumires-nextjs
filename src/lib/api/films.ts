@@ -122,3 +122,14 @@ export async function rateFilm(filmId: number, rating: number): Promise<void> {
 export async function unrateFilm(filmId: number): Promise<void> {
   await apiRequest<void>(`/films/${filmId}/unrate`, { method: "POST", auth: true });
 }
+
+/** POST /films/{id}/like - toggle the current user's like on a film.
+ * The endpoint is addressed by the same numeric (TMDB) id used everywhere else
+ * for films (e.g. GET /films/{id}); the internal GUID 404s here.
+ */
+export async function likeFilm(filmId: string | number): Promise<unknown> {
+  return apiRequest<unknown>(
+    `/films/${encodeURIComponent(String(filmId))}/like`,
+    { method: "POST", body: {}, auth: true },
+  );
+}

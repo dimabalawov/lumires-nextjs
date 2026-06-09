@@ -238,24 +238,120 @@ export interface PopularReviewsResponse {
 // Lists
 // ---------------------------------------------------------------------------
 
-export interface FilmListPreviewItem {
+/** GET /lists?category= (ContentFilterEnum4 — sent as a STRING, not an int). */
+export type ListCategoryFilter =
+  | "all"
+  | "trending"
+  | "recentlyUpdated"
+  | "editorPicks"
+  | "newLists"
+  | "friendsLists";
+
+/** GET /lists?sortBy= (ListContentOrderEnum — STRING value). */
+export type ListSortOrder = "mostRecent" | "mostPopular" | "mostFilms";
+
+/** GET /lists/summary — counts for the lists homepage banner. */
+export interface ListsSummary {
+  listsTotal: number;
+  listsThisDay: number;
+}
+
+/** Poster-only film preview (trending / browse cards). */
+export interface ListFilmPoster {
+  posterPath: string | null;
+}
+
+/** Backdrop-only film preview (editorial / by-film cards). */
+export interface ListFilmBackdrop {
   backdropPath: string | null;
 }
 
-export interface FilmsListsGroup {
+/** One item in GET /lists/trending/weekly (Response5). */
+export interface TrendingListItem {
+  id: string; // guid
+  title: string;
+  userId: string; // guid
+  username: string;
+  filmCount: number;
+  isLikedByMe: boolean;
+  isSavedByMe: boolean;
+  films: ListFilmPoster[];
+}
+
+export interface TrendingListsResponse {
+  items: TrendingListItem[];
+}
+
+/** One item in GET /lists/editorial (Response8). */
+export interface EditorialListItem {
+  id: string; // guid
+  title: string;
+  userId: string; // guid
+  username: string;
+  filmCount: number;
+  isLikedByMe: boolean;
+  isSavedByMe: boolean;
+  films: ListFilmBackdrop[];
+}
+
+export interface EditorialListsResponse {
+  items: EditorialListItem[];
+}
+
+/**
+ * One item in GET /lists (paginated browse). The 200 body is undocumented in
+ * the spec, so this is a best-guess modeled on TrendingListItem; every field
+ * past the core identifiers is optional and parsed defensively.
+ */
+export interface BrowseListItem {
+  id: string; // guid
+  title: string;
+  userId?: string; // guid
+  username?: string;
+  filmsCount?: number; // actual API field (note the "s")
+  filmCount?: number; // tolerated alias; some shapes use the un-pluralised name
+  description?: string | null;
+  createdAt?: string; // date-time
+  isLikedByMe?: boolean;
+  isSavedByMe?: boolean;
+  films?: ListFilmPoster[];
+}
+
+/** GET /lists — sorted/filtered/paginated. Undocumented body; mirrors FilmsResponse. */
+export interface BrowseListsResponse {
+  results: BrowseListItem[];
+  totalResults: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+/** One group in GET /films/{id}/lists (Response7 → FilmsListsItems). */
+export interface FilmsListsItem {
+  id: string; // guid
   name: string;
-  films: FilmListPreviewItem[];
+  isLikedByMe: boolean;
+  isSavedByMe: boolean;
+  films: ListFilmBackdrop[];
 }
 
 export interface FilmsListsByFilmResponse {
-  filmLists: FilmsListsGroup[];
+  filmsLists: FilmsListsItem[];
 }
 
+/**
+ * A film inside a list detail (GET /lists/{id}). The body is undocumented, so
+ * `releaseYear` / `genre` / `voteAverage` are best-guess extras used for the
+ * detail-grid card meta; callers must tolerate their absence.
+ */
 export interface ListFilmItem {
   filmId: number;
   title: string;
   posterPath: string | null;
   order: number;
+  releaseYear?: number | null;
+  genre?: string | null;
+  voteAverage?: number | null; // 0–5
 }
 
 export interface ListDetail {
@@ -263,6 +359,10 @@ export interface ListDetail {
   title: string;
   description: string | null;
   authorName: string;
+  username?: string;
+  filmCount?: number;
+  isLikedByMe?: boolean;
+  isSavedByMe?: boolean;
   createdAt: string; // date-time
   films: ListFilmItem[];
 }

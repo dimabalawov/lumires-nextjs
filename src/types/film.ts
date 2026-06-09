@@ -22,9 +22,14 @@ export interface WeeklyFilmData {
 export interface CollectionData {
   id: string;
   title: string;
-  films: string[]; // exactly 11 image paths; index 5 is the center/featured card
+  films: string[]; // up to 11 unique poster paths; the middle one is the centre/featured panel
+  backdrop?: string; // landscape still for the centre panel (the featured film's backdrop)
   filmCount?: number; // shown in the "N films by @author" meta on browse-list cards
   author?: string; // handle without leading "@"
+  // Per-user list state — present when the card is backed by a live API list, so
+  // ListCard can seed its Like/Save buttons. Absent for static/demo data.
+  isLiked?: boolean;
+  isSaved?: boolean;
 }
 
 export interface ListCardData {
@@ -69,10 +74,11 @@ export interface DiscussedDirectorRow extends DirectorCardData {
 export interface DirectorApiResponse {
   directorId: number;
   lang: string;
+  name: string;
   biography: string;
   birthday: string | null; // YYYY-MM-DD
   deathday: string | null; // YYYY-MM-DD
-  gender: number;
+  gender: number | string;
   placeOfBirth: string | null;
   profilePath: string | null; // TMDB path, e.g. "/abc.jpg"
 }
@@ -83,17 +89,18 @@ export interface DirectorStats {
   reviewsCount: string; // pre-formatted, e.g. "28.7K"
 }
 
-/** Actor biography & metadata from GET /actors/{slug}/{id} — mirrors the
+/** Actor biography & metadata from GET /actors/{id} - mirrors the
  *  director payload (the backend may key the id as `actorId` or `directorId`;
  *  the page resolves the profile id from the route param either way). */
 export interface ActorApiResponse {
   actorId?: number;
   directorId?: number;
   lang: string;
+  name: string;
   biography: string;
   birthday: string | null; // YYYY-MM-DD
   deathday: string | null; // YYYY-MM-DD
-  gender: number;
+  gender: number | string;
   placeOfBirth: string | null;
   profilePath: string | null; // TMDB path, e.g. "/abc.jpg"
 }

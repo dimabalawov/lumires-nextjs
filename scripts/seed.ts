@@ -26,6 +26,7 @@ import {
   REVIEW_TITLES,
   RATING_POOL,
   REPLY_TEXTS,
+  FEATURED_COLLECTIONS,
 } from "./seedData";
 
 // --- Config ----------------------------------------------------------------
@@ -49,6 +50,8 @@ const SEED_PASSWORD = process.env.SEED_PASSWORD ?? "SeedPass123!";
 const isReset = process.argv.includes("--reset");
 // --replies: skip review creation, just post replies on every existing review.
 const isReplies = process.argv.includes("--replies");
+// --collections: create the featured authors + their lists and feature them.
+const isCollections = process.argv.includes("--collections");
 
 function requireEnv(): { url: string; anon: string; service: string | null } {
   const missing: string[] = [];
@@ -245,6 +248,34 @@ async function fetchFilms(): Promise<Film[]> {
   return (items ?? []).filter((f) => f.externalId && f.slug);
 }
 
+interface CatalogueFilm {
+  id: number;
+  title: string;
+  posterPath: string | null;
+}
+
+/**
+ * Pull films from the main catalogue (GET /films), keeping only those that have
+ * a poster (so the Collections filmstrip never renders empty/black panels), and
+ * paging until we have at least `needed`. Exposes the *internal* film id, which
+ * is what POST /lists expects in `filmIds` — the same id the Create-List modal
+ * sends via /api/search/films. NOT the TMDB `externalId` from popular/weekly.
+ */
+async function fetchCatalogueFilms(needed: number): Promise<CatalogueFilm[]> {
+  const out: CatalogueFilm[] = [];
+  for (let page = 1; out.length < needed && page <= 12; page++) {
+    const { results } = await api<{ results: CatalogueFilm[] }>(
+      "GET",
+      `/films?page=${page}&pageSize=50`,
+    );
+    for (const f of results ?? []) {
+      if (typeof f.id === "number" && f.posterPath) out.push(f);
+    }
+    if (!results || results.length < 50) break; // last page
+  }
+  return out;
+}
+
 /** Allocate TOTAL_REVIEWS across films, weighted by rank so #1 gets the most. */
 function allocate(filmCount: number, total: number): number[] {
   const totalWeight = (filmCount * (filmCount + 1)) / 2;
@@ -433,6 +464,156 @@ async function resetUsers(admin: SupabaseClient): Promise<void> {
   console.log(`  deleted ${deleted} seeded auth user(s).`);
 }
 
+/**
+ * Create (or reuse) a single confirmed user with an explicit username, signing
+ * in to capture a JWT. Mirrors createUsers() for one named account.
+ */
+async function createNamedUser(
+  authClient: SupabaseClient,
+  admin: SupabaseClient | null,
+  username: string,
+): Promise<SeedUser | null> {
+  const email = `${username}@${SEED_DOMAIN}`;
+
+  if (admin) {
+    const { error } = await admin.auth.admin.createUser({
+      email,
+      password: SEED_PASSWORD,
+      email_confirm: true,
+      user_metadata: { username },
+    });
+    if (error && !/already.*regist|exist/i.test(error.message)) {
+      console.warn(`  ! createUser(${email}) failed: ${error.message}`);
+      return null;
+    }
+  } else {
+    const { error } = await authClient.auth.signUp({
+      email,
+      password: SEED_PASSWORD,
+      options: { data: { username } },
+    });
+    if (error && !/already|registered/i.test(error.message)) {
+      console.warn(`  ! signUp(${email}) failed: ${error.message}`);
+      return null;
+    }
+  }
+
+  const { data, error: signInErr } = await authClient.auth.signInWithPassword({
+    email,
+    password: SEED_PASSWORD,
+  });
+  if (signInErr || !data.session) {
+    console.warn(`  ! signIn(${email}) failed: ${signInErr?.message ?? "no session"}`);
+    return null;
+  }
+  return { id: data.session.user.id, email, username, token: data.session.access_token };
+}
+
+interface CreatedList {
+  filmsListId: string;
+}
+
+/** How many films each featured list gets — enough unique posters to fill the
+ * Collections filmstrip (centre + side panels) without repeating left vs right. */
+const FILMS_PER_LIST = 12;
+
+/**
+ * Delete every list (and its film/like/save links) owned by a seeded
+ * @lumires.test user, so re-running --collections doesn't pile up duplicates or
+ * leave orphans from renamed authors. Children are removed before parents.
+ */
+async function purgeSeededLists(): Promise<void> {
+  const seeded = `(select "Id" from "Users" where "Email" like '%@${SEED_DOMAIN}')`;
+  const lists = `(select "Id" from "FilmsList" where "UserId" in ${seeded})`;
+  const steps: Array<[string, string]> = [
+    ["list films", `delete from "ListFilms" where "FilmsListId" in ${lists}`],
+    ["list likes", `delete from "FilmsListLikes" where "FilmsListId" in ${lists} or "UserId" in ${seeded}`],
+    ["saved lists", `delete from "SavedLists" where "ListId" in ${lists} or "UserId" in ${seeded}`],
+    ["lists", `delete from "FilmsList" where "UserId" in ${seeded}`],
+  ];
+  for (const [label, sql] of steps) {
+    await pgq(sql);
+    console.log(`  cleared seeded ${label}`);
+  }
+}
+
+/**
+ * Create the featured authors + one film list each. The "Collections Created By
+ * Film Lovers" section reads these straight from GET /lists (sorted by most
+ * films), so no separate curation table is needed — the lists ARE the source.
+ * Requires the service-role key (setAvatars uses /pg/query).
+ */
+async function seedFeaturedCollections(
+  authClient: SupabaseClient,
+  admin: SupabaseClient | null,
+): Promise<void> {
+  if (!SERVICE_ROLE_KEY) {
+    console.error("--collections requires SUPABASE_SERVICE_ROLE_KEY (uses /pg/query) in .env.local.");
+    process.exit(1);
+  }
+
+  console.log("1/3  Clearing previously-seeded lists (idempotent re-run)...");
+  await purgeSeededLists();
+
+  console.log("2/3  Fetching films (with posters) to populate lists...");
+  // Each author gets a distinct slice, so fetch enough poster-bearing films to
+  // cover all of them without overlap.
+  const films = await fetchCatalogueFilms(FEATURED_COLLECTIONS.length * FILMS_PER_LIST + FILMS_PER_LIST);
+  if (films.length < FILMS_PER_LIST) {
+    console.error(`Only ${films.length} films with posters returned from /films — aborting.`);
+    process.exit(1);
+  }
+
+  console.log("3/3  Creating featured authors & their lists...");
+  const created: { username: string; title: string }[] = [];
+  for (let i = 0; i < FEATURED_COLLECTIONS.length; i++) {
+    const spec = FEATURED_COLLECTIONS[i];
+    const user = await createNamedUser(authClient, admin, spec.username);
+    if (!user) {
+      console.warn(`  ! skipping ${spec.username} (could not create/sign in)`);
+      continue;
+    }
+    await registerProfiles([user]);
+    await setAvatars([user]);
+
+    // Give each author a distinct slice of films (wraps around if we ran short).
+    const offset = (i * FILMS_PER_LIST) % films.length;
+    const slice = films.slice(offset, offset + FILMS_PER_LIST);
+    const ids = (slice.length >= FILMS_PER_LIST ? slice : films.slice(0, FILMS_PER_LIST))
+      .map((f) => f.id)
+      .filter(Boolean);
+
+    try {
+      const res = await api<CreatedList>("POST", "/lists", {
+        token: user.token,
+        body: {
+          title: spec.title,
+          description: spec.description,
+          isPrivate: false,
+          filmIds: ids,
+        },
+      });
+      if (res?.filmsListId) {
+        created.push({ username: spec.username, title: spec.title });
+        console.log(`  + ${spec.username}: "${spec.title}" (${ids.length} films, ${res.filmsListId})`);
+      }
+    } catch (err) {
+      console.warn(`  ! create list for ${spec.username}: ${(err as Error).message}`);
+    }
+  }
+
+  if (created.length === 0) {
+    console.error("No lists were created.");
+    process.exit(1);
+  }
+
+  console.log(
+    `\nDone. Created ${created.length} collection(s): ${created
+      .map((c) => `@${c.username}`)
+      .join(", ")}. They surface in "Collections Created By Film Lovers" on /lists.`,
+  );
+}
+
 // --- Main -------------------------------------------------------------------
 
 async function main() {
@@ -448,17 +629,34 @@ async function main() {
       process.exit(1);
     }
     console.log("Resetting: purging all review content, seeded profiles, and auth users...");
-    console.log("1/3  Purging review content...");
+    console.log("1/4  Purging review content...");
     await purgeContent();
-    console.log("2/3  Deleting seeded Lumires profiles...");
+    console.log("2/4  Clearing featured collections...");
+    // Best-effort: our own table, safe to wipe on a dev reset. Tolerate absence.
+    try {
+      await pgq(`delete from featured_collections`);
+      console.log("  cleared featured_collections");
+    } catch {
+      console.log("  featured_collections not present — skipped");
+    }
+    console.log("3/4  Deleting seeded Lumires profiles...");
     await deleteSeededProfiles();
-    console.log(`3/3  Deleting seeded auth users (@${SEED_DOMAIN})...`);
+    console.log(`4/4  Deleting seeded auth users (@${SEED_DOMAIN})...`);
     await resetUsers(admin);
     console.log("\nReset complete.");
     return;
   }
 
   const authClient = createClient(url, anon, { auth: { persistSession: false } });
+
+  if (isCollections) {
+    console.log(
+      `Seeding featured collections against ${API_BASE}\n` +
+        `Mode: ${admin ? "admin API (service-role key)" : "public signUp (no service key)"}\n`,
+    );
+    await seedFeaturedCollections(authClient, admin);
+    return;
+  }
 
   if (isReplies) {
     console.log(

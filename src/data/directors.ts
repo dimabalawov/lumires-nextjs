@@ -2,8 +2,8 @@ import type { EditorialFilm } from "./editorialCollections";
 import { DirectorCardData, DirectorStats, EditorialReply } from "@/types/film";
 
 export interface SimilarDirector {
-  id: string; // slug for href, e.g. "paul-thomas-anderson"
-  apiId: number; // director id used in /directors/[slug]/[id]
+  id: string; // stable local key, e.g. "paul-thomas-anderson"
+  apiId: number; // director id used in /directors/[id]
   name: string;
   image: string;
   matchPercent: number; // 0-100

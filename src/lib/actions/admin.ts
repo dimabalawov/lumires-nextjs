@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/auth/admin";
 import { getPersonPopularity } from "@/lib/api/tmdb";
 import { popularityToMentions } from "@/lib/directors/discussed";
+import { getList } from "@/lib/api/lists";
 import { discussedDirectors } from "@/data/directors";
 
 export interface UpdateMentionsResult {
@@ -120,4 +121,66 @@ export async function syncAllDirectorMentions(): Promise<SyncAllResult> {
 
   revalidateDirectors();
   return { ok: true, updated: rows.length, failed };
+}
+
+// --- Featured collections ("Collections Created By Film Lovers") -------------
+
+export interface FeaturedResult {
+  ok?: true;
+  title?: string;
+  error?: string;
+}
+
+function revalidateCollections() {
+  revalidatePath("/lists");
+  revalidatePath("/admin/collections");
+}
+
+/** Add a list to the curated "Collections Created By Film Lovers" section. */
+export async function addFeaturedCollection(listId: string): Promise<FeaturedResult> {
+  const admin = await requireAdmin();
+  if (!admin) return { error: "Not authorized" };
+
+  const id = listId.trim();
+  if (!id) return { error: "Missing list id" };
+
+  // Confirm the list exists (and grab its title for feedback).
+  const list = await getList(id).catch(() => null);
+  if (!list) return { error: "No list found with that id" };
+
+  const supabase = createAdminClient();
+
+  // Next position = current max + 1, so new entries append to the end.
+  const { data: rows } = await supabase
+    .from("featured_collections")
+    .select("position")
+    .order("position", { ascending: false })
+    .limit(1);
+  const nextPosition = (rows?.[0]?.position ?? -1) + 1;
+
+  const { error } = await supabase.from("featured_collections").upsert({
+    list_id: id,
+    position: nextPosition,
+    added_at: new Date().toISOString(),
+  });
+  if (error) return { error: error.message };
+
+  revalidateCollections();
+  return { ok: true, title: list.title };
+}
+
+/** Remove a list from the curated collections section. */
+export async function removeFeaturedCollection(listId: string): Promise<FeaturedResult> {
+  const admin = await requireAdmin();
+  if (!admin) return { error: "Not authorized" };
+
+  const id = listId.trim();
+  if (!id) return { error: "Missing list id" };
+
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("featured_collections").delete().eq("list_id", id);
+  if (error) return { error: error.message };
+
+  revalidateCollections();
+  return { ok: true };
 }
