@@ -4,6 +4,7 @@ import Button from "@/components/ui/Button";
 import GradientDivider from "@/components/ui/GradientDivider";
 import { editorialPick } from "@/data/editorialPick";
 import type { EditorialReply } from "@/types/film";
+import { AccentTitle } from "../ui/AccentTitle";
 
 function ReplyItem({ reply }: { reply: EditorialReply }) {
   return (
@@ -59,9 +60,7 @@ export default function EditorialPickSection() {
     <section className="w-full pt-16 lg:pt-24 pb-16 lg:pb-24 flex flex-col items-center bg-brand-dark">
       {/* Header — matches the manrope-light section heading used on this page */}
       <div className="section-container mb-8 lg:mb-12">
-        <h2 className="font-manrope font-light text-brand-light opacity-90 text-[32px] leading-[40px] lg:text-[48px] lg:leading-[56px] tracking-[0.06em]">
-          Editorial Pick <span className="text-brand-gold">This Week</span>
-        </h2>
+        <AccentTitle text="Editorial Pick" accent="This Week" />
       </div>
 
       {/* Featured card */}
@@ -122,8 +121,8 @@ export default function EditorialPickSection() {
               Top Replies
             </h4>
             {/* Indented list with a vertical divider down the left gutter */}
-            <div className="mt-6 pl-[52px] lg:pl-[60px]">
-              <div className="flex flex-col gap-10 border-l border-[#DACBBD]/25 pl-6 lg:pl-8">
+            <div className="mt-6 lg:pl-15">
+              <div className="flex flex-col gap-10 lg:border-l lg:border-[#DACBBD]/25 lg:pl-8">
                 {pick.topReplies.map((reply) => (
                   <ReplyItem key={reply.id} reply={reply} />
                 ))}

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { WeeklyFilmData } from "@/types/film";
+import { ShowAllLink } from "./ShowAllLink";
 
 interface WeeklyFilmCardProps {
   film: WeeklyFilmData;
@@ -37,7 +38,7 @@ export default function WeeklyFilmCard({
         style={{ transition: "transform 0.4s ease" }}
       />
 
-      <div className="absolute inset-0 bg-gradient-to-l from-brand-dark/90 via-brand-dark/50 to-transparent" />
+      <div className="absolute inset-0 bg-linear-to-l from-brand-dark/90 via-brand-dark/50 to-transparent" />
 
       <div
         className="absolute inset-0 flex flex-col items-end justify-between pr-6"
@@ -58,7 +59,7 @@ export default function WeeklyFilmCard({
             {film.title}
           </h3>
           <p
-            className="text-brand-muted font-manrope leading-[18px] tracking-[0.06em]"
+            className="text-brand-muted font-manrope leading-4.5 tracking-[0.06em]"
             style={{
               fontSize: isActive ? 13 : 11,
               transition: "font-size 0.4s ease",
@@ -68,18 +69,18 @@ export default function WeeklyFilmCard({
           </p>
         </div>
 
-        <Link
-          href={`/films/${film.id}`}
-          className="uppercase font-oswald font-light text-brand-light hover:opacity-70 tracking-[0.06em] text-sm underline"
+        <ShowAllLink 
+          className="text-sm uppercase font-oswald font-light text-brand-light"
+          isCenter={true}
+          title="See all reviews" 
+          href={`/films/${film.id}`} 
+          withBorder={true}
+          onClick={(e) => e.stopPropagation()}
           style={{
             opacity: isActive ? 1 : 0,
             pointerEvents: isActive ? "auto" : "none",
             transition: "opacity 0.3s ease 0.1s",
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          SEE ALL REVIEWS →
-        </Link>
+          }} />
       </div>
     </div>
   );

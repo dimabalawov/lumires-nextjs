@@ -80,7 +80,8 @@ export default function ListCard({
       <button
         type="button"
         onClick={() => router.push(href)}
-        className="mt-4 text-left font-oswald font-normal text-brand-gold text-[32px] leading-[1.2] tracking-[0.01em] hover:opacity-80 transition-opacity"
+        className="mt-4 text-left font-oswald font-normal text-brand-gold leading-[1.2] tracking-[0.01em] hover:opacity-80 transition-opacity"
+        style={{ fontSize: "clamp(20px, 3vw, 32px)" }}
       >
         {list.title}
       </button>
@@ -96,7 +97,6 @@ export default function ListCard({
         <ListActions
           listId={list.id}
           initialLiked={list.isLiked}
-          initialSaved={list.isSaved}
           isAuthed={isAuthed}
         />
       </div>

@@ -8,6 +8,8 @@ import GradientDivider from "@/components/ui/GradientDivider";
 import StarRating from "@/components/ui/StarRating";
 import { popularReviews as defaultPopularReviews } from "@/data/popularReviews";
 import type { FeaturedReview } from "@/types/review";
+import { AccentTitle } from "../ui/AccentTitle";
+import { ShowAllLink } from "../ui/ShowAllLink";
 
 const CARD_GRADIENT =
   "linear-gradient(125deg, rgba(210,166,106,0.12) 0%, rgba(64,45,27,0.12) 26%, rgba(210,166,106,0) 58%), #12100e";
@@ -55,7 +57,7 @@ function CommentIcon() {
 }
 
 const arrowClasses =
-  "absolute top-1/2 -translate-y-1/2 z-10 size-10 rounded-full border border-brand-gold/70 text-brand-gold flex items-center justify-center hover:bg-brand-gold hover:text-brand-dark transition-colors";
+  "hidden lg:flex absolute top-1/2 -translate-y-1/2 z-10 size-10 rounded-full border border-brand-gold/70 text-brand-gold flex items-center justify-center hover:bg-brand-gold hover:text-brand-dark transition-colors";
 
 interface PopularReviewsSectionProps {
   reviews?: FeaturedReview[];
@@ -82,16 +84,15 @@ export default function PopularReviewsSection({
 
   return (
     <section className="section-container pt-8 pb-16 lg:pt-12 lg:pb-24">
-      <h2 className="mb-8 lg:mb-10 font-manrope font-light text-brand-light opacity-90 text-[32px] leading-[40px] lg:text-[48px] lg:leading-[56px] tracking-[0.02em]">
-        Popular <span className="text-brand-gold">Reviews</span>
-      </h2>
+
+      <AccentTitle text="Popular" accent="Reviews" className="mb-8 lg:mb-10" />
 
       <div className="relative">
         <button
           type="button"
           onClick={prev}
           aria-label="Previous review"
-          className={`${arrowClasses} left-3 lg:left-[22px]`}
+          className={`${arrowClasses} left-3 lg:left-5.5`}
         >
           <ChevronLeft />
         </button>
@@ -99,109 +100,121 @@ export default function PopularReviewsSection({
           type="button"
           onClick={next}
           aria-label="Next review"
-          className={`${arrowClasses} right-3 lg:right-[22px]`}
+          className={`${arrowClasses} right-3 lg:right-5.5`}
         >
           <ChevronRight />
         </button>
 
         <article
-          className="relative overflow-hidden rounded-md border border-[rgba(210,166,106,0.18)] lg:aspect-[2/1]"
+          className="relative overflow-hidden rounded-md border border-[rgba(210,166,106,0.18)]"
           style={{ background: CARD_GRADIENT }}
         >
-          <div className="grid grid-cols-1 gap-6 p-6 md:grid-cols-[240px_minmax(0,1fr)] md:gap-8 md:p-8 lg:h-full lg:grid-cols-[258px_minmax(0,1fr)] lg:gap-[45px] lg:px-[88px] lg:py-[29px]">
-            <div className="relative w-full max-w-[258px] aspect-[2/3] overflow-hidden rounded-[3px] shadow-2xl">
-              <Image
-                src={review.posterUrl}
-                alt={review.title}
-                fill
-                sizes="(min-width: 1024px) 258px, (min-width: 768px) 240px, 100vw"
-                className="object-cover"
-              />
+          <div className="grid grid-cols-[120px_minmax(0,1fr)] gap-6 p-6 
+            md:grid-cols-[240px_minmax(0,1fr)] md:gap-8 md:p-8 
+            lg:hidden">
+            <div className="relative w-full aspect-2/3 overflow-hidden rounded-[3px] shadow-2xl">
+              <Image src={review.posterUrl} alt={review.title} fill sizes="240px" className="object-cover" />
             </div>
+            <div className="flex flex-col stretch justify-around lg:justify-center min-w-0">
+              {eyebrow && (
+                <div className="flex items-center gap-2 font-oswald uppercase text-brand-gold text-xl lg:text-xs tracking-[0.2em]">
+                  <span aria-hidden>{"\u2605"}</span>
+                  <span>{eyebrow}</span>
+                </div>
+              )}
+              <h3 className="mt-5 font-oswald font-light text-brand-gold leading-[1.02] tracking-[0.01em] text-6xl lg:text-4xl">
+                {review.href ? <Link href={review.href} className="hover:opacity-80 transition-opacity">{review.title}</Link> : review.title}
+              </h3>
+              {filmMeta.length > 0 && (
+                <p className="mt-2 font-manrope font-normal text-brand-muted text-[20px] lg:text-[14px] leading-6.25">
+                  {filmMeta.join(" \u00b7 ")}
+                </p>
+              )}
+            </div>
+          </div>
 
-            <div className="flex min-w-0 flex-col lg:h-full">
+          <div className="hidden lg:grid h-full grid-cols-[258px_minmax(0,1fr)] gap-11.25 px-22 py-7.25">
+            <div className="relative w-full max-w-64.5 aspect-2/3 overflow-hidden rounded-[3px] shadow-2xl">
+              <Image src={review.posterUrl} alt={review.title} fill sizes="258px" className="object-cover" />
+            </div>
+            <div className="flex min-w-0 flex-col h-full">
               {eyebrow && (
                 <div className="flex items-center gap-2 font-oswald uppercase text-brand-gold text-xs tracking-[0.2em]">
                   <span aria-hidden>{"\u2605"}</span>
                   <span>{eyebrow}</span>
                 </div>
               )}
-
-              <h3 className="mt-5 max-w-[720px] font-oswald font-light text-brand-gold leading-[1.02] tracking-[0.01em] text-4xl lg:text-[64px] lg:leading-none">
-                {review.href ? (
-                  <Link href={review.href} className="hover:opacity-80 transition-opacity">
-                    {review.title}
-                  </Link>
-                ) : (
-                  review.title
-                )}
+              <h3 className="mt-5 max-w-180 font-oswald font-light text-brand-gold leading-[1.02] tracking-[0.01em] text-[64px]">
+                {review.href ? <Link href={review.href} className="hover:opacity-80 transition-opacity">{review.title}</Link> : review.title}
               </h3>
-
               {filmMeta.length > 0 && (
-                <p className="mt-2 font-manrope font-normal text-brand-muted text-[14px] lg:text-[15px] leading-[25px]">
+                <p className="mt-2 font-manrope font-normal text-brand-muted text-[15px] leading-6.25">
                   {filmMeta.join(" \u00b7 ")}
                 </p>
               )}
-
-              <p className="mt-6 max-w-[655px] font-manrope font-light text-brand-light text-[22px] leading-[1.32] lg:text-[28px]">
+              <p className="mt-6 max-w-163.75 font-manrope font-light text-brand-light text-[28px] leading-[1.32]">
                 &ldquo;{review.pullQuote}&rdquo;
               </p>
-
               {review.body.length > 0 && (
-                <div className="mt-7 border-l border-brand-gold/40 pl-5 flex flex-col gap-5 max-w-[650px]">
+                <div className="mt-7 border-l border-brand-gold/40 pl-5 flex flex-col gap-5 max-w-162.5">
                   {review.body.map((paragraph, i) => (
-                    <p
-                      key={i}
-                      className="font-manrope font-normal text-auth-subtitle text-[15px] leading-[24px] tracking-[0.01em]"
-                    >
+                    <p key={i} className="font-manrope font-normal text-auth-subtitle text-[15px] leading-6 tracking-[0.01em]">
                       {paragraph}
                     </p>
                   ))}
                 </div>
               )}
-
-              <GradientDivider className="mt-8 lg:mt-auto" />
-
+              <GradientDivider className="mt-auto" />
               <div className="mt-6 flex flex-wrap items-center justify-between gap-6">
                 <div className="flex items-center gap-3">
-                  <Image
-                    src={review.avatarUrl}
-                    alt={review.username}
-                    width={40}
-                    height={40}
-                    className="shrink-0 rounded-full object-cover size-[40px]"
-                  />
+                  <Image src={review.avatarUrl} alt={review.username} width={40} height={40} className="shrink-0 rounded-full object-cover size-10" />
                   <div className="flex flex-col gap-0.5">
-                    <span className="font-manrope font-medium text-[14px] tracking-[0.04em] text-brand-gold">
-                      {review.username}
-                    </span>
-                    {authorMeta && (
-                      <span className="font-oswald uppercase text-brand-muted text-[11px] tracking-[0.12em]">
-                        {authorMeta}
-                      </span>
-                    )}
+                    <span className="font-manrope font-medium text-[14px] tracking-[0.04em] text-brand-gold">{review.username}</span>
+                    {authorMeta && <span className="font-oswald uppercase text-brand-muted text-[11px] tracking-[0.12em]">{authorMeta}</span>}
                   </div>
                 </div>
-
                 <StarRating count={review.rating} max={5} className="text-brand-gold text-[16px]" />
-
                 <div className="flex items-center gap-6 text-brand-muted font-manrope text-[14px]">
-                  <span className="flex items-center gap-2">
-                    <span className="text-brand-gold">
-                      <HeartIcon />
-                    </span>
-                    {review.likes}
-                  </span>
-                  <span className="flex items-center gap-2">
-                    <CommentIcon />
-                    {review.replies} replies
-                  </span>
+                  <span className="flex items-center gap-2"><span className="text-brand-gold"><HeartIcon /></span>{review.likes}</span>
+                  <span className="flex items-center gap-2"><CommentIcon />{review.replies} replies</span>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="lg:hidden flex flex-col px-6 pb-6 md:px-8 md:pb-8">
+            <p className="font-manrope font-light text-brand-light text-[22px] leading-[1.32]">
+              &ldquo;{review.pullQuote}&rdquo;
+            </p>
+            {review.body.length > 0 && (
+              <div className="mt-7 border-l border-brand-gold/40 pl-5 flex flex-col gap-5">
+                {review.body.map((paragraph, i) => (
+                  <p key={i} className="font-manrope font-normal text-auth-subtitle text-[15px] leading-6 tracking-[0.01em]">
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
+            )}
+            <GradientDivider className="mt-8" />
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-6">
+              <div className="flex items-center gap-3">
+                <Image src={review.avatarUrl} alt={review.username} width={40} height={40} className="shrink-0 rounded-full object-cover size-10" />
+                <div className="flex flex-col gap-0.5">
+                  <span className="font-manrope font-medium text-[14px] tracking-[0.04em] text-brand-gold">{review.username}</span>
+                  {authorMeta && <span className="font-oswald uppercase text-brand-muted text-[11px] tracking-[0.12em]">{authorMeta}</span>}
+                </div>
+              </div>
+              <StarRating count={review.rating} max={5} className="text-brand-gold text-[16px]" />
+              <div className="flex items-center gap-6 text-brand-muted font-manrope text-[14px]">
+                <span className="flex items-center gap-2"><span className="text-brand-gold"><HeartIcon /></span>{review.likes}</span>
+                <span className="flex items-center gap-2"><CommentIcon />{review.replies} replies</span>
               </div>
             </div>
           </div>
         </article>
       </div>
+
+      <ShowAllLink href="#" className="lg:hidden flex justify-end mr-5 mt-5 lowercase text-brand-muted" withBorder={false} isCenter={true} />
     </section>
   );
 }

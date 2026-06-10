@@ -16,7 +16,7 @@ const infoLinks = [
 
 export default function Footer() {
   return (
-    <footer className="bg-brand-dark pt-11 pb-16">
+    <footer className="bg-brand-dark pt-11 pb-16 relative z-10">
       <div className="section-container flex flex-col gap-8">
       {/* Gradient divider */}
       <div className="h-px w-full [background:linear-gradient(90deg,rgba(155,143,132,0)_0%,rgba(155,143,132,1)_47%,rgba(155,143,132,0)_100%)]" />

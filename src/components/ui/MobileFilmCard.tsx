@@ -11,7 +11,7 @@ export default function MobileFilmCard({ film }: MobileFilmCardProps) {
   return (
     <Link
       href={`/films/${film.id}`}
-      className="relative shrink-0 w-[220px] h-[160px] rounded-md overflow-hidden snap-start block"
+      className="relative shrink-0 w-3xs h-85 rounded-md overflow-hidden snap-start block"
     >
       {film.image ? (
         <Image
@@ -22,11 +22,11 @@ export default function MobileFilmCard({ film }: MobileFilmCardProps) {
           sizes="220px"
         />
       ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-brand-dark to-[#1d1a17]" />
+        <div className="absolute inset-0 bg-linear-to-br from-brand-dark to-[#1d1a17]" />
       )}
-      <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/90 via-brand-dark/40 to-transparent" />
+      <div className="absolute inset-0 bg-linear-to-t from-brand-dark/90 via-brand-dark/40 to-transparent" />
       <div className="absolute bottom-3 left-3 right-3 flex flex-col gap-1">
-        <h3 className="text-brand-gold font-oswald font-normal text-[15px] uppercase tracking-[0.06em] leading-tight line-clamp-1">
+        <h3 className="text-brand-gold font-oswald font-normal text-[22px] tracking-[0.06em] leading-tight line-clamp-1">
           {film.title}
         </h3>
         {film.rating != null ? (
@@ -34,9 +34,9 @@ export default function MobileFilmCard({ film }: MobileFilmCardProps) {
             <StarRating count={film.rating} />
           </div>
         ) : null}
-        {film.quote ? (
-          <p className="text-brand-muted font-manrope text-[10px] italic leading-tight line-clamp-1">
-            {film.quote}
+        {film.reviewer ? (
+          <p className="text-brand-muted uppercase font-manrope text-[14px] leading-tight tracking-wide line-clamp-1">
+            {"review by " + film.reviewer}
           </p>
         ) : film.year ? (
           <p className="text-brand-muted font-manrope text-[10px] leading-tight line-clamp-1">

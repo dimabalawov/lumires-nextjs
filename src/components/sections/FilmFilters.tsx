@@ -2,18 +2,16 @@
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { FilterTabs } from "../ui/FilterTabs";
 
-// Content tabs map 1:1 to FilmContentFilter (0 = All … 5 = HiddenGems).
 const filterTabs = [
   { value: 0, label: "All Films" },
   { value: 1, label: "Popular" },
   { value: 2, label: "Top Rated" },
   { value: 3, label: "New Releases" },
-  { value: 4, label: "First Watches" },
-  { value: 5, label: "Hidden Gems" },
+  { value: 4, label: "Hidden Gems" },
 ];
 
-// RatingEnum (0 = All … 4 = UnderThree).
 const ratingOptions = [
   { value: 0, label: "All" },
   { value: 1, label: "4.5★+" },
@@ -22,7 +20,6 @@ const ratingOptions = [
   { value: 4, label: "Under 3★" },
 ];
 
-// FilmContentOrder (0 = MostRecent … 4 = LeastRated).
 const sortOptions = [
   { value: 0, label: "Most Recent" },
   { value: 1, label: "Most Liked" },
@@ -88,7 +85,7 @@ function FilterSelect({ value, options, minWidth = "min-w-[130px]", onChange }: 
         onKeyDown={(event) => {
           if (event.key === "Escape") setOpen(false);
         }}
-        className={`${minWidth} flex items-center justify-between gap-4 rounded-[4px] border border-brand-gold/30 bg-[#171411] px-3 py-1.5 text-left font-manrope text-[13px] font-normal uppercase tracking-[0.2em] text-brand-light shadow-[0_0_0_1px_rgba(18,16,14,0.7)] transition-colors hover:border-brand-gold/60 hover:bg-[#1d1915] focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-brand-gold/70`}
+        className={`${minWidth} flex items-center justify-between gap-4 rounded-sm border border-brand-gold/30 bg-[#171411] px-3 py-1.5 text-left font-manrope text-[13px] font-normal uppercase tracking-[0.2em] text-brand-light shadow-[0_0_0_1px_rgba(18,16,14,0.7)] transition-colors hover:border-brand-gold/60 hover:bg-[#1d1915] focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-brand-gold/70`}
       >
         <span className="truncate">{selected?.label}</span>
         <Chevron open={open} />
@@ -163,23 +160,11 @@ export default function FilmFilters({ value, genres }: FilmFiltersProps) {
   return (
     <>
       <div className="mb-6 flex flex-wrap items-center gap-2 lg:gap-3">
-        {filterTabs.map((tab) => {
-          const active = tab.value === value.content;
-          return (
-            <button
-              key={tab.value}
-              type="button"
-              onClick={() => apply("content", tab.value)}
-              className={
-                active
-                  ? "border border-brand-gold/45 text-brand-gold uppercase font-manrope font-normal text-[13px] tracking-[0.2em] px-[18px] py-[10px] rounded-[4px]"
-                  : "border border-transparent text-brand-light hover:opacity-70 uppercase font-manrope font-normal text-[13px] tracking-[0.2em] px-[18px] py-[10px] rounded-[4px] transition-opacity"
-              }
-            >
-              {tab.label}
-            </button>
-          );
-        })}
+        <FilterTabs
+            tabs={filterTabs}
+            active={value.content}
+            onChange={(v) => apply("content", v)}
+          />
       </div>
 
       <div className="mb-10 lg:mb-12 flex flex-wrap items-center gap-6">

@@ -1,5 +1,6 @@
 import EditorialPosterCard from "@/components/ui/EditorialPosterCard";
 import type { EditorialFilm } from "@/data/editorialCollections";
+import { AccentTitle } from "../ui/AccentTitle";
 
 const ROW_SIZE = 5;
 
@@ -17,9 +18,8 @@ export default function DirectorFilmographySection({ films }: { films: Editorial
 
   return (
     <section className="section-container pt-8 lg:pt-12 pb-16 lg:pb-24">
-      <h2 className="font-manrope font-light text-brand-light/90 text-[48px] leading-[56px] tracking-[0.06em] mb-6 lg:mb-8">
-        Filmography
-      </h2>
+
+      <AccentTitle text="Filmography" className="mb-6 lg:mb-8" />
 
       <div className="flex flex-col gap-10 lg:gap-12">
         {rows.map((row, rowIdx) => (

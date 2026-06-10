@@ -1,6 +1,7 @@
 import FilmColumn from "@/components/ui/FilmColumn";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { mostReviewedFilms, topRatedFilms } from "@/data/weeklyFilms";
+import { AccentTitle } from "../ui/AccentTitle";
 
 interface WeeklySectionProps {
   title?: string;
@@ -15,16 +16,14 @@ export default function WeeklySection({
     <section className="w-full pt-16 lg:pt-24 pb-16 lg:pb-24 flex flex-col items-center bg-brand-dark">
       {titleAccent ? (
         <div className="section-container mb-8 lg:mb-12">
-          <h2 className="font-manrope font-light text-brand-light opacity-90 text-[32px] leading-[40px] lg:text-[48px] lg:leading-[56px] tracking-[0.06em]">
-            {title} <span className="text-brand-gold">{titleAccent}</span>
-          </h2>
+          <AccentTitle text={title} accent={titleAccent} />
         </div>
       ) : (
         <SectionHeader title={title} />
       )}
 
       <div
-        className="section-container rounded-md flex flex-col lg:flex-row gap-6 lg:gap-[47px] px-5 py-6 lg:px-[49px] lg:pt-[30px] lg:pb-[44px]"
+        className="section-container rounded-md flex flex-col lg:flex-row gap-6 lg:gap-11.75 px-5 py-6 lg:px-12.25 lg:pt-7.5 lg:pb-11"
         style={{
           backgroundColor: "#12100E",
           backgroundImage:

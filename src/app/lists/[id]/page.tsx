@@ -132,7 +132,6 @@ export default async function ListDetailPage({ params, searchParams }: ListDetai
           <ListActions
             listId={list.id}
             initialLiked={list.isLikedByMe}
-            initialSaved={list.isSavedByMe}
             isAuthed={isAuthed}
           />
         </div>

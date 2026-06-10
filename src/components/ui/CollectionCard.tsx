@@ -8,7 +8,7 @@ import { CollectionData } from "@/types/film";
 const CENTER_FLEX = 8;
 const SIDE_FLEX = 1;
 // On mobile only the centre panel plus this many panels on each side are shown.
-const MOBILE_SIDE_REACH = 3;
+const MOBILE_SIDE_REACH = 2;
 
 interface CollectionCardProps {
   collection: CollectionData;
@@ -42,7 +42,7 @@ export default function CollectionCard({ collection, isAuthed = false }: Collect
       onKeyDown={(e) => e.key === "Enter" && router.push(href)}
     >
       {/* Filmstrip */}
-      <div className="relative w-full overflow-hidden h-[180px] lg:h-[300px] rounded-[4px]">
+      <div className="relative w-full overflow-hidden h-45 lg:h-75 rounded-sm">
         <div className="flex h-full w-full">
           {films.map((src, i) => {
             const isCenter = i === centerIdx;
@@ -108,12 +108,12 @@ export default function CollectionCard({ collection, isAuthed = false }: Collect
       </div>
 
       {/* Collection title */}
-      <p className="font-oswald font-normal text-brand-gold text-center uppercase mt-4 text-[20px] leading-[28px] lg:text-[36px] lg:leading-[48px] tracking-[2.16px] group-hover:opacity-80 transition-opacity">
+      <p className="font-oswald font-normal text-brand-gold text-center lg:uppercase mt-4 text-[20px] leading-7 lg:text-[36px] lg:leading-12 tracking-[2.16px] group-hover:opacity-80 transition-opacity">
         {collection.title}
       </p>
 
       {/* Symmetrical gradient divider — bright in the middle, fading to both edges */}
-      <div className="mt-3 h-px w-full bg-gradient-to-r from-transparent via-brand-gold/50 to-transparent" />
+      <div className="mt-3 h-px w-full bg-linear-to-r from-transparent via-brand-gold/50 to-transparent" />
 
       {/* Film count + author, under the divider */}
       {(collection.author || collection.filmCount != null) && (
@@ -137,7 +137,6 @@ export default function CollectionCard({ collection, isAuthed = false }: Collect
         <ListActions
           listId={collection.id}
           initialLiked={collection.isLiked ?? false}
-          initialSaved={collection.isSaved ?? false}
           isAuthed={isAuthed}
         />
       </div>

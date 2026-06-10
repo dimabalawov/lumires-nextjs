@@ -14,6 +14,7 @@ import {
   LIST_VIEWPORT_H,
   TRANSITION,
 } from "@/constants/carousel";
+import { AccentTitle } from "../ui/AccentTitle";
 
 interface ListsCarouselSectionProps {
   title?: string;
@@ -73,16 +74,8 @@ export default function ListsCarouselSection({
   return (
     <section className="w-full pt-16 lg:pt-24 pb-16 lg:pb-24 flex flex-col items-center bg-brand-dark">
       {/* Header row */}
-      <div className="section-container mb-8 lg:mb-[68px] flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-end pb-4">
-        <h2 className="font-manrope font-light text-brand-light opacity-90 text-[32px] leading-[40px] lg:text-[48px] lg:leading-[56px] tracking-[0.06em]">
-          {title}
-          {titleAccent ? (
-            <>
-              {" "}
-              <span className="text-brand-gold">{titleAccent}</span>
-            </>
-          ) : null}
-        </h2>
+      <div className="section-container mb-8 lg:mb-17 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-end pb-4">
+        <AccentTitle text={title} accent={titleAccent} />
       </div>
 
       {/* Mobile: horizontal scroll (hidden on lg+) */}
@@ -93,7 +86,7 @@ export default function ListsCarouselSection({
               <Link
                 key={list.id}
                 href={`/lists/${list.id}`}
-                className="shrink-0 w-[280px] snap-center"
+                className="shrink-0 w-70 snap-center"
               >
                 <ListCarouselCard list={list} isCenter />
               </Link>

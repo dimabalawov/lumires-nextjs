@@ -148,6 +148,7 @@ export default function ListFilters({ value }: { value: ListFiltersValue }) {
 
   return (
     <>
+      {/*DIMA FilterTabs*/}
       <div className="mb-6 flex flex-wrap items-center gap-2 lg:gap-3">
         {filterTabs.map((tab) => {
           const active = tab.value === value.category;
