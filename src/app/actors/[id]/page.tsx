@@ -6,9 +6,26 @@ import DirectorBiographySection from "@/components/sections/DirectorBiographySec
 import DirectorFilmographySection from "@/components/sections/DirectorFilmographySection";
 import DirectorHeroSection from "@/components/sections/DirectorHeroSection";
 import DirectorMostDiscussedSection from "@/components/sections/DirectorMostDiscussedSection";
-import { getActorEditorial, getActorStats } from "@/data/actors";
-import { getActor } from "@/lib/api/actors";
+import {
+  getActorEditorial,
+  getActorStats as getActorStatsFallback,
+} from "@/data/actors";
+import { optionalData } from "@/lib/api/client";
+import {
+  getActor,
+  getActorFilmography,
+  getActorMostReviewed,
+  getActorSimilar,
+  getActorStats,
+} from "@/lib/api/actors";
 import { tmdbImage } from "@/lib/images/tmdb";
+import {
+  buildMostDiscussed,
+  toFilmographyData,
+  toProfileStats,
+  toSimilarCards,
+} from "@/lib/people/profile-sections";
+import { createClient } from "@/lib/supabase/server";
 import type { DirectorProfile } from "@/types/film";
 
 interface ActorPageProps {
@@ -37,12 +54,31 @@ export async function generateMetadata({ params }: ActorPageProps): Promise<Meta
 
 export default async function ActorPage({ params }: ActorPageProps) {
   const { id } = await params;
-  const api = await getActor(id);
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const isAuthed = Boolean(user);
+
+  const [api, filmographyApi, mostReviewedApi, statsApi, similarApi] = await Promise.all([
+    getActor(id),
+    getActorFilmography(id),
+    getActorMostReviewed(id),
+    optionalData(getActorStats(id)),
+    getActorSimilar(id),
+  ]);
   if (!api) notFound();
 
   // The profile id comes from the route param so we don't depend on whether the
   // backend keys the payload as `actorId` or `directorId`.
   const actorId = api.actorId ?? api.directorId ?? Number(id);
+
+  const filmography = toFilmographyData(filmographyApi);
+  const similarActors = toSimilarCards(
+    similarApi.map((p) => ({ apiId: p.actorId, profilePath: p.profilePath, name: p.name })),
+  );
+  const stats = statsApi ? toProfileStats(statsApi) : getActorStatsFallback(actorId);
+  const mostDiscussed = await buildMostDiscussed(mostReviewedApi, isAuthed);
 
   const actor: DirectorProfile = {
     id: actorId,
@@ -53,7 +89,7 @@ export default async function ActorPage({ params }: ActorPageProps) {
     deathYear: yearFromDate(api.deathday),
     birthplace: api.placeOfBirth,
     bio: firstParagraph(api.biography),
-    stats: getActorStats(actorId),
+    stats,
   };
 
   const editorial = getActorEditorial(actorId);
@@ -61,21 +97,30 @@ export default async function ActorPage({ params }: ActorPageProps) {
   return (
     <main className="relative flex min-h-screen flex-col bg-brand-dark pt-28 lg:pt-32">
       <DirectorHeroSection director={actor} />
+      {mostDiscussed ? (
+        <DirectorMostDiscussedSection thread={mostDiscussed} isAuthed={isAuthed} />
+      ) : editorial.mostDiscussed ? (
+        <DirectorMostDiscussedSection thread={editorial.mostDiscussed} />
+      ) : null}
+      {filmography.films.length > 0 ? (
+        <DirectorFilmographySection
+          films={filmography.films}
+          previewIds={filmography.previewIds}
+        />
+      ) : editorial.filmography ? (
+        <DirectorFilmographySection films={editorial.filmography} />
+      ) : null}
+      {similarActors.length > 0 ? (
+        <ActorSimilarSection actors={similarActors} />
+      ) : editorial.similarActors ? (
+        <ActorSimilarSection actors={editorial.similarActors} />
+      ) : null}
       <DirectorBiographySection
         name={actor.name}
         bio={api.biography}
         pullQuote={editorial.pullQuote}
         topGenres={editorial.topGenres}
       />
-      {editorial.filmography && (
-        <DirectorFilmographySection films={editorial.filmography} />
-      )}
-      {editorial.mostDiscussed && (
-        <DirectorMostDiscussedSection thread={editorial.mostDiscussed} />
-      )}
-      {editorial.similarActors && (
-        <ActorSimilarSection actors={editorial.similarActors} />
-      )}
     </main>
   );
 }

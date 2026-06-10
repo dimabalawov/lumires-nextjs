@@ -21,6 +21,12 @@ export interface DirectorMostDiscussed {
   quote: string;
   likes: string; // pre-formatted, e.g. "324"
   topReplies: EditorialReply[];
+  // Live fields (present when backed by a real review). When set, the thread
+  // renders a working LikeButton and links to the film instead of being static.
+  reviewId?: string;
+  filmId?: string;
+  likedByMe?: boolean;
+  likesCount?: number;
 }
 
 // Discussed-director roster for the "Most Discussed Directors This Week" section.
@@ -153,11 +159,11 @@ export const discussedDirectors: DiscussedDirectorSeed[] = [
 const DEFAULT_DIRECTOR_STATS: DirectorStats = {
   featureFilms: 0,
   avgRating: 0,
-  reviewsCount: "0",
+  awards: 0,
 };
 
 const directorStatsById: Record<number, DirectorStats> = {
-  1: { featureFilms: 6, avgRating: 4.2, reviewsCount: "18.4K" }, // George Lucas
+  1: { featureFilms: 6, avgRating: 4.2, awards: 13 }, // George Lucas
 };
 
 export function getDirectorStats(id: number): DirectorStats {

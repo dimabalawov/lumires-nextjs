@@ -30,10 +30,6 @@ export default function ActorSimilarSection({ actors }: { actors: SimilarActor[]
             <div className="mt-5 font-manrope font-normal uppercase text-brand-light text-[14px] tracking-[0.12em] leading-[1.4]">
               {a.name}
             </div>
-            <div className="mt-2 font-manrope font-normal text-[12px] tracking-[0.06em]">
-              <span className="text-brand-gold">{a.matchPercent}%</span>
-              <span className="text-brand-muted ml-2">match</span>
-            </div>
           </Link>
         ))}
       </div>

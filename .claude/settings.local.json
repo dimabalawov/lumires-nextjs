@@ -52,7 +52,9 @@
       "mcp__chrome-devtools__list_console_messages",
       "Bash(TMDB_KEY=4a51af8d11ecaf569b4f53f506279cc7 node *)",
       "Bash(Select-String -Pattern \"seed\" -SimpleMatch)",
-      "PowerShell(Select-String *)"
+      "PowerShell(Select-String *)",
+      "Bash(grep -rln \"href={\\\\`/\\\\\\(user\\\\|profile\\\\|u\\\\\\)\\\\b\" src/)",
+      "Bash(grep -rno \"href={\\\\`/[a-z]*/\\\\${[a-zA-Z.]*[Uu]ser\" src/)"
     ]
   }
 }

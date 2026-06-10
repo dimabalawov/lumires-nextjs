@@ -1,27 +1,71 @@
 import Image from "next/image";
+import Link from "next/link";
 import type { DirectorMostDiscussed } from "@/data/directors";
 import type { EditorialReply } from "@/types/film";
+import LikeButton from "@/components/ui/LikeButton";
+import { HeartIcon, ReplyIcon } from "@/components/ui/icons";
 import { AccentTitle } from "../ui/AccentTitle";
 
 const CARD_BG =
   "linear-gradient(160deg, rgba(210,166,106,0.06) 0%, rgba(18,16,14,0) 45%), linear-gradient(180deg, #1E1813 0%, #15120F 85%)";
 
-function ReplyItem({ reply }: { reply: EditorialReply }) {
+/** Profile route slug for a username (strips the leading "@"; the route lowercases). */
+function profileSlug(username: string): string {
+  return encodeURIComponent(username.replace(/^@/, ""));
+}
+
+/** Avatar + username, linked to the user's profile. */
+function UserLink({ username, avatarUrl }: { username: string; avatarUrl: string }) {
+  return (
+    <Link
+      href={`/profile/${profileSlug(username)}`}
+      className="flex items-center gap-4 transition-opacity hover:opacity-80"
+    >
+      <Image
+        src={avatarUrl}
+        alt={username}
+        width={40}
+        height={40}
+        className="shrink-0 rounded-full object-cover size-[40px]"
+      />
+      <span className="font-manrope font-medium text-brand-light text-[14px] tracking-[0.06em]">
+        {username}
+      </span>
+    </Link>
+  );
+}
+
+function ReplyItem({
+  reply,
+  isAuthed,
+  reviewId,
+  filmId,
+}: {
+  reply: EditorialReply;
+  isAuthed: boolean;
+  reviewId?: string;
+  filmId?: string;
+}) {
   return (
     <div>
       <div className="flex items-start gap-4">
-        <Image
-          src={reply.avatarUrl}
-          alt={reply.username}
-          width={40}
-          height={40}
-          className="shrink-0 rounded-full object-cover size-[40px]"
-        />
+        <Link href={`/profile/${profileSlug(reply.username)}`} className="shrink-0">
+          <Image
+            src={reply.avatarUrl}
+            alt={reply.username}
+            width={40}
+            height={40}
+            className="rounded-full object-cover size-[40px] transition-opacity hover:opacity-80"
+          />
+        </Link>
         <div className="flex flex-1 flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
           <div className="flex flex-col gap-1">
-            <span className="font-manrope font-medium text-[14px] leading-[1.4] tracking-[0.06em] text-brand-light">
+            <Link
+              href={`/profile/${profileSlug(reply.username)}`}
+              className="font-manrope font-medium text-[14px] leading-[1.4] tracking-[0.06em] text-brand-light hover:text-brand-gold transition-colors"
+            >
               {reply.username}
-            </span>
+            </Link>
             <span className="font-manrope font-normal text-[12px] leading-[1.4] tracking-[0.06em] text-brand-gold underline underline-offset-2">
               → reply to {reply.replyTo}
             </span>
@@ -37,24 +81,45 @@ function ReplyItem({ reply }: { reply: EditorialReply }) {
           &ldquo;{reply.text}&rdquo;
         </p>
         <div className="mt-3 flex items-center gap-6 font-manrope text-[11px] uppercase tracking-[0.12em] text-brand-muted">
-          <span className="flex items-center gap-1.5">
-            <span className="text-[12px] leading-none">♡</span>
-            {reply.likes} likes
-          </span>
-          <span className="flex items-center gap-1.5 hover:text-brand-light transition-colors cursor-pointer">
-            <span className="leading-none">💬</span>
-            reply
-          </span>
+          {reply.replyId ? (
+            <LikeButton
+              liked={reply.likedByMe ?? false}
+              count={reply.likesCount ?? 0}
+              isAuthed={isAuthed}
+              reviewId={reviewId ?? "-"}
+              replyId={reply.replyId}
+              filmId={filmId ?? "-"}
+              slug="-"
+            />
+          ) : (
+            <span className="flex items-center gap-1.5">
+              <HeartIcon /> {reply.likes} likes
+            </span>
+          )}
+          <button
+            type="button"
+            className="flex items-center gap-1.5 hover:text-brand-light transition-colors cursor-pointer"
+          >
+            <ReplyIcon /> reply
+          </button>
         </div>
       </div>
     </div>
   );
 }
 
-export default function DirectorMostDiscussedSection({ thread }: { thread: DirectorMostDiscussed }) {
+export default function DirectorMostDiscussedSection({
+  thread,
+  isAuthed = false,
+}: {
+  thread: DirectorMostDiscussed;
+  isAuthed?: boolean;
+}) {
+  // When the thread is backed by a real review, deep-link to the film's reviews.
+  const reviewsHref = thread.filmId ? `/films/${thread.filmId}` : "#";
+
   return (
     <section className="section-container pt-8 lg:pt-12 pb-16 lg:pb-24">
-
       <AccentTitle text="Most Discussed" accent="This Week" className="mb-6 lg:mb-8 uppercase" />
 
       <article
@@ -64,10 +129,12 @@ export default function DirectorMostDiscussedSection({ thread }: { thread: Direc
         <div className="grid gap-8 lg:gap-10 lg:grid-cols-[260px_1fr]">
 
           {/* Poster + film meta */}
-          {/* На мобилках выстраиваем в два столбца (140px картинка и 1fr под тексты), на lg возвращаем flex-col */}
           <div className="grid grid-cols-[250px_1fr] gap-x-5 gap-y-2 items-center lg:flex lg:flex-col lg:items-start">
 
-            <div className="relative aspect-[2/3] w-full lg:max-w-none overflow-hidden rounded-[4px]">
+            <Link
+              href={reviewsHref}
+              className="relative aspect-[2/3] w-full lg:max-w-none overflow-hidden rounded-[4px] transition-opacity hover:opacity-90"
+            >
               <Image
                 src={thread.filmPoster}
                 alt={thread.filmTitle}
@@ -75,12 +142,15 @@ export default function DirectorMostDiscussedSection({ thread }: { thread: Direc
                 sizes="(min-width: 1024px) 260px, 250px"
                 className="object-cover"
               />
-            </div>
+            </Link>
 
             <div className="flex flex-col text-center lg:text-left justify-between gap-15 lg:gap-0 lg:justify-normal">
-              <h3 className="mt-0 lg:mt-5 font-oswald font-normal text-brand-gold text-4xl md:text-5xl lg:text-[24px] leading-10 lg:leading-8 tracking-[0.06em]">
+              <Link
+                href={reviewsHref}
+                className="mt-0 lg:mt-5 font-oswald font-normal text-brand-gold text-4xl md:text-5xl lg:text-[24px] leading-10 lg:leading-8 tracking-[0.06em] hover:opacity-80 transition-opacity"
+              >
                 {thread.filmTitle}
-              </h3>
+              </Link>
               <p className="mt-2 font-manrope font-light uppercase text-brand-light text-lg md:text-xl lg:text-[12px] tracking-[0.2em]">
                 — {thread.reviewsThisWeek} Reviews This Week
               </p>
@@ -92,19 +162,12 @@ export default function DirectorMostDiscussedSection({ thread }: { thread: Direc
           <div className="flex flex-col">
             {/* Author row */}
             <div className="flex items-center gap-4 flex-wrap">
-              <Image
-                src={thread.authorAvatar}
-                alt={thread.author}
-                width={40}
-                height={40}
-                className="shrink-0 rounded-full object-cover size-[40px]"
-              />
-              <span className="font-manrope font-medium text-brand-light text-[14px] tracking-[0.06em]">
-                {thread.author}
-              </span>
-              <span className="font-manrope font-normal text-brand-muted text-[11px] tracking-[0.2em]">
-                {thread.date}
-              </span>
+              <UserLink username={thread.author} avatarUrl={thread.authorAvatar} />
+              {thread.date && (
+                <span className="font-manrope font-normal text-brand-muted text-[11px] tracking-[0.2em]">
+                  {thread.date}
+                </span>
+              )}
               <span className="flex items-center gap-1.5 font-manrope font-normal text-brand-gold text-[12px] tracking-[0.06em]">
                 <span className="text-[9px] leading-none">◆</span>
                 {thread.replies} replies
@@ -123,18 +186,32 @@ export default function DirectorMostDiscussedSection({ thread }: { thread: Direc
 
             {/* Actions */}
             <div className="mt-5 flex items-center gap-6 font-manrope text-[11px] uppercase tracking-[0.12em] text-brand-muted">
-              <span className="flex items-center gap-1.5">
-                <span className="text-[12px] leading-none">♡</span>
-                {thread.likes} likes
-              </span>
-              <span className="flex items-center gap-1.5 hover:text-brand-light transition-colors cursor-pointer">
-                <span className="leading-none">💬</span>
-                reply
-              </span>
-              <span className="flex items-center gap-1.5 hover:text-brand-light transition-colors cursor-pointer">
-                <span className="leading-none">⋯</span>
-                share
-              </span>
+              {thread.reviewId ? (
+                <LikeButton
+                  liked={thread.likedByMe ?? false}
+                  count={thread.likesCount ?? 0}
+                  isAuthed={isAuthed}
+                  reviewId={thread.reviewId}
+                  filmId={thread.filmId ?? "-"}
+                  slug="-"
+                />
+              ) : (
+                <span className="flex items-center gap-1.5">
+                  <HeartIcon /> {thread.likes} likes
+                </span>
+              )}
+              <button
+                type="button"
+                className="flex items-center gap-1.5 hover:text-brand-light transition-colors cursor-pointer"
+              >
+                <ReplyIcon /> reply
+              </button>
+              <button
+                type="button"
+                className="flex items-center gap-1.5 hover:text-brand-light transition-colors cursor-pointer"
+              >
+                <span className="leading-none">···</span> share
+              </button>
             </div>
 
             {/* Replies — indented with left guide */}
@@ -142,7 +219,13 @@ export default function DirectorMostDiscussedSection({ thread }: { thread: Direc
               <div className="mt-8 pl-2 lg:pl-4">
                 <div className="flex flex-col gap-8 border-l border-brand-light/15 pl-6 lg:pl-8">
                   {thread.topReplies.map((reply) => (
-                    <ReplyItem key={reply.id} reply={reply} />
+                    <ReplyItem
+                      key={reply.id}
+                      reply={reply}
+                      isAuthed={isAuthed}
+                      reviewId={thread.reviewId}
+                      filmId={thread.filmId}
+                    />
                   ))}
                 </div>
               </div>
@@ -150,12 +233,12 @@ export default function DirectorMostDiscussedSection({ thread }: { thread: Direc
 
             {/* Show all reviews */}
             <div className="mt-8 flex justify-end">
-              <a
-                href="#"
+              <Link
+                href={reviewsHref}
                 className="font-oswald uppercase text-brand-gold text-[13px] tracking-[0.18em] underline underline-offset-4 hover:opacity-70 transition-opacity"
               >
                 Show All Reviews →
-              </a>
+              </Link>
             </div>
           </div>
         </div>

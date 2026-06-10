@@ -89,16 +89,16 @@ export default function DirectorHeroSection({ director }: { director: DirectorPr
               </li>
               <li className="h-px bg-brand-gold/25" />
               <li className="font-oswald font-light uppercase text-brand-gold text-[15px] lg:text-[16px] tracking-[0.24em] py-2">
-                {director.stats.reviewsCount} Reviews On Lumieres
+                {director.stats.awards} Awards
               </li>
             </ul>
 
-            <button
-              type="button"
-              className="mt-6 lg:mt-8 w-full rounded-[6px] bg-brand-gold text-brand-dark font-manrope font-medium uppercase tracking-[0.24em] text-[13px] py-3 hover:opacity-90 transition-opacity"
+            <a
+              href="#biography"
+              className="mt-6 lg:mt-8 w-full rounded-[6px] bg-brand-gold text-brand-dark font-manrope font-medium uppercase tracking-[0.24em] text-[13px] py-3 text-center hover:opacity-90 transition-opacity"
             >
-              Subscribe
-            </button>
+              See Full Biography
+            </a>
           </div>
         </div>
 
