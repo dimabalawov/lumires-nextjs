@@ -6,9 +6,26 @@ import DirectorFilmographySection from "@/components/sections/DirectorFilmograph
 import DirectorHeroSection from "@/components/sections/DirectorHeroSection";
 import DirectorMostDiscussedSection from "@/components/sections/DirectorMostDiscussedSection";
 import DirectorSimilarSection from "@/components/sections/DirectorSimilarSection";
-import { getDirectorEditorial, getDirectorStats } from "@/data/directors";
-import { getDirector } from "@/lib/api/directors";
+import {
+  getDirectorEditorial,
+  getDirectorStats as getDirectorStatsFallback,
+} from "@/data/directors";
+import { optionalData } from "@/lib/api/client";
+import {
+  getDirector,
+  getDirectorFilmography,
+  getDirectorMostReviewed,
+  getDirectorSimilar,
+  getDirectorStats,
+} from "@/lib/api/directors";
 import { tmdbImage } from "@/lib/images/tmdb";
+import {
+  buildMostDiscussed,
+  toFilmographyData,
+  toProfileStats,
+  toSimilarCards,
+} from "@/lib/people/profile-sections";
+import { createClient } from "@/lib/supabase/server";
 import type { DirectorProfile } from "@/types/film";
 
 interface DirectorPageProps {
@@ -37,8 +54,27 @@ export async function generateMetadata({ params }: DirectorPageProps): Promise<M
 
 export default async function DirectorPage({ params }: DirectorPageProps) {
   const { id } = await params;
-  const api = await getDirector(id);
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const isAuthed = Boolean(user);
+
+  const [api, filmographyApi, mostReviewedApi, statsApi, similarApi] = await Promise.all([
+    getDirector(id),
+    getDirectorFilmography(id),
+    getDirectorMostReviewed(id),
+    optionalData(getDirectorStats(id)),
+    getDirectorSimilar(id),
+  ]);
   if (!api) notFound();
+
+  const filmography = toFilmographyData(filmographyApi);
+  const similarDirectors = toSimilarCards(
+    similarApi.map((p) => ({ apiId: p.directorId, profilePath: p.profilePath, name: p.name })),
+  );
+  const stats = statsApi ? toProfileStats(statsApi) : getDirectorStatsFallback(api.directorId);
+  const mostDiscussed = await buildMostDiscussed(mostReviewedApi, isAuthed);
 
   const director: DirectorProfile = {
     id: api.directorId,
@@ -49,7 +85,7 @@ export default async function DirectorPage({ params }: DirectorPageProps) {
     deathYear: yearFromDate(api.deathday),
     birthplace: api.placeOfBirth,
     bio: firstParagraph(api.biography),
-    stats: getDirectorStats(api.directorId),
+    stats,
   };
 
   const editorial = getDirectorEditorial(api.directorId);
@@ -57,21 +93,30 @@ export default async function DirectorPage({ params }: DirectorPageProps) {
   return (
     <main className="relative flex min-h-screen flex-col bg-brand-dark pt-28 lg:pt-32">
       <DirectorHeroSection director={director} />
+      {mostDiscussed ? (
+        <DirectorMostDiscussedSection thread={mostDiscussed} isAuthed={isAuthed} />
+      ) : editorial.mostDiscussed ? (
+        <DirectorMostDiscussedSection thread={editorial.mostDiscussed} />
+      ) : null}
+      {filmography.films.length > 0 ? (
+        <DirectorFilmographySection
+          films={filmography.films}
+          previewIds={filmography.previewIds}
+        />
+      ) : editorial.filmography ? (
+        <DirectorFilmographySection films={editorial.filmography} />
+      ) : null}
+      {similarDirectors.length > 0 ? (
+        <DirectorSimilarSection directors={similarDirectors} />
+      ) : editorial.similarDirectors ? (
+        <DirectorSimilarSection directors={editorial.similarDirectors} />
+      ) : null}
       <DirectorBiographySection
         name={director.name}
         bio={api.biography}
         pullQuote={editorial.pullQuote}
         topGenres={editorial.topGenres}
       />
-      {editorial.filmography && (
-        <DirectorFilmographySection films={editorial.filmography} />
-      )}
-      {editorial.mostDiscussed && (
-        <DirectorMostDiscussedSection thread={editorial.mostDiscussed} />
-      )}
-      {editorial.similarDirectors && (
-        <DirectorSimilarSection directors={editorial.similarDirectors} />
-      )}
     </main>
   );
 }

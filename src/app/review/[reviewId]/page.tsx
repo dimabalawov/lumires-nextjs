@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import Breadcrumb, { type BreadcrumbItem } from "@/components/ui/Breadcrumb";
 import StarRating from "@/components/ui/StarRating";
 import LikeButton from "@/components/ui/LikeButton";
+import { ReplyIcon } from "@/components/ui/icons";
 import { getReview, getReviewReplies } from "@/lib/api/reviews";
 import { getMovie } from "@/lib/api/movies";
 import { createClient } from "@/lib/supabase/server";
@@ -37,33 +38,6 @@ function toParagraphs(text: string): string[] {
 
 function withAt(username: string): string {
   return username.startsWith("@") ? username : `@${username}`;
-}
-
-function ReplyIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 14 14"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-      aria-hidden
-    >
-      <g clipPath="url(#reply-icon-clip)">
-        <path
-          d="M12.25 8.75C12.25 9.36884 12.0042 9.96233 11.5666 10.3999C11.129 10.8375 10.5355 11.0833 9.91667 11.0833H4.66667L1.75 13.4167V4.08333C1.75 3.46449 1.99583 2.871 2.43342 2.43342C2.871 1.99583 3.46449 1.75 4.08333 1.75H9.91667C10.5355 1.75 11.129 1.99583 11.5666 2.43342C12.0042 2.871 12.25 3.46449 12.25 4.08333V8.75Z"
-          stroke="#9B8F84"
-          strokeWidth="0.816667"
-        />
-      </g>
-      <defs>
-        <clipPath id="reply-icon-clip">
-          <rect width="14" height="14" fill="white" />
-        </clipPath>
-      </defs>
-    </svg>
-  );
 }
 
 export async function generateMetadata({ params }: ReviewPageProps): Promise<Metadata> {

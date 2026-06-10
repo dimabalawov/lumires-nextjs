@@ -83,10 +83,91 @@ export interface DirectorApiResponse {
   profilePath: string | null; // TMDB path, e.g. "/abc.jpg"
 }
 
+/** One film from GET /directors/{id}/filmography (also /actors/{id}/filmography). */
+export interface FilmographyFilm {
+  id: number;
+  title: string;
+  posterPath: string | null; // TMDB path, e.g. "/abc.jpg"
+  releaseYear: number | null;
+  genres: string[];
+  voteAverage: number; // TMDB 0–10 scale
+}
+
+export interface FilmographyResponse {
+  films: FilmographyFilm[];
+}
+
+/** A reply on the director's most-reviewed review (GET .../films/most-reviewed). */
+export interface DirectorMostReviewedComment {
+  id: string;
+  userId: string;
+  username: string;
+  text: string;
+  createdAt: string; // ISO
+  likesCount: number;
+  isLikedByMe: boolean;
+}
+
+/** GET /directors/{id}/films/most-reviewed - the director's most-reviewed film
+ *  with its top review and that review's comments. 204 when the director has none. */
+export interface DirectorMostReviewedResponse {
+  filmId: number;
+  filmTitle: string;
+  filmSlug: string;
+  posterPath: string | null;
+  reviewsCount: number;
+  userId: string;
+  username: string;
+  avatarUrl: string | null;
+  title: string;
+  text: string;
+  likesCount: number;
+  isLikedByMe: boolean;
+  comments: DirectorMostReviewedComment[];
+}
+
 export interface DirectorStats {
   featureFilms: number;
   avgRating: number; // e.g. 4.4
-  reviewsCount: string; // pre-formatted, e.g. "28.7K"
+  awards: number; // wins + nominations combined
+}
+
+/** GET /directors/{id}/stats - headline counters for the director hero card. */
+export interface DirectorStatsResponse {
+  directorId: number;
+  filmsCount: number;
+  averageRating: number;
+  awards: { nominations: number; wins: number };
+}
+
+/** One person from GET /directors/{id}/similar. */
+export interface SimilarDirectorPerson {
+  directorId: number;
+  profilePath: string | null;
+  name: string;
+}
+
+export interface SimilarDirectorsResponse {
+  similarDirectors: SimilarDirectorPerson[];
+}
+
+/** GET /actors/{id}/stats - mirrors the director stats payload (keyed actorId). */
+export interface ActorStatsResponse {
+  actorId: number;
+  filmsCount: number;
+  averageRating: number;
+  awards: { nominations: number; wins: number };
+}
+
+/** One person from GET /actors/{id}/similar. */
+export interface SimilarActorPerson {
+  actorId: number;
+  profilePath: string | null;
+  name: string;
+}
+
+export interface SimilarActorsResponse {
+  similarActors: SimilarActorPerson[];
 }
 
 /** Actor biography & metadata from GET /actors/{id} - mirrors the
@@ -141,6 +222,11 @@ export interface EditorialReply {
   date: string; // pre-formatted, e.g. "MAY 02 · 2026"
   text: string;
   likes: string; // pre-formatted, e.g. "186"
+  // Live fields (present when backed by a real review comment). When set, the
+  // reply renders a working LikeButton instead of the static like count.
+  replyId?: string;
+  likedByMe?: boolean;
+  likesCount?: number;
 }
 
 export interface EditorialPick {

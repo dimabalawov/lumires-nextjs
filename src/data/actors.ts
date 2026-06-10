@@ -16,11 +16,11 @@ export interface SimilarActor {
 const DEFAULT_ACTOR_STATS: DirectorStats = {
   featureFilms: 0,
   avgRating: 0,
-  reviewsCount: "0",
+  awards: 0,
 };
 
 const actorStatsById: Record<number, DirectorStats> = {
-  505710: { featureFilms: 24, avgRating: 4.1, reviewsCount: "12.6K" }, // Zendaya
+  505710: { featureFilms: 24, avgRating: 4.1, awards: 12 }, // Zendaya
 };
 
 export function getActorStats(id: number): DirectorStats {

@@ -17,7 +17,10 @@ export default function DirectorBiographySection({
   topGenres,
 }: DirectorBiographySectionProps) {
   return (
-    <section className="section-container pt-8 lg:pt-12 pb-16 lg:pb-24">
+    <section
+      id="biography"
+      className="section-container scroll-mt-28 lg:scroll-mt-32 pt-8 lg:pt-12 pb-16 lg:pb-24"
+    >
 
       <AccentTitle text="Biography" className="mb-6 lg:mb-8" />
 

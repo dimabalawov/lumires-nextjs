@@ -14,9 +14,16 @@ export default async function MostDiscussedDirectorsSection() {
         <AccentTitle text="Most Discussed" accent="Directors This Week" />
       </div>
 
-      <div className="section-container overflow-scroll grid gap-8 grid-cols-2 lg:grid-cols-4 lg:gap-10">
+      {/* Mobile (<sm): horizontal snap carousel, one card per view with a peek.
+          sm+ reverts to the multi-column grid. */}
+      <div className="section-container flex snap-x snap-mandatory gap-6 overflow-x-auto pb-2 [scrollbar-width:none] sm:grid sm:grid-cols-2 sm:gap-8 sm:overflow-visible sm:pb-0 lg:grid-cols-4 lg:gap-10 [&::-webkit-scrollbar]:hidden">
         {directors.map((director) => (
-          <DirectorCard key={director.id} director={director} />
+          <div
+            key={director.id}
+            className="w-[82%] shrink-0 snap-start sm:w-auto sm:shrink"
+          >
+            <DirectorCard director={director} />
+          </div>
         ))}
       </div>
     </section>
