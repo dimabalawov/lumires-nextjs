@@ -54,12 +54,14 @@ export default function FilmsHeroSection({
               </span>
             </div>
 
-            <h1 className="font-oswald font-light text-brand-light text-[72px] leading-[1.02]">
+            <h1 className="font-oswald font-light text-brand-light leading-[1.02]"
+              style={{ fontSize: "clamp(48px, 5vw, 72px)" }}
+            >
               {copy.titleLead}{" "}
               <span className="text-brand-gold">{copy.titleAccent}</span>
             </h1>
 
-            <p className="mt-6 lg:mt-8 font-manrope font-light text-auth-subtitle text-base lg:text-lg leading-relaxed max-w-[460px]">
+            <p className="mt-6 lg:mt-8 font-manrope font-light text-auth-subtitle text-base lg:text-lg leading-relaxed max-w-115">
               {copy.description}
             </p>
 
@@ -67,7 +69,8 @@ export default function FilmsHeroSection({
               <Button
                 variant="goldFilled"
                 rightIcon={<ChevronDown />}
-                className="!font-manrope !font-normal !text-[24px] !tracking-normal h-auto py-3 px-6"
+                className="font-manrope! font-normal! tracking-normal! h-auto py-3 px-6"
+                style={{ fontSize: "clamp(12px, 1.5vw, 24px) !important" }}
               >
                 {copy.ctaLabel}
               </Button>

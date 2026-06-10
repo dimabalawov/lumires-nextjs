@@ -9,6 +9,8 @@ import MobileFilmCard from "@/components/ui/MobileFilmCard";
 import { films as defaultFilms } from "@/data/films";
 import type { FilmCardData } from "@/types/film";
 import { CENTER_W, CENTER_H, GAP } from "@/constants/carousel";
+import { AccentTitle } from "../ui/AccentTitle";
+import { ShowAllLink } from "../ui/ShowAllLink";
 
 interface TrendingSectionProps {
   title?: string;
@@ -66,23 +68,11 @@ export default function TrendingSection({
   return (
     <section className="w-full pt-16 lg:pt-24 pb-16 lg:pb-24 flex flex-col items-center bg-brand-dark">
       {/* Header row */}
-      <div className="section-container mb-8 lg:mb-[68px] flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-end pb-4">
-        <h2 className="font-manrope font-light text-brand-light opacity-90 text-[32px] leading-[40px] lg:text-[48px] lg:leading-[56px] tracking-[0.06em]">
-          {title}
-          {titleAccent ? (
-            <>
-              {" "}
-              <span className="text-brand-gold">{titleAccent}</span>
-            </>
-          ) : null}
-        </h2>
-        <Link
-          href="#"
-          className="uppercase text-brand-light hover:opacity-70 transition-opacity flex items-center gap-2 sm:mb-2 font-oswald font-light text-sm tracking-[0.06em]"
-        >
-          <span className="border-b border-current pb-0.5">SHOW ALL</span>
-          <span>→</span>
-        </Link>
+      <div className="section-container mb-8 lg:mb-17 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-end pb-4">
+        <AccentTitle text={title} accent={titleAccent} />
+        <ShowAllLink isCenter={true} href="/films" className="hidden lg:flex uppercase 
+        text-brand-light hover:opacity-70 transition-opacity items-center 
+        gap-2 sm:mb-2 font-oswald font-light text-sm tracking-[0.06em]" withBorder={true} />
       </div>
 
       {/* Mobile: horizontal scroll (hidden on lg+) */}
@@ -94,6 +84,9 @@ export default function TrendingSection({
             ))}
           </div>
         </div>
+        <ShowAllLink href="/films" className="flex justify-end mr-5 lowercase
+        text-brand-muted hover:opacity-70 transition-opacity items-center gap-2 
+         sm:mb-2 font-oswald font-light text-[20px] tracking-[0.06em]" withBorder={false} />
       </div>
 
       {/* Desktop: Embla carousel (hidden below lg) */}

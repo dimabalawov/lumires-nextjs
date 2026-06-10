@@ -21,7 +21,7 @@ export default function FilmColumn({ title, films, align = "left" }: FilmColumnP
   return (
     <div className="flex flex-col flex-1 min-w-0">
       <p
-        className={`font-oswald text-brand-light font-extralight text-[24px] leading-[36px] lg:text-[32px] lg:leading-[48px] tracking-[0.06em] ${
+        className={`font-oswald text-brand-muted lg:text-brand-light font-extralight text-[24px] leading-9 lg:text-[32px] lg:leading-12 tracking-[0.06em] ${
           align === "right" ? "text-right" : "text-left"
         }`}
       >

@@ -6,6 +6,8 @@ import { getThisWeekMostReviewed } from "@/lib/api/films";
 import { getReviewsByFilm } from "@/lib/api/reviews";
 import { tmdbImage } from "@/lib/images/tmdb";
 import type { WeeklyReviewedItem } from "@/types/api";
+import { AccentTitle } from "../ui/AccentTitle";
+import { ShowAllLink } from "../ui/ShowAllLink";
 
 // 2 rows × 3 per row.
 const ROWS = 2;
@@ -71,24 +73,22 @@ export default async function MostReviewedSection() {
     <section className="w-full bg-brand-dark pt-16 lg:pt-24 pb-16 lg:pb-24">
       <div className="section-container">
         <div className="mb-10 lg:mb-14 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-end pb-4">
-          <h2 className="font-manrope font-light text-brand-light opacity-90 text-[32px] leading-[40px] lg:text-[48px] lg:leading-[56px] tracking-[0.06em]">
-            Most Reviewed{" "}
-            <span className="text-brand-gold">This Week</span>
-          </h2>
-          <Link
-            href="#"
-            className="uppercase text-brand-light hover:opacity-70 transition-opacity flex items-center gap-2 sm:mb-2 font-oswald font-light text-sm tracking-[0.06em]"
-          >
-            <span className="border-b border-current pb-0.5">SHOW ALL</span>
-            <span>→</span>
-          </Link>
+
+          <AccentTitle text="Most Reviewed" accent="This Week" />
+          <ShowAllLink href="#" className="hidden lg:flex uppercase text-brand-light 
+          hover:opacity-70 transition-opacity items-center gap-2 sm:mb-2 font-oswald 
+          font-light text-sm tracking-[0.06em]"
+            withBorder={true} isCenter={true}
+          />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
           {films.map((film) => (
             <MostReviewedCard key={film.id} film={film} />
           ))}
         </div>
+        <ShowAllLink href="#" className="lg:hidden flex justify-end mr-5 mt-5 lowercase
+        text-brand-muted" withBorder={false} />
       </div>
     </section>
   );

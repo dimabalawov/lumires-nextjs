@@ -35,7 +35,8 @@ export default function ListCarouselCard({ list, isCenter }: ListCarouselCardPro
       </div>
 
       {/* Title */}
-      <h3 className="mt-6 font-oswald font-medium tracking-[0.04em] text-brand-gold text-[28px] leading-[34px] lg:text-[40px] lg:leading-[48px]">
+      <h3 className="mt-6 font-oswald font-medium tracking-[0.04em] text-brand-gold leading-[34px] lg:leading-[48px]"
+        style={{ fontSize: "clamp(20px, 2.5vw, 40px)" }}>
         {list.title}
       </h3>
 

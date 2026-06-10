@@ -35,10 +35,11 @@ export default function DirectorCard({ director }: { director: DirectorCardData 
 
         {/* Name + currently discussed */}
         <div className="absolute bottom-6 left-6 right-6">
-          <h3 className="font-oswald font-normal text-brand-gold text-[30px] lg:text-[40px] leading-[1.05]">
+          <h3 className="font-oswald font-normal text-brand-gold leading-[1.05]"
+            style={{ fontSize: "clamp(24px, 2.5vw, 40px)" }}>
             {director.name}
           </h3>
-          <p className="mt-3 font-manrope text-[14px] leading-[1.5] text-brand-light/75">
+          <p className="mt-3 font-manrope text-[12px] leading-[1.5] text-brand-light/75">
             currently discussed:{" "}
             <span className="font-semibold text-brand-light underline underline-offset-2">
               {director.currentFilm}

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 
 import FilmsHeroSection from "@/components/sections/FilmsHeroSection";
@@ -12,6 +13,7 @@ import { optionalData } from "@/lib/api/client";
 import { tmdbImage } from "@/lib/images/tmdb";
 import { createClient } from "@/lib/supabase/server";
 import type { FilmCardData } from "@/types/film";
+import SectionSkeleton from "@/components/ui/SectionSkeleton";
 
 export const metadata: Metadata = {
   title: "Films · Lumires",
@@ -20,9 +22,6 @@ export const metadata: Metadata = {
 };
 
 async function getTrendingFilms(): Promise<FilmCardData[] | undefined> {
-  // `optionalData` rethrows transient origin errors (502/503/504) so the route
-  // error boundary can offer a retry; an empty/missing result falls back to
-  // static demo data.
   const response = await optionalData(getThisWeekMostReviewed());
   const items = response?.items;
   if (!items?.length) return undefined;
@@ -36,6 +35,11 @@ async function getTrendingFilms(): Promise<FilmCardData[] | undefined> {
   }));
 }
 
+async function TrendingSectionWrapper() {
+  const films = await getTrendingFilms();
+  return <TrendingSection title="Trending" titleAccent="This Week" films={films} />;
+}
+
 interface FilmsPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
@@ -46,25 +50,25 @@ export default async function FilmsPage({ searchParams }: FilmsPageProps) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const [trendingFilms, resolvedSearchParams, featured] = await Promise.all([
-    getTrendingFilms(),
-    searchParams,
-    getFeaturedCollections(!!user),
-  ]);
+  const resolvedSearchParams = await searchParams;
 
   return (
     <main className="relative flex min-h-screen flex-col bg-brand-dark">
       <FilmsHeroSection />
-      <TrendingSection title="Trending" titleAccent="This Week" films={trendingFilms} />
+
+      <Suspense fallback={<SectionSkeleton />}>
+        <TrendingSectionWrapper />
+      </Suspense>
+
       <EditorialCollectionsSection />
-      <MostReviewedSection />
-      <CollectionsSection
-        title="Lists Created By"
-        titleAccent="Film Lovers"
-        collections={featured.length > 0 ? featured : undefined}
-        isAuthed={!!user}
-      />
-      <AllFilmsSection searchParams={resolvedSearchParams} />
+
+      <Suspense fallback={<SectionSkeleton />}>
+        <MostReviewedSection />
+      </Suspense>
+
+      <Suspense fallback={<SectionSkeleton />}>
+        <AllFilmsSection searchParams={resolvedSearchParams} />
+      </Suspense>
     </main>
   );
 }

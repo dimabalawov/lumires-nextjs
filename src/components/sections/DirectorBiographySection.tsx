@@ -1,3 +1,5 @@
+import { AccentTitle } from "../ui/AccentTitle";
+
 const CARD_BG =
   "linear-gradient(160deg, rgba(210,166,106,0.06) 0%, rgba(18,16,14,0) 45%), linear-gradient(180deg, #1E1813 0%, #15120F 85%)";
 
@@ -16,9 +18,8 @@ export default function DirectorBiographySection({
 }: DirectorBiographySectionProps) {
   return (
     <section className="section-container pt-8 lg:pt-12 pb-16 lg:pb-24">
-      <h2 className="font-manrope font-light text-brand-light/90 text-[48px] leading-[56px] tracking-[0.06em] mb-6 lg:mb-8">
-        Biography
-      </h2>
+
+      <AccentTitle text="Biography" className="mb-6 lg:mb-8" />
 
       <div className="grid gap-6 lg:gap-8 lg:grid-cols-[1fr_320px]">
         {/* Bio card */}

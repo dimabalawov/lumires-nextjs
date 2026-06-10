@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { DirectorMostDiscussed } from "@/data/directors";
 import type { EditorialReply } from "@/types/film";
+import { AccentTitle } from "../ui/AccentTitle";
 
 const CARD_BG =
   "linear-gradient(160deg, rgba(210,166,106,0.06) 0%, rgba(18,16,14,0) 45%), linear-gradient(180deg, #1E1813 0%, #15120F 85%)";
@@ -53,32 +54,38 @@ function ReplyItem({ reply }: { reply: EditorialReply }) {
 export default function DirectorMostDiscussedSection({ thread }: { thread: DirectorMostDiscussed }) {
   return (
     <section className="section-container pt-8 lg:pt-12 pb-16 lg:pb-24">
-      <h2 className="font-manrope font-light text-brand-light/90 text-[48px] leading-[56px] tracking-[0.06em] mb-6 lg:mb-8">
-        Most Discussed <span className="text-brand-gold">This Week</span>
-      </h2>
+
+      <AccentTitle text="Most Discussed" accent="This Week" className="mb-6 lg:mb-8 uppercase" />
 
       <article
         className="rounded-[6px] px-6 py-7 lg:px-10 lg:py-9"
         style={{ background: CARD_BG }}
       >
         <div className="grid gap-8 lg:gap-10 lg:grid-cols-[260px_1fr]">
+
           {/* Poster + film meta */}
-          <div className="flex flex-col">
-            <div className="relative aspect-[2/3] w-full overflow-hidden rounded-[4px]">
+          {/* На мобилках выстраиваем в два столбца (140px картинка и 1fr под тексты), на lg возвращаем flex-col */}
+          <div className="grid grid-cols-[250px_1fr] gap-x-5 gap-y-2 items-center lg:flex lg:flex-col lg:items-start">
+
+            <div className="relative aspect-[2/3] w-full lg:max-w-none overflow-hidden rounded-[4px]">
               <Image
                 src={thread.filmPoster}
                 alt={thread.filmTitle}
                 fill
-                sizes="(min-width: 1024px) 260px, 80vw"
+                sizes="(min-width: 1024px) 260px, 250px"
                 className="object-cover"
               />
             </div>
-            <h3 className="mt-5 font-oswald font-normal text-brand-gold text-[24px] leading-[32px] tracking-[0.06em]">
-              {thread.filmTitle}
-            </h3>
-            <p className="mt-2 font-manrope font-light uppercase text-brand-light text-[12px] tracking-[0.2em]">
-              — {thread.reviewsThisWeek} Reviews This Week
-            </p>
+
+            <div className="flex flex-col text-center lg:text-left justify-between gap-15 lg:gap-0 lg:justify-normal">
+              <h3 className="mt-0 lg:mt-5 font-oswald font-normal text-brand-gold text-4xl md:text-5xl lg:text-[24px] leading-10 lg:leading-8 tracking-[0.06em]">
+                {thread.filmTitle}
+              </h3>
+              <p className="mt-2 font-manrope font-light uppercase text-brand-light text-lg md:text-xl lg:text-[12px] tracking-[0.2em]">
+                — {thread.reviewsThisWeek} Reviews This Week
+              </p>
+            </div>
+
           </div>
 
           {/* Thread */}

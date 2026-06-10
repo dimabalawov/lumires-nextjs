@@ -2,6 +2,7 @@ import ActiveMemberCard from "@/components/ui/ActiveMemberCard";
 import GradientDivider from "@/components/ui/GradientDivider";
 import { activeMembers, popularThisMonth } from "@/data/communityMembers";
 import type { PopularMember } from "@/types/film";
+import { AccentTitle } from "../ui/AccentTitle";
 
 // Shared card shell (no stroke) used in this section.
 // Visible linear gradient: warm gold glow top-left over a warm-dark → near-black
@@ -54,9 +55,7 @@ export default function MostActiveMembersSection() {
     <section className="w-full pt-16 lg:pt-24 pb-16 lg:pb-24 flex flex-col items-center bg-brand-dark">
       {/* Header */}
       <div className="section-container mb-8 lg:mb-12">
-        <h2 className="font-manrope font-light text-brand-light opacity-90 text-[32px] leading-[40px] lg:text-[48px] lg:leading-[56px] tracking-[0.06em]">
-          Most Active <span className="text-brand-gold">Members</span>
-        </h2>
+        <AccentTitle  text="Most Active" accent="Members" />
       </div>
 
       <div className="section-container grid gap-6 lg:grid-cols-[5fr_2fr]">

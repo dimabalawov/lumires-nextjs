@@ -2,6 +2,8 @@ import Link from "next/link";
 import { CommunityThread } from "@/types/film";
 import { leftColumnThreads, rightColumnThreads } from "@/data/communityThreads";
 import ThreadCard from "@/components/ui/ThreadCard";
+import { AccentTitle } from "../ui/AccentTitle";
+import { ShowAllLink } from "../ui/ShowAllLink";
 
 function ThreadColumn({ threads }: { threads: CommunityThread[] }) {
   return (
@@ -25,30 +27,24 @@ export default function CommunitySection({
   uppercaseTitle = true,
 }: CommunitySectionProps = {}) {
   return (
-    <section className="w-full pt-24 pb-24 flex flex-col items-center bg-brand-dark">
-      <div className="section-container mb-8 lg:mb-12 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-end">
-        <h2
-          className={`${uppercaseTitle ? "uppercase" : ""} font-manrope font-light text-[24px] lg:text-[48px] leading-[1.333em] tracking-[0.06em] text-[#DCD8D3] opacity-90`}
-        >
-          {title}
-          {titleAccent ? (
-            <>
-              {" "}
-              <span className="text-brand-gold">{titleAccent}</span>
-            </>
-          ) : null}
-        </h2>
-        <Link
-          href="#"
-          className="uppercase font-manrope font-light text-base leading-[1.625em] tracking-[0.06em] text-brand-light underline hover:opacity-70 transition-opacity sm:mb-2"
-        >
-          show all →
-        </Link>
-      </div>
-      <div className="section-container flex flex-col lg:flex-row gap-8">
-        <ThreadColumn threads={leftColumnThreads} />
-        <ThreadColumn threads={rightColumnThreads} />
-      </div>
-    </section>
+    <div className="pb-24 w-fullflex flex pt-24 flex-col gap-5">
+      <section className="flex-col items-center bg-brand-dark">
+        <div className="section-container mb-8 lg:mb-12 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-end">
+          <AccentTitle text={title} accent={titleAccent} className={uppercaseTitle ? "uppercase" : ""} />
+          <ShowAllLink href="#" className="hidden lg:flex uppercase text-brand-light"
+            withBorder={true}
+            isCenter={true} />
+        </div>
+        <div className="section-container flex flex-col lg:flex-row gap-8">
+          <ThreadColumn threads={leftColumnThreads} />
+          <ThreadColumn threads={rightColumnThreads} />
+        </div>
+      </section>
+      <ShowAllLink href="#" className="lg:hidden flex justify-end mr-5 lowercase
+        text-brand-muted hover:opacity-70 transition-opacity items-center gap-2 
+         sm:mb-2 font-oswald font-light text-[20px] tracking-[0.06em]" withBorder={false} />
+    </div>
+
+
   );
 }

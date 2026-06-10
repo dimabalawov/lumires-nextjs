@@ -1,6 +1,7 @@
 import ActivityCard from "@/components/ui/ActivityCard";
 import Pagination from "@/components/ui/Pagination";
 import { recentActivity } from "@/data/recentActivity";
+import { AccentTitle } from "../ui/AccentTitle";
 
 const filterTabs = [
   { id: "all", label: "All Reviews", active: true },
@@ -32,12 +33,11 @@ export default function BrowseAllReviewsSection() {
   return (
     <section className="w-full bg-brand-dark pt-16 lg:pt-24 pb-16 lg:pb-24">
       <div className="section-container">
-        <h2 className="mb-8 lg:mb-10 font-manrope font-light text-brand-light opacity-90 text-[32px] leading-[40px] lg:text-[48px] lg:leading-[56px] tracking-[0.06em]">
-          Browse <span className="text-brand-gold">All Reviews</span>
-        </h2>
-
-        {/* Filter tabs */}
-        <div className="mb-6 flex flex-wrap items-center gap-2 lg:gap-3">
+        <AccentTitle text="Browse" accent="All Reviews" />
+        
+        {/* Filter tabs */} 
+        {/* DIMA я сделал FilterTabs компонент, можешь реюзнуть вместо filterTabs.map((tab) => ( */}
+        <div className="my-6 flex flex-wrap items-center gap-2 lg:gap-3">
           {filterTabs.map((tab) => (
             <button
               key={tab.id}

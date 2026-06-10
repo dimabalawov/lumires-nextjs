@@ -46,7 +46,7 @@ function ActionButton({
       type="button"
       aria-pressed={active}
       onClick={onClick}
-      className={`flex h-12 w-[68px] flex-col items-center justify-center gap-1 rounded-[2px] border transition-colors ${
+      className={`flex h-9 w-[68px] flex-col items-center justify-center gap-1 rounded-[2px] border transition-colors ${
         active
           ? "border-brand-gold/70 bg-brand-gold/10 text-brand-gold"
           : "border-brand-gold/45 text-brand-gold hover:bg-brand-gold/5"
@@ -63,7 +63,6 @@ function ActionButton({
 interface ListActionsProps {
   listId: string;
   initialLiked?: boolean;
-  initialSaved?: boolean;
   isAuthed: boolean;
 }
 
@@ -76,15 +75,12 @@ interface ListActionsProps {
 export default function ListActions({
   listId,
   initialLiked = false,
-  initialSaved = false,
   isAuthed,
 }: ListActionsProps) {
   const router = useRouter();
   const [liked, setLiked] = useState(initialLiked);
-  const [saved, setSaved] = useState(initialSaved);
 
   const like = useRef({ desired: initialLiked, server: initialLiked, syncing: false });
-  const save = useRef({ desired: initialSaved, server: initialSaved, syncing: false });
 
   async function sync(
     state: { desired: boolean; server: boolean; syncing: boolean },
@@ -156,35 +152,10 @@ export default function ListActions({
     );
   }
 
-  function handleSave(e: MouseEvent<HTMLButtonElement>) {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!isAuthed) {
-      router.push("/login");
-      return;
-    }
-    save.current.desired = !save.current.desired;
-    setSaved(save.current.desired);
-    void sync(
-      save.current,
-      setSaved,
-      (target) =>
-        fetch(`/api/lists/${listId}/save`, {
-          method: target ? "POST" : "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: target ? JSON.stringify({}) : undefined,
-        }),
-      (data) => readBool(data, "isSaved", "saved", "isSavedByMe"),
-    );
-  }
-
   return (
     <div className="flex items-center gap-3">
       <ActionButton label="Like" active={liked} onClick={handleLike}>
         <HeartIcon filled={liked} />
-      </ActionButton>
-      <ActionButton label="Save" active={saved} onClick={handleSave}>
-        <BookmarkIcon filled={saved} />
       </ActionButton>
     </div>
   );
