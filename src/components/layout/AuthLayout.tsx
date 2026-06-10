@@ -8,10 +8,8 @@ interface AuthLayoutProps {
 
 export default function AuthLayout({ backgroundImage, mirrorBackground, children }: AuthLayoutProps) {
   return (
-    // Нам нужен min-h-screen, чтобы вся страница (вместе с футером) занимала как минимум высоту экрана
     <div className="min-h-screen bg-brand-dark relative w-full flex flex-col justify-between">
 
-      {/* 1. ФОН: Абсолютный/Фиксированный, не мешает разметке */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <Image
           src={backgroundImage}
@@ -20,15 +18,11 @@ export default function AuthLayout({ backgroundImage, mirrorBackground, children
           className={`object-cover ${mirrorBackground ? "scale-x-[-1]" : ""}`}
           priority
         />
-        {/* Убедитесь, что у оверлеев нет z-индексов, которые перебьют футер */}
         <div className="lg:hidden absolute inset-0 bg-brand-dark/60" />
         <div className="hidden lg:block absolute inset-y-0 right-0 w-[65%] auth-overlay-right" />
         <div className="absolute top-0 left-0 w-full h-[138px] auth-overlay-top" />
       </div>
 
-      {/* 2. КОНТЕНТНАЯ ОБЛАСТЬ: 
-             flex-grow заставит этот блок занять ВСЁ свободное место между хедером и футером.
-             Если места мало, он растянется и растолкает их, создав естественный скролл страницы. */}
       <main className="relative z-10 w-full flex-grow flex flex-col justify-center items-center px-4 
                        /* Безопасные отступы от краев (под хедер сверху) */
                        pt-[140px] pb-[60px] 

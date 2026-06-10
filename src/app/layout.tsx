@@ -3,6 +3,8 @@ import { Oswald, Geist_Mono, Manrope } from "next/font/google";
 import "@/styles/globals.css";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
+import NotificationsProvider from "@/components/providers/NotificationsProvider";
+import { ToastProvider } from "@/components/ui/Notification";
 
 const oswald = Oswald({
   variable: "--font-oswald",
@@ -37,9 +39,12 @@ export default function RootLayout({
         suppressHydrationWarning
         className={`${oswald.variable} ${geistMono.variable} ${manrope.variable} antialiased`}
       >
-        <Header />
-        {children}
-        <Footer />
+        <NotificationsProvider>
+          <Header />
+          {children}
+          <Footer />
+          <ToastProvider />
+        </NotificationsProvider>
       </body>
     </html>
   );
