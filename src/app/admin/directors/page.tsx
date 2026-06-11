@@ -3,7 +3,7 @@ import { getDiscussedDirectors } from "@/lib/directors/discussed";
 import DirectorMentionsForm from "./DirectorMentionsForm";
 import SyncAllButton from "./SyncAllButton";
 
-export const metadata = { title: "Directors · Admin · Lumires" };
+export const metadata = { title: "Directors · Admin" };
 
 export default async function AdminDirectorsPage() {
   const directors = await getDiscussedDirectors();

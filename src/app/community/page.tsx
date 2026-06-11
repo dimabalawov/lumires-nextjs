@@ -9,7 +9,7 @@ import QuoteOfTheWeekSection from "@/components/sections/QuoteOfTheWeekSection";
 import { communityHeroCopy, communityHeroStats } from "@/data/communityHero";
 
 export const metadata: Metadata = {
-  title: "Community · Lumires",
+  title: "Community",
   description:
     "Every obsessive, every contrarian, every person who has ever paused a film just to look something up — the community that watches together and argues together.",
 };

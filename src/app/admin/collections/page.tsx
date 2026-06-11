@@ -1,7 +1,7 @@
 import { getFeaturedCollectionRows } from "@/lib/collections/featured";
 import FeaturedCollectionsManager from "./FeaturedCollectionsManager";
 
-export const metadata = { title: "Collections · Admin · Lumires" };
+export const metadata = { title: "Collections · Admin" };
 
 export default async function AdminCollectionsPage() {
   const rows = await getFeaturedCollectionRows();

@@ -11,7 +11,7 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
   const { slug } = await params;
   const profile = getProfileBySlug(slug);
   return {
-    title: `${profile.username} · Lumires`,
+    title: profile.username,
     description: profile.tagline,
   };
 }

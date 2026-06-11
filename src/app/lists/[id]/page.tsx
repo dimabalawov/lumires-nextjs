@@ -24,9 +24,9 @@ interface ListDetailPageProps {
 export async function generateMetadata({ params }: ListDetailPageProps): Promise<Metadata> {
   const { id } = await params;
   const list = await getList(id);
-  if (!list) return { title: "List · Lumires" };
+  if (!list) return { title: "List" };
   return {
-    title: `${list.title} · Lists · Lumires`,
+    title: `${list.title} · Lists`,
     description: list.description ?? undefined,
   };
 }
@@ -132,6 +132,7 @@ export default async function ListDetailPage({ params, searchParams }: ListDetai
           <ListActions
             listId={list.id}
             initialLiked={list.isLikedByMe}
+            initialSaved={list.isSavedByMe}
             isAuthed={isAuthed}
           />
         </div>

@@ -14,7 +14,7 @@ import type { FilmsHeroStat } from "@/data/filmsHero";
 import type { CollectionData, ListCardData } from "@/types/film";
 
 export const metadata: Metadata = {
-  title: "Lists · Lumires",
+  title: "Lists",
   description:
     "Long-form thoughts, short reactions, and the occasional rant — written by people who watch films like it's the best part of their week.",
 };

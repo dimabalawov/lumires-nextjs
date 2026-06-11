@@ -10,8 +10,9 @@ import SimilarFilmsSection from "@/components/sections/SimilarFilmsSection";
 import { allFilms } from "@/data/allFilms";
 import { getMovie } from "@/lib/api/movies";
 import { getSimilarFilms, getFilmSources } from "@/lib/api/films";
-import { getFilmReviews, getReviewReplies } from "@/lib/api/reviews";
+import { getFilmReviews } from "@/lib/api/reviews";
 import { optionalData } from "@/lib/api/client";
+import { fetchTopReply, mapReviewsToThreads } from "@/lib/reviews/community";
 import { normalizeSources } from "@/lib/watch/sources";
 import { createClient } from "@/lib/supabase/server";
 import { tmdbImage } from "@/lib/images/tmdb";
@@ -40,10 +41,10 @@ function toStarRating(voteAverage?: number): number | undefined {
 export async function generateMetadata({ params }: FilmPageProps): Promise<Metadata> {
   const { id } = await params;
   const movie = await getMovie(id);
-  if (!movie) return { title: "Film not found · Lumires" };
+  if (!movie) return { title: "Film not found" };
 
   return {
-    title: `${movie.localization?.title ?? "Film"} · Lumires`,
+    title: movie.localization?.title ?? "Film",
     description: movie.localization?.overview,
   };
 }

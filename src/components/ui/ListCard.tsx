@@ -143,6 +143,7 @@ export default function ListCard({
         <ListActions
           listId={list.id}
           initialLiked={list.isLiked}
+          initialSaved={list.isSaved}
           isAuthed={isAuthed}
         />
       </div>

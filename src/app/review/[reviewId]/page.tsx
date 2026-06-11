@@ -43,10 +43,10 @@ function withAt(username: string): string {
 export async function generateMetadata({ params }: ReviewPageProps): Promise<Metadata> {
   const { reviewId } = await params;
   const review = await getReview("-", reviewId);
-  if (!review) return { title: "Review not found · Lumires" };
+  if (!review) return { title: "Review not found" };
   const title = review.title || `Review by ${review.username}`;
   return {
-    title: `${title} · Lumires`,
+    title,
     description: review.text?.slice(0, 160),
   };
 }
