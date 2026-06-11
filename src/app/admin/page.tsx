@@ -11,6 +11,12 @@ const SECTIONS = [
     title: "Collections Created By Film Lovers",
     description: "Curate which film lists are featured in the Collections section on /lists.",
   },
+  {
+    href: "/admin/reviews",
+    title: "Community Reviews",
+    description:
+      "View the real reviews (and their replies) shown in the home “Reviews From The Community” section.",
+  },
 ];
 
 export default function AdminHome() {

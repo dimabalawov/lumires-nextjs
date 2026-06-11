@@ -45,9 +45,9 @@ function firstParagraph(text: string): string {
 export async function generateMetadata({ params }: ActorPageProps): Promise<Metadata> {
   const { id } = await params;
   const api = await getActor(id);
-  if (!api) return { title: "Actor not found - Lumires" };
+  if (!api) return { title: "Actor not found" };
   return {
-    title: `${api.name} - Lumires`,
+    title: api.name,
     description: firstParagraph(api.biography),
   };
 }

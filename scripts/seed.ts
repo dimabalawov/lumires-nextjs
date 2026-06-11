@@ -198,6 +198,30 @@ async function createUsers(
   return users;
 }
 
+/**
+ * Sign in already-seeded users WITHOUT creating any (no admin.createUser / signUp).
+ * Used by the replies-only mode so re-running never duplicates users. Skips any
+ * account that can't sign in (i.e. was never seeded).
+ */
+async function signInExistingUsers(authClient: SupabaseClient): Promise<SeedUser[]> {
+  const users: SeedUser[] = [];
+  for (let i = 0; i < USER_COUNT; i++) {
+    const n = String(i + 1).padStart(2, "0");
+    const base = pick(USERNAMES, i).slice(0, 17);
+    const username = `${base}_${n}`;
+    const email = `seed-user-${n}@${SEED_DOMAIN}`;
+    const { data, error } = await authClient.auth.signInWithPassword({
+      email,
+      password: SEED_PASSWORD,
+    });
+    if (error || !data.session) continue;
+    users.push({ id: data.session.user.id, email, username, token: data.session.access_token });
+    process.stdout.write(`\r  users signed in: ${users.length}`);
+  }
+  process.stdout.write("\n");
+  return users;
+}
+
 /** Register each user's Lumires profile (POST /auth/register). Tolerates duplicates. */
 async function registerProfiles(users: SeedUser[]): Promise<void> {
   let ok = 0;
@@ -379,6 +403,92 @@ async function postReplies(users: SeedUser[], films: Film[]): Promise<number> {
           await api(
             "POST",
             `/films/${encodeURIComponent(film.slug)}/${film.externalId}/reviews/${encodeURIComponent(review.id)}/reply`,
+            { token: user.token, body },
+          );
+          posted++;
+        } catch (err) {
+          failures.push((err as Error).message);
+        }
+        process.stdout.write(`\r  replies posted: ${posted}/${attempted}`);
+        await sleep(40); // gentle pacing to avoid rate limits
+      }
+    }
+  }
+  process.stdout.write("\n");
+
+  if (failures.length) {
+    console.warn(`  ! ${failures.length} reply(ies) failed. First few:`);
+    for (const m of failures.slice(0, 5)) console.warn(`    - ${m}`);
+  }
+  return posted;
+}
+
+// --- Replies for the main-page "Reviews From The Community" section ----------
+//
+// The home section aggregates reviews from GET /films/most-reviewed/weekly and
+// reads each film's reviews via /films/{id}/reviews (app-style id paths — slug
+// was dropped). The functions below post replies on exactly those reviews,
+// reusing existing users and creating no new users or films.
+
+interface HomeFilm {
+  filmId: number;
+  slug: string;
+  title: string;
+}
+
+/** The films the main page's community-reviews feed is built from. */
+async function fetchHomeFilms(): Promise<HomeFilm[]> {
+  const { items } = await api<{ items: HomeFilm[] }>("GET", "/films/most-reviewed/weekly");
+  return (items ?? []).filter((f) => f.filmId);
+}
+
+/** Fetch every review for a film by its app id (/films/{id}/reviews). */
+async function fetchReviewsById(filmId: number): Promise<ReviewRow[]> {
+  const all: ReviewRow[] = [];
+  let page = 1;
+  for (;;) {
+    const res = await api<{ results: ReviewRow[]; totalPages: number }>(
+      "GET",
+      `/films/${filmId}/reviews?page=${page}&pageSize=${REVIEW_PAGE_SIZE}`,
+    );
+    all.push(...(res.results ?? []));
+    if (!res.totalPages || page >= res.totalPages) break;
+    page++;
+  }
+  return all;
+}
+
+/**
+ * Post REPLIES_PER_REVIEW replies on every review of every main-page film, via
+ * app-style /films/{id}/reviews/{reviewId}/reply. The replier is always someone
+ * other than the review's author; targetedUserId points back at the author.
+ */
+async function postRepliesHome(users: SeedUser[], films: HomeFilm[]): Promise<number> {
+  let posted = 0;
+  let attempted = 0;
+  let reviewerIdx = 0;
+  const failures: string[] = [];
+
+  for (const film of films) {
+    const reviews = await fetchReviewsById(film.filmId);
+    for (const review of reviews) {
+      for (let r = 0; r < REPLIES_PER_REVIEW; r++) {
+        attempted++;
+        let user = users[reviewerIdx % users.length];
+        if (user.id === review.userId) {
+          reviewerIdx++;
+          user = users[reviewerIdx % users.length];
+        }
+        reviewerIdx++;
+        const body = {
+          text: pick(REPLY_TEXTS, reviewerIdx + r),
+          targetedUserId: review.userId,
+          isSpoilerFree: reviewerIdx % 3 !== 0,
+        };
+        try {
+          await api(
+            "POST",
+            `/films/${film.filmId}/reviews/${encodeURIComponent(review.id)}/reply`,
             { token: user.token, body },
           );
           posted++;
@@ -660,30 +770,32 @@ async function main() {
 
   if (isReplies) {
     console.log(
-      `Seeding ~${REPLIES_PER_REVIEW} replies per review against ${API_BASE}\n` +
-        `Mode: ${admin ? "admin API (service-role key)" : "public signUp (no service key)"}\n`,
+      `Seeding ~${REPLIES_PER_REVIEW} replies per review on the main-page films against ${API_BASE}\n` +
+        `Reusing existing seeded users — no new users or films are created.\n`,
     );
 
-    console.log("1/3  Creating / signing in users...");
-    const users = await createUsers(authClient, admin);
+    console.log("1/2  Signing in existing seeded users...");
+    const users = await signInExistingUsers(authClient);
     if (!users.length) {
-      console.error("No users available — aborting.");
+      console.error(
+        "No existing seeded users could sign in. Run `npm run seed` first to create them.",
+      );
       process.exit(1);
     }
 
-    console.log("2/3  Registering Lumires profiles & setting avatars...");
-    await registerProfiles(users);
-    await setAvatars(users);
-
-    console.log("3/3  Fetching films & posting replies on every review...");
-    const films = await fetchFilms();
+    console.log("2/2  Fetching main-page films & posting replies on their reviews...");
+    const films = await fetchHomeFilms();
     if (!films.length) {
-      console.error("No films returned from /films/popular/weekly — aborting.");
+      console.error("No films returned from /films/most-reviewed/weekly — aborting.");
       process.exit(1);
     }
-    const posted = await postReplies(users, films);
+    console.log(`     ${films.length} films: ${films.map((f) => f.title).join(", ")}`);
+    const posted = await postRepliesHome(users, films);
 
-    console.log(`\nDone. ${posted} replies posted across ${films.length} films.`);
+    console.log(
+      `\nDone. ${posted} replies posted across ${films.length} main-page films ` +
+        `(${users.length} existing users reused; no users or films duplicated).`,
+    );
     return;
   }
 

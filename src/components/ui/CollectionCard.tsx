@@ -137,6 +137,7 @@ export default function CollectionCard({ collection, isAuthed = false }: Collect
         <ListActions
           listId={collection.id}
           initialLiked={collection.isLiked ?? false}
+          initialSaved={collection.isSaved ?? false}
           isAuthed={isAuthed}
         />
       </div>

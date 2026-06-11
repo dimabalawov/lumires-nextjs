@@ -11,8 +11,9 @@ import { appearsInLists } from "@/data/appearsInLists";
 import { allFilms } from "@/data/allFilms";
 import { getMovie } from "@/lib/api/movies";
 import { getSimilarFilms, getFilmSources } from "@/lib/api/films";
-import { getFilmReviews, getReviewReplies } from "@/lib/api/reviews";
+import { getFilmReviews } from "@/lib/api/reviews";
 import { optionalData } from "@/lib/api/client";
+import { fetchTopReply, mapReviewsToThreads } from "@/lib/reviews/community";
 import { normalizeSources } from "@/lib/watch/sources";
 import { createClient } from "@/lib/supabase/server";
 import { tmdbImage } from "@/lib/images/tmdb";
@@ -21,7 +22,6 @@ import { leftColumnThreads, rightColumnThreads } from "@/data/communityThreads";
 import type { SimilarFilmItem } from "@/types/api";
 import type { EditorialFilm } from "@/data/editorialCollections";
 import type { CommunityThread } from "@/types/film";
-import type { Review, ReviewComment } from "@/types/review";
 
 interface FilmPageProps {
   params: Promise<{ id: string }>;
@@ -40,10 +40,10 @@ function toStarRating(voteAverage?: number): number | undefined {
 export async function generateMetadata({ params }: FilmPageProps): Promise<Metadata> {
   const { id } = await params;
   const movie = await getMovie(id);
-  if (!movie) return { title: "Film not found · Lumires" };
+  if (!movie) return { title: "Film not found" };
 
   return {
-    title: `${movie.localization?.title ?? "Film"} · Lumires`,
+    title: movie.localization?.title ?? "Film",
     description: movie.localization?.overview,
   };
 }
@@ -55,72 +55,6 @@ function formatRuntime(minutes: number): string | undefined {
   if (h === 0) return `${m}m`;
   if (m === 0) return `${h}h`;
   return `${h}h ${m}m`;
-}
-
-const REVIEW_BG_VARIANTS = [
-  "[background:linear-gradient(41deg,rgba(210,166,106,0.08)_10%,rgba(18,16,14,0)_99%),#12100E]",
-  "[background:linear-gradient(-44deg,rgba(210,166,106,0.08)_10%,rgba(18,16,14,0)_100%),#12100E]",
-];
-const REVIEW_BORDER_VARIANTS = [
-  "[background:linear-gradient(225deg,rgba(210,166,106,0.44)_0%,rgba(18,16,14,0)_100%)]",
-  "[background:linear-gradient(-44deg,rgba(18,16,14,0)_0%,rgba(210,166,106,0.44)_100%)]",
-];
-const FALLBACK_AVATAR = "/imgs/community/noirviewer.png";
-
-const withAt = (name: string) => (name.startsWith("@") ? name : `@${name}`);
-
-/**
- * Pick a review's most-liked reply that has visible text. Returns null when the
- * review has no usable reply. NOTE: the replies API currently omits the reply
- * `text` and misattributes the author (backend serializer bug), so this yields
- * null until that's fixed — the card then renders without a reply. Once the API
- * returns real reply bodies, the most-liked one shows automatically.
- */
-async function fetchTopReply(
-  filmId: string,
-  reviewId: string,
-  authed: boolean,
-): Promise<ReviewComment | null> {
-  const res = await optionalData(
-    getReviewReplies(filmId, reviewId, { pageSize: 50, authed }),
-  );
-  const items = (res?.results ?? []).filter((c) => (c.text ?? "").trim() !== "");
-  if (!items.length) return null;
-  return items.reduce((best, c) => ((c.likesCount ?? 0) > (best.likesCount ?? 0) ? c : best));
-}
-
-function mapReviewsToThreads(
-  reviews: Review[],
-  filmId: string,
-  topReplies: (ReviewComment | null)[],
-): CommunityThread[] {
-  return reviews.map((r, i) => {
-    const top = topReplies[i];
-    return {
-      id: String(r.id),
-      username: withAt(r.username),
-      avatarUrl: r.avatarUrl || FALLBACK_AVATAR,
-      href: `/review/${encodeURIComponent(r.id)}?film=${encodeURIComponent(filmId)}`,
-      text: r.text,
-      replies: r.repliesCount ?? 0,
-      likes: r.likesCount ?? 0,
-      rating: r.rating ?? undefined,
-      filmId,
-      slug: "-",
-      likedByMe: r.isLikedByMe ?? false,
-      reply: top
-        ? {
-            username: withAt(top.username),
-            replyTo: withAt(r.username),
-            avatarUrl: top.avatarUrl || FALLBACK_AVATAR,
-            text: top.text ?? "",
-            likes: top.likesCount ?? 0,
-          }
-        : { username: "", replyTo: withAt(r.username), avatarUrl: FALLBACK_AVATAR, text: "" },
-      bgGradient: REVIEW_BG_VARIANTS[i % 2],
-      borderGradient: REVIEW_BORDER_VARIANTS[i % 2],
-    };
-  });
 }
 
 function genreName(genre: SimilarFilmItem["genres"][number] | undefined): string {

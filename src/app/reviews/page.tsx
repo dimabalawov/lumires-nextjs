@@ -9,7 +9,7 @@ import BrowseAllReviewsSection from "@/components/sections/BrowseAllReviewsSecti
 import BrowseByTagSection from "@/components/sections/BrowseByTagSection";
 
 export const metadata: Metadata = {
-  title: "Reviews · Lumires",
+  title: "Reviews",
   description:
     "Long-form thoughts, short reactions, and the occasional rant — written by people who watch films like it's the best part of their week.",
 };

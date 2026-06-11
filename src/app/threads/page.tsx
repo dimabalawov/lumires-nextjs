@@ -6,7 +6,7 @@ import EditorialPickSection from "@/components/sections/EditorialPickSection";
 import { threadsHeroCopy, threadsHeroStats } from "@/data/threadsHero";
 
 export const metadata: Metadata = {
-  title: "Threads · Lumires",
+  title: "Threads",
   description:
     "Hot takes, deep dives, and everything in between. Talk films with people who actually mean it.",
 };
