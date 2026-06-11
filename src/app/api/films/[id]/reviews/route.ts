@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { ApiError } from "@/lib/api/client";
-import { withProfileRetry } from "@/lib/api/auth";
+import { withProfileRetry } from "@/lib/auth/server";
 import { createReview } from "@/lib/api/reviews";
 
 /** POST /api/films/{id}/reviews — publish a review for a film as the current user. */

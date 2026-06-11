@@ -5,17 +5,18 @@ import { getNotificationText } from "./getNotificationText";
 
 export function handleNotification(n: NotificationMessage) {
   const senderName = n.senderName ?? "Someone";
-
+  const senderAvatar = n.senderAvatar ?? undefined;
   const senderUrl = getSenderUrl(n.senderId);
   const targetUrl = getTargetUrl(n);
-
   const text = getNotificationText(n.type);
-  
 
   toast({
     title: senderName,
     message: text,
+    type: n.type,
     senderUrl,
+    senderAvatar,
     targetUrl,
+    targetPayload: n.targetPayload ?? null,
   });
 }

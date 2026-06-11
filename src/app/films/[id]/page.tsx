@@ -7,7 +7,6 @@ import FilmHero, { type FilmHeroData } from "@/components/sections/FilmHero";
 import FilmReviewsSection from "@/components/sections/FilmReviewsSection";
 import AppearsInListsSection from "@/components/sections/AppearsInListsSection";
 import SimilarFilmsSection from "@/components/sections/SimilarFilmsSection";
-import { appearsInLists } from "@/data/appearsInLists";
 import { allFilms } from "@/data/allFilms";
 import { getMovie } from "@/lib/api/movies";
 import { getSimilarFilms, getFilmSources } from "@/lib/api/films";
@@ -20,8 +19,9 @@ import { filmExtras, genreShortName } from "@/data/filmExtras";
 import { leftColumnThreads, rightColumnThreads } from "@/data/communityThreads";
 import type { SimilarFilmItem } from "@/types/api";
 import type { EditorialFilm } from "@/data/editorialCollections";
-import type { CommunityThread } from "@/types/film";
+import type { CollectionData, CommunityThread } from "@/types/film";
 import type { Review, ReviewComment } from "@/types/review";
+import { getFilmsListsByFilm } from "@/lib/api/lists";
 
 interface FilmPageProps {
   params: Promise<{ id: string }>;
@@ -76,6 +76,29 @@ const withAt = (name: string) => (name.startsWith("@") ? name : `@${name}`);
  * null until that's fixed — the card then renders without a reply. Once the API
  * returns real reply bodies, the most-liked one shows automatically.
  */
+async function fetchAppearsInLists(filmId: string): Promise<CollectionData[]> {
+  const res = await optionalData(getFilmsListsByFilm(Number(filmId)));
+  if (!res?.filmsLists) return [];
+  console.log(res.filmsLists);
+
+  return res.filmsLists.map(l => {
+    const uniqueBackdrops = Array.from(
+      new Set(l.films.map(f => f.backdropPath).filter((p): p is string => !!p))
+    );
+
+    return {
+      id: l.id,
+      title: l.name,
+      films: l.films.map(f => f.backdropPath ?? "").filter(Boolean),
+      backdrops: uniqueBackdrops.map(path => tmdbImage(path, "w780")!),
+      filmCount: l.films.length,
+      author: undefined,
+      isLiked: l.isLikedByMe,
+      isSaved: l.isSavedByMe,
+    };
+  });
+}
+
 async function fetchTopReply(
   filmId: string,
   reviewId: string,
@@ -110,12 +133,12 @@ function mapReviewsToThreads(
       likedByMe: r.isLikedByMe ?? false,
       reply: top
         ? {
-            username: withAt(top.username),
-            replyTo: withAt(r.username),
-            avatarUrl: top.avatarUrl || FALLBACK_AVATAR,
-            text: top.text ?? "",
-            likes: top.likesCount ?? 0,
-          }
+          username: withAt(top.username),
+          replyTo: withAt(r.username),
+          avatarUrl: top.avatarUrl || FALLBACK_AVATAR,
+          text: top.text ?? "",
+          likes: top.likesCount ?? 0,
+        }
         : { username: "", replyTo: withAt(r.username), avatarUrl: FALLBACK_AVATAR, text: "" },
       bgGradient: REVIEW_BG_VARIANTS[i % 2],
       borderGradient: REVIEW_BORDER_VARIANTS[i % 2],
@@ -157,13 +180,14 @@ export default async function FilmPage({ params, searchParams }: FilmPageProps) 
   } = await supabase.auth.getUser();
   const isAuthed = !!user;
 
-  const [movie, reviewsResponse, similarResponse, sourcesResponse] = await Promise.all([
+  const [movie, reviewsResponse, similarResponse, sourcesResponse, listsResponse] = await Promise.all([
     getMovie(id),
     optionalData(
       getFilmReviews(id, { page: reviewsPageNum, pageSize: REVIEWS_PAGE_SIZE, authed: isAuthed }),
     ),
     optionalData(getSimilarFilms(id)),
     optionalData(getFilmSources(id)),
+    optionalData(fetchAppearsInLists(id)),
   ]);
 
   if (!movie) notFound();
@@ -247,7 +271,12 @@ export default async function FilmPage({ params, searchParams }: FilmPageProps) 
         totalPages={reviewsTotalPages}
       />
 
-      <AppearsInListsSection lists={appearsInLists} />
+      {listsResponse && listsResponse.length > 0 && (
+        <AppearsInListsSection
+          lists={listsResponse}
+          showAllHref={`/films/${id}/lists`}
+        />
+      )}
 
       <SimilarFilmsSection films={similarFilms} />
     </main>

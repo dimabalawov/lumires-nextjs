@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function HeroSection() {
   return (
-    <section className="relative w-full overflow-hidden h-screen">
+    <section className="relative w-full overflow-hidden h-screen select-none">
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <Image
@@ -31,14 +31,14 @@ export default function HeroSection() {
         <div className="flex flex-col gap-12">
           <div className="flex gap-4 flex-row justify-between items-start opacity-80">
             <Link
-              href="#"
+              href="/reviews"
               className="font-manrope font-light text-brand-light uppercase leading-[1.3] lg:leading-[1.104] hover:opacity-60 transition-opacity"
               style={{ fontSize: "clamp(20px, 4vw, 60px)" }}
             >
               READ REVIEWS
             </Link>
             <Link
-              href="#"
+              href="/films"
               className="font-manrope font-light text-white uppercase leading-[1.3] lg:leading-[1.366] hover:opacity-60 transition-opacity"
               style={{ fontSize: "clamp(16px, 3vw, 36px)" }}
             >
@@ -55,7 +55,7 @@ export default function HeroSection() {
 
         {/* EXPLORE FILMS → */}
         <Link
-          href="#"
+          href="/films"
           className="font-manrope font-light text-brand-light uppercase
             text-right text-[16px] lg:text-[28px] leading-[1.714] tracking-[0.06em]
             hover:opacity-60 transition-opacity justify-self-end mt-auto"

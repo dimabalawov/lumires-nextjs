@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { NavLink } from "@/types/nav";
 import { createClient } from "@/lib/supabase/client";
-import type { User } from "@supabase/supabase-js";
 import Logo from "@/components/ui/Logo";
+import Image from "next/image";
+import { getMeWithAvatarClient } from "@/lib/auth/client";
 
 const navLinks: NavLink[] = [
   { label: "FILMS", href: "/films" },
@@ -18,44 +19,66 @@ const navLinks: NavLink[] = [
 
 export default function Header() {
   const router = useRouter();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
 
-  // Sign out in the browser so the auth cookie clears and onAuthStateChange
-  // updates this header instantly; router.refresh() re-renders the current page's
-  // server components as logged-out without navigating away.
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const [username, setUsername] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  const supabase = createClient();
+  async function loadProfile(accessToken: string) {
+    setLoading(true);
+    try {
+      const profile = await getMeWithAvatarClient(accessToken);
+      setUsername(profile?.username ?? null);
+      setAvatarUrl(profile?.avatarUrl ?? null);
+    } catch {
+      setUsername(null);
+      setAvatarUrl(null);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function handleSignOut() {
-    const supabase = createClient();
     await supabase.auth.signOut();
+
+    setUsername(null);
+    setAvatarUrl(null);
+
     router.refresh();
   }
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
   }, [menuOpen]);
 
   useEffect(() => {
-    const supabase = createClient();
-    // Read the session from the cookie locally. getUser() would hit the
-    // self-hosted Supabase /auth/v1/user over the network, which is CORS-blocked
-    // from the browser; getSession() needs no network. The session is kept fresh
-    // server-side by middleware.ts, and real authorization happens server-side.
-    supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null));
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => setUser(session?.user ?? null)
-    );
-    return () => subscription.unsubscribe();
-  }, []);
+    const { data } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "INITIAL_SESSION" || event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+        if (!session?.access_token) {
+          setLoading(false);
+          return;
+        }
+        await loadProfile(session.access_token);
+        return;
+      }
 
-  const username =
-    user?.user_metadata?.username ??
-    user?.email?.split("@")[0] ??
-    null;
+      if (event === "SIGNED_OUT") {
+        setUsername(null);
+        setAvatarUrl(null);
+        setLoading(false);
+        return;
+      }
+    });
+
+    return () => data.subscription.unsubscribe();
+  }, []);
 
   return (
     <header className="absolute top-0 left-0 w-full зе z-50">
-      <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/70 to-transparent pointer-events-none h-[200%]" />
+      <div className="absolute inset-0 bg-linear-to-b from-black/90 via-black/70 to-transparent pointer-events-none h-[200%]" />
 
       <nav className="relative section-container flex items-center justify-between py-5">
         <Link
@@ -81,14 +104,28 @@ export default function Header() {
 
         {/* Desktop auth + search */}
         <div className="hidden lg:flex items-center gap-5">
-          {username ? (
+          {loading ? (
+            <div className="w-10 h-10 rounded-full bg-white/10 animate-pulse" />
+          ) : username ? (
             <>
-              <span className="text-brand-gold uppercase font-light text-base tracking-[0.12em]">
-                {username}
-              </span>
+              <Link href={`/users/${username}`}>
+                {avatarUrl ? (
+                  <Image
+                    src={avatarUrl}
+                    alt={username ?? "User avatar"}
+                    width={40}
+                    height={40}
+                    className="rounded-full aspect-square object-cover object-center border border-brand-gold"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-brand-gold text-black flex items-center justify-center text-sm font-medium">
+                    {username?.[0]?.toUpperCase()}
+                  </div>
+                )}
+              </Link>
               <button
                 onClick={handleSignOut}
-                className="text-white uppercase font-light text-base tracking-[0.12em] hover:opacity-70 transition-opacity"
+                className="text-white cursor-pointer uppercase font-light text-base tracking-[0.12em] hover:opacity-70 transition-opacity"
               >
                 SIGN OUT
               </button>
@@ -97,20 +134,20 @@ export default function Header() {
             <>
               <Link
                 href="/login"
-                className="text-white uppercase font-light text-base tracking-[0.12em] hover:opacity-70 transition-opacity"
+                className="text-white cursor-pointer uppercase font-light text-base tracking-[0.12em] hover:opacity-70 transition-opacity"
               >
                 LOG IN
               </Link>
               <Link
                 href="/signup"
-                className="text-brand-gold uppercase font-light text-base tracking-[0.12em] border border-brand-gold px-4 py-1.5 hover:bg-brand-gold hover:text-black transition-colors"
+                className="text-brand-gold cursor-pointer uppercase font-light text-base tracking-[0.12em] border border-brand-gold px-4 py-1.5 hover:bg-brand-gold hover:text-black transition-colors"
               >
                 SIGN UP
               </Link>
             </>
           )}
 
-          <button className="text-white hover:opacity-70 transition-opacity" aria-label="Search">
+          <button className="text-white cursor-pointer hover:opacity-70 transition-opacity" aria-label="Search">
             <svg
               width="22"
               height="22"
@@ -129,7 +166,7 @@ export default function Header() {
 
         {/* Mobile: search + hamburger */}
         <div className="lg:hidden flex items-center gap-3">
-          <button className="text-white hover:opacity-70 transition-opacity p-1" aria-label="Search">
+          <button className="text-white cursor-pointer hover:opacity-70 transition-opacity p-1" aria-label="Search">
             <svg
               width="20"
               height="20"
@@ -145,7 +182,7 @@ export default function Header() {
             </svg>
           </button>
           <button
-            className="text-white hover:opacity-70 transition-opacity p-1"
+            className="text-white cursor-pointer hover:opacity-70 transition-opacity p-1"
             onClick={() => setMenuOpen(true)}
             aria-label="Open menu"
           >
@@ -160,7 +197,7 @@ export default function Header() {
 
       {/* Mobile overlay menu */}
       {menuOpen && (
-        <div className="fixed inset-0 z-[60] bg-brand-dark/97 flex flex-col items-center justify-center gap-8 lg:hidden">
+        <div className="fixed inset-0 z-60 bg-brand-dark/97 flex flex-col items-center justify-center gap-8 lg:hidden">
           {/* Close button */}
           <button
             className="absolute top-5 right-5 text-white hover:opacity-70 transition-opacity p-2"
@@ -179,7 +216,7 @@ export default function Header() {
               key={link.label}
               href={link.href}
               onClick={() => setMenuOpen(false)}
-              className="text-brand-light uppercase font-oswald font-light text-[28px] tracking-[0.12em] hover:opacity-70 transition-opacity"
+              className="text-brand-light cursor-pointer uppercase font-oswald font-light text-[28px] tracking-[0.12em] hover:opacity-70 transition-opacity"
             >
               {link.label}
             </Link>
@@ -189,14 +226,36 @@ export default function Header() {
           <div className="h-px w-16 bg-brand-gold/40" />
 
           {/* Auth links */}
-          {username ? (
+          {loading ? (
+            <div className="w-10 h-10 rounded-full bg-white/10 animate-pulse" />
+          ) : username ? (
             <>
-              <span className="text-brand-gold uppercase font-oswald font-light text-[20px] tracking-[0.12em]">
-                {username}
-              </span>
+              <Link
+                href={`/users/${username}`}
+                onClick={() => setMenuOpen(false)}
+                className="cursor-pointer"
+              >
+                {avatarUrl ? (
+                  <Image
+                    src={avatarUrl}
+                    alt={username ?? "User avatar"}
+                    width={72}
+                    height={72}
+                    className="rounded-full aspect-square object-cover object-center border border-brand-gold"
+                  />
+                ) : (
+                  <div className="w-18 h-18 rounded-full bg-brand-gold text-black flex items-center justify-center text-2xl font-medium">
+                    {username?.[0]?.toUpperCase()}
+                  </div>
+                )}
+              </Link>
+
               <button
-                onClick={() => { setMenuOpen(false); handleSignOut(); }}
-                className="text-brand-light uppercase font-oswald font-light text-[20px] tracking-[0.12em] hover:opacity-70 transition-opacity"
+                onClick={() => {
+                  setMenuOpen(false);
+                  handleSignOut();
+                }}
+                className="text-brand-light cursor-pointer uppercase font-oswald font-light text-[20px] tracking-[0.12em] hover:opacity-70 transition-opacity"
               >
                 SIGN OUT
               </button>
@@ -206,14 +265,14 @@ export default function Header() {
               <Link
                 href="/login"
                 onClick={() => setMenuOpen(false)}
-                className="text-brand-light uppercase font-oswald font-light text-[20px] tracking-[0.12em] hover:opacity-70 transition-opacity"
+                className="text-brand-light cursor-pointer uppercase font-oswald font-light text-[20px] tracking-[0.12em] hover:opacity-70 transition-opacity"
               >
                 LOG IN
               </Link>
               <Link
                 href="/signup"
                 onClick={() => setMenuOpen(false)}
-                className="text-brand-light uppercase font-oswald font-light text-[20px] tracking-[0.12em] hover:opacity-70 transition-opacity"
+                className="text-brand-light cursor-pointer uppercase font-oswald font-light text-[20px] tracking-[0.12em] hover:opacity-70 transition-opacity"
               >
                 SIGN UP
               </Link>

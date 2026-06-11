@@ -2,12 +2,12 @@
 
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { ensureProfile } from '@/lib/api/auth'
+import { ensureProfile } from '@/lib/auth/server'
 
 export async function signIn(formData: FormData) {
   const supabase = await createClient()
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email: formData.get('email') as string,
     password: formData.get('password') as string,
   })
@@ -17,15 +17,16 @@ export async function signIn(formData: FormData) {
   }
 
   // Make sure the Lumires profile exists (older accounts may lack one).
-  await ensureProfile()
+  const token = data.session?.access_token;
+  await ensureProfile(token);
 
-  redirect('/')
+  return { success: true }
 }
 
 export async function signUp(formData: FormData) {
   const supabase = await createClient()
 
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email: formData.get('email') as string,
     password: formData.get('password') as string,
     options: {
@@ -39,10 +40,10 @@ export async function signUp(formData: FormData) {
     return { error: error.message }
   }
 
-  // Register the Lumires profile for the new user (when a session is available).
-  await ensureProfile()
+  const token = data.session?.access_token;
+  await ensureProfile(token);
 
-  redirect('/')
+  return { success: true }
 }
 
 export async function signInWithOAuth(provider: 'google' | 'github') {

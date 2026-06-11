@@ -1,7 +1,11 @@
 import { NotificationMessage } from "@/types/notification";
 
+
+const API = process.env.NEXT_PUBLIC_LUMIRES_API_URL ?? "http://localhost:49320"; //DIMA change for api.supabase.win
+
+
 export function getSenderUrl(senderId: string) {
-  return `/users/${senderId}`;
+  return `${API}/users/${senderId}`;
 }
 
 export function getTargetUrl(n: NotificationMessage): string | null {
@@ -11,19 +15,19 @@ export function getTargetUrl(n: NotificationMessage): string | null {
     case "LikedReview":
     case "ReviewReplied":
     case "LikedReviewComment":
-      return `/reviews/${n.targetId}`;
+      return `${API}/reviews/${n.targetId}`;
 
     case "ThreadReplied":
     case "LikedThread":
     case "LikedThreadComment":
-      return `/threads/${n.targetId}`;
+      return `${API}/threads/${n.targetId}`;
 
     case "LikedFilmsList":
-      return `/lists/${n.targetId}`;
+      return `${API}/lists/${n.targetId}`;
 
     case "Followed":
     case "FollowedBack":
-      return `/users/${n.senderId}`;
+      return `${API}/users/${n.senderId}`;
 
     default:
       return null;

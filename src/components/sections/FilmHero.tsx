@@ -12,7 +12,7 @@ import type { MoviePerson } from "@/types/movie";
 
 export interface FilmHeroData {
   title: string;
-  posterUrl: string | null;
+  posterUrl: string | null | undefined;
   year?: string;
   primaryGenre?: string;
   runtime?: string;

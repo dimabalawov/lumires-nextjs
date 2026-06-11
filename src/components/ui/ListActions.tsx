@@ -5,7 +5,7 @@ import { useRef, useState, type MouseEvent } from "react";
 
 function HeartIcon({ filled }: { filled: boolean }) {
   return (
-    <svg width="13" height="12" viewBox="27.5 9 13 12" fill="none" aria-hidden>
+    <svg width="15" height="15" viewBox="27.5 9 13 12" fill="none" aria-hidden>
       <path
         d="M34.0002 20.1C34.0002 20.1 29.9169 17.475 28.4585 14.85C27.9944 14.1151 27.8412 13.2259 28.0326 12.3781C28.2241 11.5303 28.7445 10.7933 29.4794 10.3291C30.2142 9.865 31.1034 9.71181 31.9512 9.90325C32.799 10.0947 33.5361 10.6151 34.0002 11.35C34.4643 10.6151 35.2014 10.0947 36.0492 9.90325C36.897 9.71181 37.7862 9.865 38.521 10.3291C39.2559 10.7933 39.7763 11.5303 39.9677 12.3781C40.1592 13.2259 40.006 14.1151 39.5419 14.85C38.0835 17.475 34.0002 20.1 34.0002 20.1Z"
         stroke="currentColor"
@@ -18,7 +18,7 @@ function HeartIcon({ filled }: { filled: boolean }) {
 
 function BookmarkIcon({ filled }: { filled: boolean }) {
   return (
-    <svg width="12" height="13" viewBox="0 0 24 24" fill="none" aria-hidden>
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden>
       <path
         d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"
         stroke="currentColor"
@@ -46,7 +46,7 @@ function ActionButton({
       type="button"
       aria-pressed={active}
       onClick={onClick}
-      className={`flex h-9 w-[68px] flex-col items-center justify-center gap-1 rounded-[2px] border transition-colors ${
+      className={`flex h-9 w-17 flex-col items-center justify-center gap-1 rounded-[2px] border transition-colors ${
         active
           ? "border-brand-gold/70 bg-brand-gold/10 text-brand-gold"
           : "border-brand-gold/45 text-brand-gold hover:bg-brand-gold/5"

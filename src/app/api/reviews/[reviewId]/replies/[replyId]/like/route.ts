@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { ApiError } from "@/lib/api/client";
-import { withProfileRetry } from "@/lib/api/auth";
+import { withProfileRetry } from "@/lib/auth/server";
 import { likeReviewComment } from "@/lib/api/reviews";
 
 /** POST /api/reviews/{reviewId}/replies/{replyId}/like — toggle like on a reply. */

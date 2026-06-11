@@ -7,7 +7,7 @@ export default function ActorSimilarSection({ actors }: { actors: SimilarActor[]
 
   return (
     <section className="section-container pt-8 lg:pt-12 pb-16 lg:pb-24">
-      <h2 className="font-manrope font-light text-brand-light/90 text-[48px] leading-[56px] tracking-[0.06em] mb-8 lg:mb-12">
+      <h2 className="font-manrope font-light text-brand-light/90 text-[48px] leading-14 tracking-[0.06em] mb-8 lg:mb-12">
         Similar Genre <span className="text-brand-gold">Actors</span>
       </h2>
 
@@ -18,7 +18,7 @@ export default function ActorSimilarSection({ actors }: { actors: SimilarActor[]
             href={`/actors/${a.apiId}`}
             className="flex flex-col items-center text-center group"
           >
-            <div className="relative size-[160px] lg:size-[200px] overflow-hidden rounded-full">
+            <div className="relative size-40 lg:size-50 overflow-hidden rounded-full">
               <Image
                 src={a.image}
                 alt={a.name}

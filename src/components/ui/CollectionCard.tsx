@@ -49,8 +49,8 @@ export default function CollectionCard({ collection, isAuthed = false }: Collect
             const farFromCenter = Math.abs(i - centerIdx) > MOBILE_SIDE_REACH;
             // Centre uses the featured film's landscape backdrop when available
             // (fills the wide panel naturally); otherwise the poster shown in full.
-            const useBackdrop = isCenter && !!collection.backdrop;
-            const imgSrc = useBackdrop ? collection.backdrop! : src;
+            const useBackdrop = isCenter && !!collection.backdrops?.[0];
+            const imgSrc = useBackdrop ? collection.backdrops?.[0] ?? src : src;
 
             return (
               <div

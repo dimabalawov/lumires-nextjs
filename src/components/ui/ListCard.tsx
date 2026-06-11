@@ -6,17 +6,14 @@ import GradientDivider from "@/components/ui/GradientDivider";
 import ListActions from "@/components/ui/ListActions";
 import type { CollectionData } from "@/types/film";
 
-// Flex ratios derived from Figma: container 548.52 wide, featured 434.32, then 4 right-side strips
-// peeking out at offsets 34.63 / 62.71 / 89.86 / 114.2 from the featured frame (widths 35.56 / 27.15 / 27.15 / 24.34).
 const FEATURED_FLEX = 79.18;
 const STRIP_FLEXES = [6.48, 4.95, 4.95, 4.44];
 
-// Pastel palettes — fallback fills used only when a list has no poster artwork.
 const PASTEL_PALETTES: string[][] = [
-  ["#F5C2C7", "#F8C6A4", "#F4E4A1", "#B8E1C8", "#B8D4E3"], // pink / peach / butter / mint / sky
-  ["#C4D7E0", "#E2C9D9", "#F1D6B8", "#D8E2C9", "#C9C2E0"], // sky / mauve / peach / sage / lavender
-  ["#E8D5B7", "#D8C5E8", "#B7D8E8", "#E8B7C5", "#C5E8B7"], // sand / lilac / sky / rose / lime
-  ["#B8C5E0", "#E0B8C5", "#C5E0B8", "#E0D8B8", "#D8B8E0"], // periwinkle / blush / pistachio / vanilla / orchid
+  ["#F5C2C7", "#F8C6A4", "#F4E4A1", "#B8E1C8", "#B8D4E3"],
+  ["#C4D7E0", "#E2C9D9", "#F1D6B8", "#D8E2C9", "#C9C2E0"],
+  ["#E8D5B7", "#D8C5E8", "#B7D8E8", "#E8B7C5", "#C5E8B7"],
+  ["#B8C5E0", "#E0B8C5", "#C5E0B8", "#E0D8B8", "#D8B8E0"],
 ];
 
 export default function ListCard({
@@ -32,27 +29,75 @@ export default function ListCard({
   const href = `/lists/${list.id}`;
   const palette = PASTEL_PALETTES[paletteIndex % PASTEL_PALETTES.length];
 
-  // One slot per region (featured + 4 strips). Use the list's real posters,
-  // cycling them to fill all five; fall back to the pastel fill if none exist.
   const posters = list.films.filter(Boolean);
   const slotFlexes = [FEATURED_FLEX, ...STRIP_FLEXES];
   const filmCount = list.filmCount || list.films.length;
 
+  const validBackdrops = (list.backdrops ?? []).filter(
+    (url): url is string => typeof url === "string" && url.length > 0
+  );
+  const backdrop = validBackdrops[0];
+  const useStack = validBackdrops.length > 1;
+
+
   return (
     <div className="flex flex-col w-full group">
       <div
-        className="relative w-full overflow-hidden aspect-[548/237] rounded-[4px] cursor-pointer"
+        className="relative w-full overflow-hidden aspect-548/237 rounded-sm cursor-pointer"
         onClick={() => router.push(href)}
         role="button"
         tabIndex={0}
         onKeyDown={(e) => e.key === "Enter" && router.push(href)}
       >
-        <div className="flex h-full w-full">
-          {slotFlexes.map((flex, i) => {
-            const poster = posters.length ? posters[i % posters.length] : null;
+        {backdrop && !useStack && (
+          <Image
+            src={backdrop}
+            alt=""
+            fill
+            unoptimized
+            className="object-cover object-center"
+          />
+        )}
+        {useStack &&
+          validBackdrops.slice(0, 5).map((url, i) => {
+            const total = Math.min(validBackdrops.length, 5);
+            const rightOffset = (total - 1 - i) * 40;
             return (
               <div
                 key={i}
+                className="absolute inset-y-0 overflow-hidden"
+                style={{
+                  left: `${i * 20}px`,
+                  right: `${rightOffset}px`,
+                  zIndex: total - i,
+                }}
+              >
+                <Image
+                  src={url}
+                  alt=""
+                  fill
+                  unoptimized
+                  className="object-cover object-center"
+                />
+                {i > 0 && (
+                  <div
+                    className="absolute inset-0"
+                    style={{ background: `rgba(0,0,0,${i * 0.2})` }}
+                  />
+                )}
+              </div>
+            );
+          })}
+
+        <div className="absolute inset-0 bg-black/30" />
+
+        <div className="relative flex h-full w-full">
+          {!backdrop && slotFlexes.map((flex, i) => {
+            const poster =
+              posters.length ? posters[i % posters.length] : null;
+            return (
+              <div
+                key={`slot-${i}`}
                 className="relative h-full overflow-hidden border-l border-black/30 first:border-l-0"
                 style={{
                   flexGrow: flex,
@@ -76,6 +121,7 @@ export default function ListCard({
           })}
         </div>
       </div>
+
 
       <button
         type="button"

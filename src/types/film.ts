@@ -23,7 +23,7 @@ export interface CollectionData {
   id: string;
   title: string;
   films: string[]; // up to 11 unique poster paths; the middle one is the centre/featured panel
-  backdrop?: string; // landscape still for the centre panel (the featured film's backdrop)
+  backdrops?: string[]; // landscape stills for the centre panel (the featured film's backdrop)
   filmCount?: number; // shown in the "N films by @author" meta on browse-list cards
   author?: string; // handle without leading "@"
   // Per-user list state — present when the card is backed by a live API list, so

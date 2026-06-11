@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { ApiError } from "@/lib/api/client";
-import { withProfileRetry } from "@/lib/api/auth";
+import { withProfileRetry } from "@/lib/auth/server";
 import { likeFilm } from "@/lib/api/films";
 
 /** POST /api/films/{id}/like - toggle the current user's like on a film. */

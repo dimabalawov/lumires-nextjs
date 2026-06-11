@@ -5,6 +5,6 @@ export * from "./reviews";
 export * from "./lists";
 export * from "./genres";
 export * from "./directors";
-export * from "./auth";
+export * from "../auth/server";
 // Back-compat alias.
 export { getMovie } from "./movies";

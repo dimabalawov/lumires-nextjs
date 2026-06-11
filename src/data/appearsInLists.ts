@@ -14,6 +14,7 @@ const r18   = p("Rectangle 18");
 
 // 5 entries per list — index 0 is the featured (wide) image; the rest peek out
 // as right-side strips.
+
 export const appearsInLists: CollectionData[] = [
   {
     id: "slow-cinema-evenings",

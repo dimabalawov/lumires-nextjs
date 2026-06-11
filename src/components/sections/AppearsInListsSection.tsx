@@ -12,7 +12,7 @@ export default function AppearsInListsSection({
   showAllHref = "#",
 }: AppearsInListsSectionProps) {
   if (lists.length === 0) return null;
-
+  console.log(lists);
   return (
     <section className="section-container pb-24">
       <div className="mb-8 lg:mb-12 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-end">
@@ -27,9 +27,21 @@ export default function AppearsInListsSection({
         </Link>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-10 lg:gap-y-14">
-        {lists.map((list, i) => (
-          <ListCard key={list.id} list={list} paletteIndex={i} />
+        {lists.map(l => (
+          <ListCard
+            key={l.id}
+            list={{
+              id: l.id,
+              title: l.title,
+              films: l.films,            
+              backdrops: l.backdrops,
+              filmCount: l.filmCount,    
+              isLiked: l.isLiked,
+              isSaved: l.isSaved,
+            }}
+          />
         ))}
+
       </div>
     </section>
   );

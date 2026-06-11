@@ -1,8 +1,11 @@
 type ToastInput = {
     title: string;
     message: string;
+    type?: string;
     senderUrl?: string;
+    senderAvatar?: string;
     targetUrl?: string | null;
+    targetPayload?: string | null;
 };
 
 type ToastListener = (t: ToastInput) => void;

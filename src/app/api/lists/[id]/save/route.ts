@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { ApiError } from "@/lib/api/client";
-import { withProfileRetry } from "@/lib/api/auth";
+import { withProfileRetry } from "@/lib/auth/server";
 import { saveList, unsaveList } from "@/lib/api/lists";
 
 /** POST /api/lists/{id}/save — save a list for the current user. */

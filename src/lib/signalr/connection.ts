@@ -7,9 +7,7 @@ export function getConnection() {
   if (connection) return connection;
 
   const supabase = createClient();
-// const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-// const anon = process.env.SEED_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const API = process.env.NEXT_PUBLIC_LUMIRES_API_URL ?? "http://localhost:58185";
+  const API = process.env.NEXT_PUBLIC_LUMIRES_API_URL ?? "http://localhost:49320"; //DIMA change for api.supabase.win
   connection = new signalR.HubConnectionBuilder()
     .withUrl(`${API}/hubs/notifications`, {
       accessTokenFactory: async () => {

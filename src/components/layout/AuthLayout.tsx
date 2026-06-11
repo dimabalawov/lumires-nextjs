@@ -20,16 +20,14 @@ export default function AuthLayout({ backgroundImage, mirrorBackground, children
         />
         <div className="lg:hidden absolute inset-0 bg-brand-dark/60" />
         <div className="hidden lg:block absolute inset-y-0 right-0 w-[65%] auth-overlay-right" />
-        <div className="absolute top-0 left-0 w-full h-[138px] auth-overlay-top" />
+        <div className="absolute top-0 left-0 w-full h-34.5 auth-overlay-top" />
       </div>
 
-      <main className="relative z-10 w-full flex-grow flex flex-col justify-center items-center px-4 
-                       /* Безопасные отступы от краев (под хедер сверху) */
-                       pt-[140px] pb-[60px] 
-                       /* Десктопное позиционирование */
-                       lg:items-end lg:pr-[106px] lg:pt-[120px]">
+      <main className="relative z-10 w-full grow flex flex-col justify-center items-center px-4 
+                       pt-35 pb-15 
+                       lg:items-end lg:pr-26.5 lg:pt-30">
 
-        <div className="w-full max-w-[450px] my-auto">
+        <div className="w-full max-w-112.5 my-auto">
           {children}
         </div>
 

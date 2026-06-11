@@ -26,8 +26,6 @@ let started = false;
 export async function startNotifications() {
     const conn = getConnection();
 
-    console.log("[SignalR] starting...");
-
     if (started) return;
     started = true;
     conn.on("ReceiveNotification", (data: any) => {

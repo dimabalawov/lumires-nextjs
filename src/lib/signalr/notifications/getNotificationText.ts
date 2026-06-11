@@ -1,11 +1,11 @@
 import type { NotificationType } from "@/types/notification";
 
 const map: Record<NotificationType, string> = {
-  LikedReview: "liked your review",
+  LikedReview: "liked your review on",
   Followed: "started following you",
   FollowedBack: "followed you back",
-  ReviewReplied: "replied to your review",
-  LikedReviewComment: "liked your comment",
+  ReviewReplied: "replied to your review on",
+  LikedReviewComment: "liked your comment on",
   ThreadReplied: "replied to your thread",
   LikedThread: "liked your thread",
   LikedThreadComment: "liked your thread comment",

@@ -63,13 +63,14 @@ export interface ApiRequestOptions {
 export async function apiRequest<T>(
   path: string,
   { method = "GET", query, body, auth = false, cache = "no-store", headers = {} }: ApiRequestOptions = {},
+  explicitToken?: string,
 ): Promise<T> {
   const url = `${API_BASE_URL}${path}${query ? buildQuery(query) : ""}`;
 
   const finalHeaders: Record<string, string> = { Accept: "application/json", ...headers };
   if (body !== undefined) finalHeaders["Content-Type"] = "application/json";
   if (auth) {
-    const token = await getAccessToken();
+    const token = explicitToken || await getAccessToken();
     if (!token) throw new ApiError(401, "Unauthorized", "No active Supabase session");
     finalHeaders.Authorization = `Bearer ${token}`;
   }
