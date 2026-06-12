@@ -10,9 +10,8 @@ import SimilarFilmsSection from "@/components/sections/SimilarFilmsSection";
 import { allFilms } from "@/data/allFilms";
 import { getMovie } from "@/lib/api/movies";
 import { getSimilarFilms, getFilmSources } from "@/lib/api/films";
-import { getFilmReviews } from "@/lib/api/reviews";
+import { getFilmReviews, getReviewReplies } from "@/lib/api/reviews";
 import { optionalData } from "@/lib/api/client";
-import { fetchTopReply, mapReviewsToThreads } from "@/lib/reviews/community";
 import { normalizeSources } from "@/lib/watch/sources";
 import { createClient } from "@/lib/supabase/server";
 import { tmdbImage } from "@/lib/images/tmdb";
@@ -80,7 +79,6 @@ const withAt = (name: string) => (name.startsWith("@") ? name : `@${name}`);
 async function fetchAppearsInLists(filmId: string): Promise<CollectionData[]> {
   const res = await optionalData(getFilmsListsByFilm(Number(filmId)));
   if (!res?.filmsLists) return [];
-  console.log(res.filmsLists);
 
   return res.filmsLists.map(l => {
     const uniqueBackdrops = Array.from(
@@ -239,7 +237,7 @@ export default async function FilmPage({ params, searchParams }: FilmPageProps) 
 
   return (
     <main className="relative flex min-h-screen flex-col">
-      <div className="absolute top-0 left-0 right-0 -z-10 bg-brand-dark overflow-hidden h-[760px] lg:h-[820px]">
+      <div className="absolute top-0 left-0 right-0 -z-10 bg-brand-dark overflow-hidden h-190 lg:h-205">
         {backdrop && (
           <Image
             src={backdrop}
@@ -251,7 +249,7 @@ export default async function FilmPage({ params, searchParams }: FilmPageProps) 
           />
         )}
         <div className="absolute inset-0 bg-brand-dark/55" />
-        <div className="absolute inset-0 bg-gradient-to-b from-brand-dark/40 via-brand-dark/40 to-brand-dark" />
+        <div className="absolute inset-0 bg-linear-to-b from-brand-dark/40 via-brand-dark/40 to-brand-dark" />
       </div>
 
       <section className="section-container pt-28 lg:pt-32 pb-24 relative">

@@ -14,7 +14,6 @@ export async function getMe(): Promise<MeProfile | null> {
 }
 
 export async function getMeWithAvatarServer(): Promise<MeProfile | null> {
-  console.log("getMeWithAvatarServer called");
   try {
     const profile = await apiRequest<MeProfile>("/auth/me", { auth: true });
     if (!profile?.avatarUrl) return profile;
@@ -31,7 +30,7 @@ export async function getMeWithAvatarServer(): Promise<MeProfile | null> {
 
 /** POST /auth/register — create the Lumires profile for the current user (auth required). */
 export async function createProfile(command: CreateProfileCommand, token?: string): Promise<void> {
-  await apiRequest<void>("/auth/register", { method: "POST", body: command, auth: true }, token);
+  await apiRequest<void>("/auth/register", { method: "POST", body: command, auth: true, explicitToken: token });
 }
 
 /**

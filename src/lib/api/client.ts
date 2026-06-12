@@ -50,9 +50,11 @@ export interface ApiRequestOptions {
   body?: unknown;
   /** Attach the current user's Bearer token; throws 401 if not signed in. */
   auth?: boolean;
+  authExcep?: boolean;
   /** Defaults to "no-store" (safe for mutations). Pass `{ revalidate }` for GETs. */
   cache?: CacheOption;
   headers?: Record<string, string>;
+  explicitToken?: string;
 }
 
 /**
@@ -62,17 +64,22 @@ export interface ApiRequestOptions {
  */
 export async function apiRequest<T>(
   path: string,
-  { method = "GET", query, body, auth = false, cache = "no-store", headers = {} }: ApiRequestOptions = {},
-  explicitToken?: string,
+  { method = "GET", query, body, auth = false, authExcep = true, explicitToken = "", cache = "no-store", headers = {} }: ApiRequestOptions = {},
 ): Promise<T> {
   const url = `${API_BASE_URL}${path}${query ? buildQuery(query) : ""}`;
 
   const finalHeaders: Record<string, string> = { Accept: "application/json", ...headers };
   if (body !== undefined) finalHeaders["Content-Type"] = "application/json";
   if (auth) {
-    const token = explicitToken || await getAccessToken();
-    if (!token) throw new ApiError(401, "Unauthorized", "No active Supabase session");
-    finalHeaders.Authorization = `Bearer ${token}`;
+    if (explicitToken) {
+      finalHeaders.Authorization = `Bearer ${explicitToken}`;
+    }
+    else {
+      const token = await getAccessToken();
+      if (!token && authExcep) 
+        throw new ApiError(401, "Unauthorized", "No active Supabase session");
+      finalHeaders.Authorization = `Bearer ${token}`;
+    }
   }
 
   const init: RequestInit & { next?: { revalidate: number } } = {

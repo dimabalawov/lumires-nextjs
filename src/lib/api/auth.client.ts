@@ -80,7 +80,6 @@ export async function apiRequest<T>(
     }
 
     const res = await fetch(url, init);
-    console.log(res);
 
     if (!res.ok) {
         const text = await res.text().catch(() => "");

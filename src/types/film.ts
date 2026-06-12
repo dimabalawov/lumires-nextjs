@@ -190,7 +190,7 @@ export interface DirectorProfile {
   id: number;
   slug: string;
   name: string;
-  imageUrl: string | null; // resolved (TMDB)
+  imageUrl: string | null | undefined; // resolved (TMDB)
   birthYear: number | null;
   deathYear: number | null;
   birthplace: string | null;
