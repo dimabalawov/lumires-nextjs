@@ -76,7 +76,7 @@ async function toCollection(list: ListDetail): Promise<CollectionData> {
     author: list.username ?? list.authorName,
     filmCount: list.filmCount ?? list.films.length,
     films: films.map((f) => f.poster),
-    backdrop: backdrop ?? undefined,
+    backdrops: backdrop ? [backdrop] : undefined,
     isLiked: list.isLikedByMe,
     isSaved: list.isSavedByMe,
   };

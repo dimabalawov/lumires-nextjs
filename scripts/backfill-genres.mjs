@@ -17,7 +17,7 @@ const films = await q(`
   order by f."ExternalId"`);
 console.log(`${films.length} films missing genres`);
 
-let linked = 0, noTmdbGenres = 0, failed = 0;
+let noTmdbGenres = 0, failed = 0;
 const values = [];
 for (let i = 0; i < films.length; i++) {
   const f = films[i];
@@ -28,7 +28,6 @@ for (let i = 0; i < films.length; i++) {
     const ids = (d.genres ?? []).map(g => g.id).filter(id => genreByExt.has(id));
     if (!ids.length) { noTmdbGenres++; }
     for (const gid of ids) values.push(`('${f.Id}','${genreByExt.get(gid)}')`);
-    linked += ids.length;
   } catch (e) { failed++; console.warn(`  ! ${f.ExternalId}: ${e.message}`); }
   process.stdout.write(`\r  fetched ${i+1}/${films.length}, pairs ${values.length}`);
   await sleep(60);

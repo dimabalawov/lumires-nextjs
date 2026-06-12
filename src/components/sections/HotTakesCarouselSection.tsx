@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
-import { useState, useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import useEmblaCarousel from "embla-carousel-react";
+import { useEmblaSelectedIndex } from "@/hooks/useEmblaSelectedIndex";
 import HotTakeCard from "@/components/ui/HotTakeCard";
 import { hotTakes } from "@/data/hotTakes";
 import {
@@ -25,8 +25,6 @@ export default function HotTakesCarouselSection({
   title = "Hot Takes",
   titleAccent = "This Week",
 }: HotTakesCarouselSectionProps = {}) {
-  const [selectedIndex, setSelectedIndex] = useState(0);
-
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: true,
     align: "center",
@@ -34,22 +32,7 @@ export default function HotTakesCarouselSection({
     dragFree: false,
     containScroll: false,
   });
-
-  const onSelect = useCallback(() => {
-    if (!emblaApi) return;
-    setSelectedIndex(emblaApi.selectedScrollSnap());
-  }, [emblaApi]);
-
-  useEffect(() => {
-    if (!emblaApi) return;
-    onSelect();
-    emblaApi.on("select", onSelect);
-    emblaApi.on("settle", onSelect);
-    return () => {
-      emblaApi.off("select", onSelect);
-      emblaApi.off("settle", onSelect);
-    };
-  }, [emblaApi, onSelect]);
+  const selectedIndex = useEmblaSelectedIndex(emblaApi);
 
   const handleSlideClick = useCallback(
     (slideIndex: number) => {

@@ -1,4 +1,3 @@
-import Link from "next/link";
 
 import CollectionCard from "@/components/ui/CollectionCard";
 import { collections as defaultCollections } from "@/data/collections";

@@ -22,7 +22,7 @@ export async function getMeWithAvatarServer(): Promise<MeProfile | null> {
     const { data } = supabase.storage.from("avatars").getPublicUrl(profile.avatarUrl);
 
     return { ...profile, avatarUrl: data.publicUrl };
-  } catch (e) {
+  } catch {
     return null;
   }
 }

@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import useEmblaCarousel from "embla-carousel-react";
+import { useEmblaSelectedIndex } from "@/hooks/useEmblaSelectedIndex";
 import ListCarouselCard from "@/components/ui/ListCarouselCard";
 import { lists as defaultLists } from "@/data/lists";
 import type { ListCardData } from "@/types/film";
@@ -29,7 +30,6 @@ export default function ListsCarouselSection({
   lists = defaultLists,
 }: ListsCarouselSectionProps = {}) {
   const router = useRouter();
-  const [selectedIndex, setSelectedIndex] = useState(0);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: true,
@@ -38,22 +38,7 @@ export default function ListsCarouselSection({
     dragFree: false,
     containScroll: false,
   });
-
-  const onSelect = useCallback(() => {
-    if (!emblaApi) return;
-    setSelectedIndex(emblaApi.selectedScrollSnap());
-  }, [emblaApi]);
-
-  useEffect(() => {
-    if (!emblaApi) return;
-    onSelect();
-    emblaApi.on("select", onSelect);
-    emblaApi.on("settle", onSelect);
-    return () => {
-      emblaApi.off("select", onSelect);
-      emblaApi.off("settle", onSelect);
-    };
-  }, [emblaApi, onSelect]);
+  const selectedIndex = useEmblaSelectedIndex(emblaApi);
 
   const handleSlideClick = useCallback(
     (slideIndex: number) => {

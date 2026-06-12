@@ -28,11 +28,11 @@ export async function startNotifications() {
 
     if (started) return;
     started = true;
-    conn.on("ReceiveNotification", (data: any) => {
-        console.log(data);
-        if (!data?.type || !isNotificationType(data.type)) return;
+    conn.on("ReceiveNotification", (data: unknown) => {
+        const candidate = data as Partial<NotificationMessage> | null;
+        if (!candidate?.type || !isNotificationType(candidate.type)) return;
 
-        const notification = data as NotificationMessage;
+        const notification = candidate as NotificationMessage;
 
         handleNotification(notification);
 

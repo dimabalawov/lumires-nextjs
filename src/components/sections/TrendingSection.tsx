@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import useEmblaCarousel from "embla-carousel-react";
+import { useEmblaSelectedIndex } from "@/hooks/useEmblaSelectedIndex";
 import FilmCard from "@/components/ui/FilmCard";
 import MobileFilmCard from "@/components/ui/MobileFilmCard";
 import { films as defaultFilms } from "@/data/films";
@@ -24,7 +24,6 @@ export default function TrendingSection({
   films = defaultFilms,
 }: TrendingSectionProps = {}) {
   const router = useRouter();
-  const [selectedIndex, setSelectedIndex] = useState(0);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: true,
@@ -33,22 +32,7 @@ export default function TrendingSection({
     dragFree: false,
     containScroll: false,
   });
-
-  const onSelect = useCallback(() => {
-    if (!emblaApi) return;
-    setSelectedIndex(emblaApi.selectedScrollSnap());
-  }, [emblaApi]);
-
-  useEffect(() => {
-    if (!emblaApi) return;
-    onSelect();
-    emblaApi.on("select", onSelect);
-    emblaApi.on("settle", onSelect);
-    return () => {
-      emblaApi.off("select", onSelect);
-      emblaApi.off("settle", onSelect);
-    };
-  }, [emblaApi, onSelect]);
+  const selectedIndex = useEmblaSelectedIndex(emblaApi);
 
   const handleSlideClick = useCallback(
     (slideIndex: number, filmId: string) => {

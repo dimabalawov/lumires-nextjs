@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { WeeklyFilmData } from "@/types/film";
 import { ShowAllLink } from "./ShowAllLink";
 
