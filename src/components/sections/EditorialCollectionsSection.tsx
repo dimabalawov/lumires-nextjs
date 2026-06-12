@@ -1,4 +1,3 @@
-import Link from "next/link";
 
 import EditorialCollectionRow from "@/components/ui/EditorialCollectionRow";
 import { editorialCollections } from "@/data/editorialCollections";

@@ -14,7 +14,6 @@ export async function getMe(): Promise<MeProfile | null> {
 }
 
 export async function getMeWithAvatarServer(): Promise<MeProfile | null> {
-  console.log("getMeWithAvatarServer called");
   try {
     const profile = await apiRequest<MeProfile>("/auth/me", { auth: true });
     if (!profile?.avatarUrl) return profile;
@@ -23,7 +22,7 @@ export async function getMeWithAvatarServer(): Promise<MeProfile | null> {
     const { data } = supabase.storage.from("avatars").getPublicUrl(profile.avatarUrl);
 
     return { ...profile, avatarUrl: data.publicUrl };
-  } catch (e) {
+  } catch {
     return null;
   }
 }

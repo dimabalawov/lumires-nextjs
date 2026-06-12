@@ -17,6 +17,8 @@ const navLinks: NavLink[] = [
   { label: "COMMUNITY", href: "/community" },
 ];
 
+const supabase = createClient();
+
 export default function Header() {
   const router = useRouter();
 
@@ -26,7 +28,6 @@ export default function Header() {
   const [username, setUsername] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
-  const supabase = createClient();
   async function loadProfile(accessToken: string) {
     setLoading(true);
     try {
@@ -77,7 +78,7 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="absolute top-0 left-0 w-full зе z-50">
+    <header className="absolute top-0 left-0 w-full z-50">
       <div className="absolute inset-0 bg-linear-to-b from-black/90 via-black/70 to-transparent pointer-events-none h-[200%]" />
 
       <nav className="relative section-container flex items-center justify-between py-5">

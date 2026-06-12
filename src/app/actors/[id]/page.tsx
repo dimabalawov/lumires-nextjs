@@ -84,7 +84,7 @@ export default async function ActorPage({ params }: ActorPageProps) {
     id: actorId,
     slug: String(actorId),
     name: api.name,
-    imageUrl: tmdbImage(api.profilePath, "w500"),
+    imageUrl: tmdbImage(api.profilePath, "w500") ?? null,
     birthYear: yearFromDate(api.birthday),
     deathYear: yearFromDate(api.deathday),
     birthplace: api.placeOfBirth,

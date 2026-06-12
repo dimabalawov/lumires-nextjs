@@ -55,6 +55,9 @@ export function ToastProvider() {
                         <div className="flex items-center gap-2.5">
                             <div className="relative shrink-0">
                                 {t.senderAvatar ? (
+                                    /* Avatar host comes from the SignalR payload and may not be in
+                                       images.remotePatterns, where next/image would throw. */
+                                    // eslint-disable-next-line @next/next/no-img-element
                                     <img
                                         src={t.senderAvatar}
                                         alt={t.title}

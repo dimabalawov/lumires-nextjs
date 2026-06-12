@@ -146,17 +146,20 @@ export interface WeeklyReviewedItem {
   rating: number | null;
 }
 
-/** One item in GET /films/{slug}/{id}/similar. */
+/** One item in GET /films/{id}/similar.
+ *  The live API returns `id` + `voteAverage`; older payloads used
+ *  `externalId` + `rating`. Accept both so the mapper can resolve either. */
 export interface SimilarFilmItem {
-  externalId: number;
+  id?: number;
+  externalId?: number; // legacy field name for `id`
   posterPath: string | null;
   title: string;
-  slug: string;
   releaseYear: number | null;
-  // Spec documents this as string[], but the API returns {id, name} objects.
-  // Accept both so callers must resolve the display name explicitly.
+  // Spec documents this as string[], but the API has also returned {id, name}
+  // objects. Accept both so callers must resolve the display name explicitly.
   genres: (string | { id: string; name: string })[];
-  rating: number | null; // 0–10 vote average
+  voteAverage?: number | null; // 0–10 vote average
+  rating?: number | null; // legacy field name for `voteAverage`
 }
 
 export interface SimilarFilmsResponse {

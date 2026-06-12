@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect, useTransition } from "react";
+import { useSearchParams } from "next/navigation";
+import { useState, useTransition } from "react";
 import { signIn, signUp, signInWithMagicLink } from "@/lib/actions/auth";
 import { createClient } from "@/lib/supabase/client";
 
@@ -11,18 +12,15 @@ interface AuthFormCardProps {
 
 export default function AuthFormCard({ variant }: AuthFormCardProps) {
   const isSignup = variant === "signup";
+  const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
+  // Seed from the ?error= the auth callback redirects with (e.g. OAuth failures).
+  const [error, setError] = useState<string | null>(() => searchParams.get("error"));
   const [magicLinkMode, setMagicLinkMode] = useState(false);
   const [magicLinkSent, setMagicLinkSent] = useState(false);
 
   const inputClass =
     "w-full bg-transparent border border-brand-muted rounded-[4px] px-2.5 py-2.5 font-manrope text-[16px] leading-[1.125em] tracking-[0.06em] text-brand-light placeholder:text-brand-muted focus:outline-none focus:border-brand-gold transition-colors";
-
-  useEffect(() => {
-    const err = new URLSearchParams(window.location.search).get("error");
-    if (err) setError(err);
-  }, []);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();

@@ -1,4 +1,3 @@
-import Link from "next/link";
 
 import MostReviewedCard from "@/components/ui/MostReviewedCard";
 import { mostReviewedFilms as fallbackFilms, type MostReviewedFilm } from "@/data/mostReviewed";

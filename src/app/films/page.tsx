@@ -5,10 +5,7 @@ import FilmsHeroSection from "@/components/sections/FilmsHeroSection";
 import TrendingThisWeekSection from "@/components/sections/TrendingThisWeekSection";
 import EditorialCollectionsSection from "@/components/sections/EditorialCollectionsSection";
 import MostReviewedSection from "@/components/sections/MostReviewedSection";
-import CollectionsSection from "@/components/sections/CollectionsSection";
 import AllFilmsSection from "@/components/sections/AllFilmsSection";
-import { getFeaturedCollections } from "@/lib/collections/featured";
-import { createClient } from "@/lib/supabase/server";
 import SectionSkeleton from "@/components/ui/SectionSkeleton";
 
 export const metadata: Metadata = {
@@ -22,11 +19,6 @@ interface FilmsPageProps {
 }
 
 export default async function FilmsPage({ searchParams }: FilmsPageProps) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
   const resolvedSearchParams = await searchParams;
 
   return (
