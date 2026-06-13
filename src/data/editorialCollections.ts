@@ -1,7 +1,7 @@
 export interface EditorialFilm {
-  id: string;
+  id: string | number;
   title: string;
-  year: string;
+  year: string | number | null;
   genre: string;
   rating: number;
   poster: string;

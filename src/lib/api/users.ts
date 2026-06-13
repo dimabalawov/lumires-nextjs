@@ -1,9 +1,10 @@
 
 import "server-only";
-import { UserProfile, UserProfileSummary } from "@/types/profile";
+import { PopularList, PopularListsResponse, ProfileFeaturedReview, UserProfile, UserProfileSummary } from "@/types/profile";
 import { apiRequest } from "./client";
 import { createClient } from "../supabase/server";
-import toast from "react-hot-toast";
+import { FavoriteFilms } from "@/types/film";
+import { tmdbImage } from "../images/tmdb";
 
 async function toAvatarUrl(path: string | undefined) {
     if (path === undefined || path === null)
@@ -19,7 +20,7 @@ export async function getProfile(username: string): Promise<UserProfile | null> 
     const res = await apiRequest<UserProfile>(`/users/${username}`, {
         cache: { revalidate: 120 },
         auth: true,
-        authExcep: false
+        authExcep: false,
     });
 
     if (!res) return null;
@@ -27,21 +28,64 @@ export async function getProfile(username: string): Promise<UserProfile | null> 
     const avatarUrl = await toAvatarUrl(res.avatarUrl);
 
     return {
-        id: res.id,
-        username: res.username,
-        displayName: res.displayName,
-        tagline: res.tagline,
-        biography: res.biography,
-        location: res.location,
-        pronouns: res.pronouns,
-        avatarUrl: avatarUrl,
-        followers: res.followers,
-        followings: res.followings,
-        friends: res.friends,
+        ...res,
+        avatarUrl,
         isMe: res.isMe ?? false,
-        incomingRelationship: res.incomingRelationship,
-        outgoingRelationship: res.outgoingRelationship
     };
+}
+
+export async function getFavouriteFilms(username: string): Promise<FavoriteFilms> {
+
+    var res = await apiRequest<FavoriteFilms>(`/users/${username}/favourite-films`, {
+        cache: { revalidate: 120 },
+        auth: true,
+        authExcep: false
+    })
+
+    res.favouriteFilms = res.favouriteFilms.map((film) => ({
+        ...film,
+        posterPath: tmdbImage(film.posterPath, "w500") ?? "",
+    }));
+
+    return res;
+}
+
+export async function getUserFeaturedReview(username: string): Promise<ProfileFeaturedReview> {
+
+    var res = await apiRequest<ProfileFeaturedReview>(`/users/${username}/featured-review`, {
+        cache: { revalidate: 120 },
+        auth: true,
+        authExcep: false
+    });
+
+    const avatarUrl = await toAvatarUrl(res.avatarUrl);
+
+    return {
+        ...res,
+        avatarUrl: avatarUrl,
+        posterPath: tmdbImage(res.posterPath, "w780") ?? "",
+    };
+}
+
+export async function getUserPopularLists(username: string): Promise<PopularListsResponse> {
+
+    var res = await apiRequest<PopularListsResponse>(`/users/${username}/popular-lists`, {
+        cache: { revalidate: 120 },
+        auth: true,
+        authExcep: false
+    });
+
+    res.lists = res.lists.map((list) => ({
+        ...list,
+        films: list.films
+            .slice(0, 4) 
+            .map((film) => ({
+                ...film,
+                posterPath: tmdbImage(film.posterPath, "w500") ?? "",
+            })),
+    }));
+
+    return res;
 }
 
 export async function getProfileSummary(username: string): Promise<UserProfileSummary> {
@@ -50,10 +94,11 @@ export async function getProfileSummary(username: string): Promise<UserProfileSu
     });
 
     return {
-        totalFilmsRated: res.totalFilmsRated,
-        listsCreated: res.listsCreated,
-        reviewsWritten: res.reviewsWritten,
-        joinedAt: new Date(res.joinedAt).toISOString().split("T")[0]
+        ...res,
+        joinedAt: new Intl.DateTimeFormat("en-US", {
+            month: "long",
+            year: "numeric",
+        }).format(new Date(res.joinedAt))
     };
 }
 

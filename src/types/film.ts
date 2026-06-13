@@ -97,6 +97,15 @@ export interface FilmographyResponse {
   films: FilmographyFilm[];
 }
 
+export interface UserFavouriteFilm extends FilmographyFilm {
+  userId: string;
+  username: string
+}
+
+export interface FavoriteFilms {
+  favouriteFilms: UserFavouriteFilm[];
+}
+
 /** A reply on the director's most-reviewed review (GET .../films/most-reviewed). */
 export interface DirectorMostReviewedComment {
   id: string;

@@ -1,17 +1,27 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { apiRequest } from "@/lib/api/auth.client";
 import { RelationshipStatus, RelationshipType, type UserProfile } from "@/types/profile";
 
-export default function ProfileActionButton({ profile }: { profile: UserProfile }) {
+export default function ProfileActionButton({
+    profile,
+    onRelationshipChange,
+}: {
+    profile: UserProfile;
+    onRelationshipChange?: (state: { following: boolean; blocked: boolean }) => void;
+}) {
     const router = useRouter();
+
     const [isFollowed, setIsFollowed] = useState(
         profile.outgoingRelationship?.type === RelationshipType.Follow &&
         profile.outgoingRelationship?.status === RelationshipStatus.Accepted
+    );
+    const [isBlocked, setIsBlocked] = useState(
+        profile.outgoingRelationship?.type === RelationshipType.Block
     );
 
     const desired = useRef(isFollowed);
@@ -19,7 +29,8 @@ export default function ProfileActionButton({ profile }: { profile: UserProfile 
     const syncing = useRef(false);
 
     const baseButton =
-        "cursor-pointer border border-brand-gold w-full rounded-sm font-oswald font-normal uppercase tracking-[0.13em] text-[24px] py-4 hover:opacity-90 transition-opacity flex justify-center items-center";
+        "cursor-pointer px-[14px] text-[11px] py-[7px] border border-brand-gold w-full rounded-xl font-manrope font-semibold uppercase tracking-[0.13em] hover:opacity-90 transition-opacity flex justify-center items-center gap-2";
+
 
     async function sync() {
         if (syncing.current) return;
@@ -32,15 +43,14 @@ export default function ProfileActionButton({ profile }: { profile: UserProfile 
                     auth: true,
                     cache: "no-store",
                 });
-
-                const nowFollowed = desired.current;
-                serverFollowed.current = nowFollowed;
-                setIsFollowed(nowFollowed);
-                toast.success(nowFollowed ? "Following" : "Unfollowed");
+                serverFollowed.current = desired.current;
+                setIsFollowed(desired.current);
+                toast.success(desired.current ? "Following" : "Unfollowed");
             }
         } catch (e: any) {
             desired.current = serverFollowed.current;
             setIsFollowed(serverFollowed.current);
+            onRelationshipChange?.({ following: serverFollowed.current, blocked: isBlocked });
 
             if (e?.status === 401 || e?.status === 403) {
                 router.push("/login");
@@ -55,31 +65,70 @@ export default function ProfileActionButton({ profile }: { profile: UserProfile 
     }
 
     function handleFollow() {
-        desired.current = !desired.current;
-        setIsFollowed(desired.current);
+        const next = !desired.current;
+        desired.current = next;
+        setIsFollowed(next);
+        onRelationshipChange?.({ following: next, blocked: isBlocked });
         void sync();
+    }
+
+
+    async function handleUnblock() {
+        setIsBlocked(false);
+        onRelationshipChange?.({ following: isFollowed, blocked: false });
+        try {
+            await apiRequest<void>(`/users/${profile.id}/block`, {
+                method: "DELETE",
+                auth: true,
+                cache: "no-store",
+            });
+            toast.success("Unblocked");
+        } catch (e: any) {
+            // Roll back
+            setIsBlocked(true);
+            onRelationshipChange?.({ following: isFollowed, blocked: true });
+
+            if (e?.status === 401 || e?.status === 403) {
+                router.push("/login");
+                return;
+            }
+            toast.error("Couldn't unblock.");
+        }
     }
 
     if (profile.isMe) {
         return (
-            <button type="button" className={`${baseButton} bg-brand-gold text-brand-dark gap-2.25`}>
-                <Image src="/imgs/profile/edit.svg" alt="" width={24} height={24} />
+            <button type="button" className={`${baseButton} bg-brand-gold text-brand-dark`}>
                 Edit profile
+                <Image src="/imgs/profile/edit.svg" alt="" width={12} height={12} />
             </button>
         );
     }
 
-    if (profile.outgoingRelationship?.type === RelationshipType.Block) {
-        return <button className={`${baseButton} bg-brand-dark text-brand-gold`}>Unblock</button>;
+    if (isBlocked) {
+        return (
+            <button
+                type="button"
+                onClick={handleUnblock}
+                className={`${baseButton} bg-brand-dark text-brand-gold`}
+            >
+                Unblock
+            </button>
+        );
     }
 
-    if (
+    const followedBack =
         profile.incomingRelationship?.type === RelationshipType.Follow &&
         profile.incomingRelationship?.status === RelationshipStatus.Accepted &&
-        !isFollowed
-    ) {
+        !isFollowed;
+
+    if (followedBack) {
         return (
-            <button onClick={handleFollow} className={`${baseButton} bg-brand-gold text-brand-dark`}>
+            <button
+                type="button"
+                onClick={handleFollow}
+                className={`${baseButton} bg-brand-gold text-brand-dark`}
+            >
                 Follow back
             </button>
         );
@@ -87,10 +136,11 @@ export default function ProfileActionButton({ profile }: { profile: UserProfile 
 
     return (
         <button
+            type="button"
             onClick={handleFollow}
             className={`${baseButton} ${isFollowed ? "bg-brand-dark text-brand-gold" : "bg-brand-gold text-brand-dark"}`}
         >
-            {isFollowed ? "Unfollow" : "Follow"}
+            {isFollowed ? "× Unfollow" : "+ Follow"}
         </button>
     );
 }

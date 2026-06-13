@@ -1,34 +1,49 @@
-import type { Metadata } from "next";
+import { FavouriteFilms } from "@/components/sections/FavouriteFilmsSection";
+import PopularListsSection from "@/components/sections/PopularListsSection";
+import PopularReviewCard from "@/components/sections/PopularReviewCard";
+import { AccentTitle } from "@/components/ui/AccentTitle";
+import { EditFavouritesButton } from "@/components/ui/EditFavouritesButton";
+import { getFavouriteFilms, getUserFeaturedReview, getUserPopularLists } from "@/lib/api/users";
 
-import ProfileHeroSection from "@/components/sections/ProfileHeroSection";
-import { getProfileBySlug } from "@/data/profiles";
-import { getProfile } from "@/lib/api/users";
-import { notFound } from "next/navigation";
-
-interface ProfilePageProps {
-  params: Promise<{ slug: string }>;
-}
-
-export async function generateMetadata({ params }: ProfilePageProps): Promise<Metadata> {
+export default async function ProfilePage({ params }: { params: { slug: string } }) {
   const { slug } = await params;
-  const profile = getProfileBySlug(slug);
-  return {
-    title: profile.username,
-    description: profile.tagline,
-  };
-}
-
-export default async function ProfilePage({ params }: ProfilePageProps) {
-  const { slug } = await params;
-  const profile = await getProfile(slug);
-
-  if (!profile) {
-    notFound();
-  }
+  const favResponse = await getFavouriteFilms(slug);
+  const featuredReview = await getUserFeaturedReview(slug);
+  const popularLists = await getUserPopularLists(slug);
 
   return (
-    <main className="min-h-screen bg-brand-dark pt-28 lg:pt-32">
-      <ProfileHeroSection profile={profile} activeTab="profile" />
-    </main>
+    <section className="section-container flex flex-col gap-12 py-10">
+
+      {favResponse && favResponse.favouriteFilms && favResponse.favouriteFilms.length > 0 && (
+        <>
+          <div className="flex justify-between">
+            <AccentTitle text="Favourite" accent="Films" />
+            <EditFavouritesButton />
+          </div>
+          <FavouriteFilms films={favResponse.favouriteFilms} />
+        </>
+      )}
+
+      {featuredReview && (
+        <>
+          <div className="flex justify-between">
+            <AccentTitle text="Featured" accent="Review" />
+          </div>
+
+          <PopularReviewCard review={featuredReview} />
+        </>
+      )}
+
+      {popularLists && popularLists.lists.length > 0 && (
+        <>
+          <div className="flex justify-between">
+            <AccentTitle text="Popular" accent="Lists" />
+          </div>
+
+          <PopularListsSection lists={popularLists.lists} />
+        </>
+      )}
+
+    </section>
   );
 }
