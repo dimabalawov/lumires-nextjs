@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { useEmblaSelectedIndex } from "@/hooks/useEmblaSelectedIndex";
 import FilmCard from "@/components/ui/FilmCard";
@@ -17,6 +17,10 @@ interface TrendingSectionProps {
   titleAccent?: string;
   films?: FilmCardData[];
 }
+
+// Embla silently disables loop when slides can't fill the viewport,
+// so pad short film lists by repeating them until looping always engages.
+const MIN_LOOP_SLIDES = 6;
 
 export default function TrendingSection({
   title = "Trending in the community",
@@ -34,17 +38,23 @@ export default function TrendingSection({
   });
   const selectedIndex = useEmblaSelectedIndex(emblaApi);
 
+  const slides = useMemo(() => {
+    if (!films.length) return films;
+    const padded = [...films];
+    while (padded.length < MIN_LOOP_SLIDES) padded.push(...films);
+    return padded;
+  }, [films]);
+
   const handleSlideClick = useCallback(
     (slideIndex: number, filmId: string) => {
       if (!emblaApi) return;
-      const current = emblaApi.selectedScrollSnap();
       // Clicking the focused card opens the film; side cards scroll into focus.
-      if (slideIndex === current) {
+      if (slideIndex === emblaApi.selectedScrollSnap()) {
         router.push(`/films/${filmId}`);
         return;
       }
-      if (slideIndex < current) emblaApi.scrollPrev();
-      else emblaApi.scrollNext();
+      // Loop-aware: takes the shortest path, even across the wrap-around seam.
+      emblaApi.scrollTo(slideIndex);
     },
     [emblaApi, router]
   );
@@ -77,9 +87,9 @@ export default function TrendingSection({
       <div className="hidden lg:block w-full">
         <div className="w-full overflow-hidden" ref={emblaRef} style={{ height: CENTER_H }}>
           <div className="flex items-center" style={{ height: CENTER_H }}>
-            {films.map((film, i) => (
+            {slides.map((film, i) => (
               <div
-                key={film.id}
+                key={`${film.id}-${i}`}
                 className="relative shrink-0 flex items-center justify-center"
                 style={{ flex: `0 0 ${CENTER_W}px`, width: CENTER_W, marginRight: GAP }}
                 onClick={() => handleSlideClick(i, film.id)}

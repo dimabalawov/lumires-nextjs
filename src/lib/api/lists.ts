@@ -9,8 +9,10 @@ import type {
   FilmsListsByFilmResponse,
   ListCategoryFilter,
   ListDetail,
+  ListMembershipResponse,
   ListsSummary,
   ListSortOrder,
+  MyFilmListsResponse,
   TrendingListsResponse,
 } from "@/types/api";
 
@@ -129,4 +131,40 @@ export async function unsaveList(listId: string): Promise<void> {
     method: "DELETE",
     auth: true,
   });
+}
+
+/**
+ * GET /films/{filmId}/lists/mine — the current user's own lists, each flagged
+ * with whether this film is already in it (auth required, no-store). Powers the
+ * Add-to-list modal's checklist.
+ */
+export async function getMyListsForFilm(
+  filmId: number,
+): Promise<MyFilmListsResponse> {
+  return apiRequest<MyFilmListsResponse>(
+    `/films/${filmId}/lists/mine`,
+    { auth: true, cache: "no-store" },
+  );
+}
+
+/** POST /lists/{listId}/films/{filmId} — add a film to the user's list (auth required). */
+export async function addFilmToList(
+  listId: string,
+  filmId: number,
+): Promise<ListMembershipResponse> {
+  return apiRequest<ListMembershipResponse>(
+    `/lists/${encodeURIComponent(listId)}/films/${filmId}`,
+    { method: "POST", body: {}, auth: true },
+  );
+}
+
+/** DELETE /lists/{listId}/films/{filmId} — remove a film from the user's list (auth required). */
+export async function removeFilmFromList(
+  listId: string,
+  filmId: number,
+): Promise<ListMembershipResponse> {
+  return apiRequest<ListMembershipResponse>(
+    `/lists/${encodeURIComponent(listId)}/films/${filmId}`,
+    { method: "DELETE", auth: true },
+  );
 }

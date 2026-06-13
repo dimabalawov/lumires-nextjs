@@ -1,10 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import Button from "@/components/ui/Button";
 import DetailColumn from "@/components/ui/DetailColumn";
-import FilmLikeButton from "@/components/ui/FilmLikeButton";
+import FilmActionBar from "@/components/ui/FilmActionBar";
 import GradientDivider from "@/components/ui/GradientDivider";
+import RateFilmModal from "@/components/ui/RateFilmModal";
 import WhereToWatch from "@/components/ui/WhereToWatch";
 import WriteReviewModal from "@/components/ui/WriteReviewModal";
 import type { WatchSources } from "@/lib/watch/sources";
@@ -55,17 +55,33 @@ export default function FilmHero({
   slug = "-",
   isAuthed = false,
   watchSources,
+  initialLiked,
+  initialWatched,
+  initialInLists,
 }: {
   data: FilmHeroData;
   filmId: string;
   slug?: string;
   isAuthed?: boolean;
   watchSources: WatchSources;
+  initialLiked?: boolean;
+  initialWatched?: boolean;
+  initialInLists?: number;
 }) {
   const metaParts = [data.year, data.primaryGenre, data.runtime].filter(Boolean) as string[];
   const rating = data.rating ?? 0;
   const votes = formatVotes(data.voteCount);
   const empty = <span className="text-brand-muted/70">—</span>;
+
+  // Film details shown in the review modal's header.
+  const reviewFilm = {
+    title: data.title,
+    year: data.year,
+    posterUrl: data.posterUrl,
+    primaryGenre: data.primaryGenre,
+    runtime: data.runtime,
+    director: data.directors[0]?.name,
+  };
 
   return (
     <article
@@ -107,6 +123,18 @@ export default function FilmHero({
 
           <GradientDivider className="mt-4" />
 
+          {/* Watched · Like · List */}
+          <div className="mt-5">
+            <FilmActionBar
+              filmId={filmId}
+              isAuthed={isAuthed}
+              initialLiked={initialLiked}
+              initialWatched={initialWatched}
+              initialInLists={initialInLists}
+              film={reviewFilm}
+            />
+          </div>
+
           {data.tagline && (
             <p className="mt-6 uppercase font-manrope font-light text-brand-light tracking-[0.08em] text-[17px] lg:text-[18px]">
               {data.tagline}
@@ -121,19 +149,18 @@ export default function FilmHero({
 
           <GradientDivider className="mt-6" />
 
+          {/* Primary actions: rate · review · where to watch */}
           <div className="mt-5 flex flex-wrap items-center gap-3">
-            <WhereToWatch sources={watchSources} />
-            <WriteReviewModal
+            <RateFilmModal
               filmId={filmId}
               slug={slug}
               isAuthed={isAuthed}
-              variant="primary"
+              film={reviewFilm}
+              initialWatched={initialWatched}
+              initialLiked={initialLiked}
             />
-          </div>
-
-          <div className="mt-3 flex items-center gap-3">
-            <Button variant="neutralOutlined">+ Add to list</Button>
-            <FilmLikeButton filmId={filmId} isAuthed={isAuthed} />
+            <WriteReviewModal filmId={filmId} slug={slug} isAuthed={isAuthed} variant="review" film={reviewFilm} />
+            <WhereToWatch sources={watchSources} />
           </div>
         </div>
       </div>

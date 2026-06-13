@@ -55,6 +55,9 @@
       "PowerShell(Select-String *)",
       "Bash(grep -rln \"href={\\\\`/\\\\\\(user\\\\|profile\\\\|u\\\\\\)\\\\b\" src/)",
       "Bash(grep -rno \"href={\\\\`/[a-z]*/\\\\${[a-zA-Z.]*[Uu]ser\" src/)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\dmytr\\source\\repos\\lumires_asp"
     ]
   }
 }

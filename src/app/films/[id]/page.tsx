@@ -10,7 +10,8 @@ import SimilarFilmsSection from "@/components/sections/SimilarFilmsSection";
 import { allFilms } from "@/data/allFilms";
 import { getMovie } from "@/lib/api/movies";
 import { getSimilarFilms, getFilmSources } from "@/lib/api/films";
-import { getFilmReviews, getReviewReplies } from "@/lib/api/reviews";
+import { getFilmReviews } from "@/lib/api/reviews";
+import { fetchTopReply, mapReviewsToThreads } from "@/lib/reviews/community";
 import { optionalData } from "@/lib/api/client";
 import { normalizeSources } from "@/lib/watch/sources";
 import { createClient } from "@/lib/supabase/server";
@@ -20,7 +21,7 @@ import { leftColumnThreads, rightColumnThreads } from "@/data/communityThreads";
 import type { SimilarFilmItem } from "@/types/api";
 import type { EditorialFilm } from "@/data/editorialCollections";
 import type { CollectionData, CommunityThread } from "@/types/film";
-import { getFilmsListsByFilm } from "@/lib/api/lists";
+import { getFilmsListsByFilm, getMyListsForFilm } from "@/lib/api/lists";
 
 interface FilmPageProps {
   params: Promise<{ id: string }>;
@@ -119,14 +120,17 @@ export default async function FilmPage({ params, searchParams }: FilmPageProps) 
   } = await supabase.auth.getUser();
   const isAuthed = !!user;
 
-  const [movie, reviewsResponse, similarResponse, sourcesResponse, listsResponse] = await Promise.all([
-    getMovie(id),
+  const [movie, reviewsResponse, similarResponse, sourcesResponse, listsResponse, myListsResponse] = await Promise.all([
+    getMovie(id, { authed: isAuthed }),
     optionalData(
       getFilmReviews(id, { page: reviewsPageNum, pageSize: REVIEWS_PAGE_SIZE, authed: isAuthed }),
     ),
     optionalData(getSimilarFilms(id)),
     optionalData(getFilmSources(id)),
     optionalData(fetchAppearsInLists(id)),
+    // Per-user list membership for the "Add to list" highlight. Authed-only; returns
+    // null until the backend ships GET /films/{id}/lists/mine (then it's live).
+    isAuthed ? optionalData(getMyListsForFilm(Number(id))) : Promise.resolve(null),
   ]);
 
   if (!movie) notFound();
@@ -201,7 +205,16 @@ export default async function FilmPage({ params, searchParams }: FilmPageProps) 
             { label: movie.localization?.title ?? "Untitled" },
           ]}
         />
-        <FilmHero data={data} filmId={id} slug="-" isAuthed={isAuthed} watchSources={watchSources} />
+        <FilmHero
+          data={data}
+          filmId={id}
+          slug="-"
+          isAuthed={isAuthed}
+          watchSources={watchSources}
+          initialLiked={movie.isLikedByMe}
+          initialWatched={movie.isWatchedByMe}
+          initialInLists={myListsResponse?.lists?.filter((l) => l.containsFilm).length ?? 0}
+        />
       </section>
 
       <FilmReviewsSection

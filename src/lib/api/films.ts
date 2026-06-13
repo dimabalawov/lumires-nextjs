@@ -45,12 +45,20 @@ export async function getFilms(
   });
 }
 
-/** GET /films/{id} — full film detail. Returns null on 404. */
-export async function getFilm(id: string | number): Promise<MovieDetail | null> {
+/**
+ * GET /films/{id} — full film detail. Returns null on 404.
+ * Pass `authed` to fetch per-user (Bearer + no-store) so `isLikedByMe` /
+ * `isWatchedByMe` are accurate; otherwise the response is cached anonymously.
+ */
+export async function getFilm(
+  id: string | number,
+  { authed = false }: { authed?: boolean } = {},
+): Promise<MovieDetail | null> {
   return nullOn404(
-    apiRequest<MovieDetail>(`/films/${encodeURIComponent(String(id))}`, {
-      cache: { revalidate: 3600 },
-    }),
+    apiRequest<MovieDetail>(
+      `/films/${encodeURIComponent(String(id))}`,
+      authed ? { auth: true, cache: "no-store" } : { cache: { revalidate: 3600 } },
+    ),
   );
 }
 
@@ -130,6 +138,15 @@ export async function unrateFilm(filmId: number): Promise<void> {
 export async function likeFilm(filmId: string | number): Promise<unknown> {
   return apiRequest<unknown>(
     `/films/${encodeURIComponent(String(filmId))}/like`,
+    { method: "POST", body: {}, auth: true },
+  );
+}
+
+/** POST /films/{id}/watch — toggle the current user's "watched" mark on a film
+ * (auth required). Sends an empty JSON body, like the other mutation endpoints. */
+export async function watchFilm(filmId: string | number): Promise<unknown> {
+  return apiRequest<unknown>(
+    `/films/${encodeURIComponent(String(filmId))}/watch`,
     { method: "POST", body: {}, auth: true },
   );
 }

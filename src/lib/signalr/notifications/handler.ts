@@ -6,7 +6,7 @@ import { getNotificationText } from "./getNotificationText";
 export function handleNotification(n: NotificationMessage) {
   const senderName = n.senderName ?? "Someone";
   const senderAvatar = n.senderAvatar ?? undefined;
-  const senderUrl = getSenderUrl(n.senderId);
+  const senderUrl = getSenderUrl(n);
   const targetUrl = getTargetUrl(n);
   const text = getNotificationText(n.type);
 

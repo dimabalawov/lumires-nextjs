@@ -32,4 +32,9 @@ export interface MovieDetail {
   // Not yet exposed by the Lumires API; filled in by FILM_EXTRAS fallback in the page for now.
   tagline?: string;
   rating?: number;
+  // Per-user state, only populated when GET /films/{id} is fetched with the user's
+  // Bearer token. Undefined when anonymous or until the backend ships these fields.
+  isLikedByMe?: boolean;
+  isWatchedByMe?: boolean;
+  myRating?: number | null;
 }

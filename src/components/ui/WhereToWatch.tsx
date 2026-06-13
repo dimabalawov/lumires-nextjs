@@ -107,11 +107,6 @@ export default function WhereToWatch({ sources }: { sources: WatchSources }) {
         aria-expanded={open}
         aria-haspopup="dialog"
         onClick={() => setOpen((v) => !v)}
-        leftIcon={
-          <svg width="8" height="10" viewBox="0 0 15 20" fill="currentColor" aria-hidden>
-            <path d="M0 0L15 10L0 20V0Z" />
-          </svg>
-        }
         rightIcon={
           <svg
             width="15"

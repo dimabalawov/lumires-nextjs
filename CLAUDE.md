@@ -7,7 +7,7 @@ A Letterboxd-inspired movie tracking and social platform.
 ## Tech Stack
 
 - Frontend: Next.js 16 + TypeScript (/lumires-nextjs)
-- Backend: C# (planned — not yet scaffolded)
+- Backend: C# 
 - Styling: Tailwind CSS v4
 - Design: Figma MCP (connect on every session)
 
