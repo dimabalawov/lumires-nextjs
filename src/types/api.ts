@@ -190,7 +190,7 @@ export interface ReviewsSummary {
   reviewsThisDay: number;
 }
 
-/** Body for POST /films/{slug}/{filmId}/reviews. */
+/** Body for POST /films/{filmId}/reviews. */
 export interface CreateReviewCommand {
   title?: string | null;
   text: string;
@@ -392,6 +392,26 @@ export interface CreateFilmsListResponse {
   filmsListId: string; // guid
   title: string;
   createdAt: string; // date-time
+}
+
+/** One of the current user's lists, flagged for a given film.
+ * From GET /films/{filmId}/lists/mine (authed). */
+export interface MyFilmListItem {
+  id: string; // guid
+  title: string;
+  filmsCount: number;
+  isPrivate: boolean;
+  containsFilm: boolean;
+  films: { posterPath: string | null }[];
+}
+
+export interface MyFilmListsResponse {
+  lists: MyFilmListItem[];
+}
+
+/** Body returned by POST/DELETE /lists/{listId}/films/{filmId}. */
+export interface ListMembershipResponse {
+  containsFilm: boolean;
 }
 
 // ---------------------------------------------------------------------------
