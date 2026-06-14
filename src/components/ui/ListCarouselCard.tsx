@@ -13,21 +13,18 @@ export default function ListCarouselCard({ list, isCenter }: ListCarouselCardPro
   return (
     <div className="flex w-full flex-col items-center text-center select-none">
       {/* Poster strip — 4 posters flush, cropped to a shared height */}
-      <div
-        className="relative w-full overflow-hidden"
-        style={{ aspectRatio: LIST_STRIP_RATIO }}
-      >
-        <div className="grid h-full w-full grid-cols-4">
-          {list.posters.map((src, i) => (
+      <div className="relative w-full overflow-hidden" style={{ aspectRatio: LIST_STRIP_RATIO }}>
+        <div className="flex h-full w-full justify-center">
+          {list.posters.slice(0, 4).map((src, i) => (
             <div
               key={i}
-              className="relative h-full w-full overflow-hidden border-l border-black/40 first:border-l-0"
+              className="relative h-full w-1/4 overflow-hidden border-l border-black/40 first:border-l-0"
             >
               <Image src={src} alt="" fill className="object-cover" sizes="200px" />
             </div>
           ))}
         </div>
-        {/* Dim the non-centered cards */}
+
         <div
           className="absolute inset-0 bg-brand-dark/55"
           style={{ opacity: isCenter ? 0 : 1, transition: "opacity 0.5s" }}
