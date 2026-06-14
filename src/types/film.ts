@@ -25,9 +25,12 @@ export interface CollectionData {
   films: string[]; // up to 11 unique poster paths; the middle one is the centre/featured panel
   backdrops?: string[]; // landscape stills for the centre panel (the featured film's backdrop)
   filmCount?: number; // shown in the "N films by @author" meta on browse-list cards
+  filmsCount?: number; // shown in the "N films by @author" meta on browse-list cards
   author?: string; // handle without leading "@"
   // Per-user list state — present when the card is backed by a live API list, so
   // ListCard can seed its Like/Save buttons. Absent for static/demo data.
+  isPrivate: boolean;
+  isMyList: boolean;
   isLiked?: boolean;
   isSaved?: boolean;
 }

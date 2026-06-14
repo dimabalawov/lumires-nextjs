@@ -33,7 +33,7 @@ function readFilmCount(item: BrowseListItem): number | undefined {
     const v = rec[key];
     if (typeof v === "number" && v > 0) return v;
   }
-  return item.filmCount;
+  return item.filmsCount;
 }
 
 function mapToCards(items: BrowseListItem[]): CollectionData[] {
@@ -42,9 +42,11 @@ function mapToCards(items: BrowseListItem[]): CollectionData[] {
     title: item.title,
     // Real posters rendered in the card's filmstrip.
     films: (item.films ?? [])
-      .map((f) => tmdbImage(f.posterPath, "w500") ?? "")
+      .map((f) => tmdbImage(f.backdropPath, "w500") ?? "")
       .filter(Boolean),
-    filmCount: readFilmCount(item),
+    filmsCount: readFilmCount(item),
+    isPrivate: false,
+    isMyList: item.isMyList,
     author: item.username,
     isLiked: item.isLikedByMe,
     isSaved: item.isSavedByMe,
@@ -76,7 +78,7 @@ export default async function BrowseAllListsSection({
   );
 
   const apiLists = result?.results ?? [];
-  const lists = apiLists.length > 0 ? mapToCards(apiLists) : browseLists; // static demo on API failure
+  const lists = apiLists.length > 0 ? mapToCards(apiLists) : browseLists;
   const currentPage = result?.page ?? requestedPage;
   const totalPages = result?.totalPages ?? 1;
 
@@ -98,9 +100,17 @@ export default async function BrowseAllListsSection({
           </p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 lg:gap-x-12 gap-y-10 lg:gap-y-14">
-            {lists.map((list, i) => (
-              <ListCard key={list.id} list={list} paletteIndex={i} isAuthed={isAuthed} />
-            ))}
+            {lists.map((list, i) =>
+              (!list.isPrivate || list.isMyList) && (
+                <ListCard
+                  key={list.id}
+                  list={list}
+                  paletteIndex={i}
+                  isAuthed={isAuthed}
+                />
+              )
+            )}
+
           </div>
         )}
 

@@ -21,7 +21,5 @@ export function subscribeToast(listener: ToastListener) {
 }
 
 export function toast(data: ToastInput) {
-    console.log(data);
-    console.log("[toast] listeners count:", listeners.length, data);
     listeners.forEach((l) => l(data));
 }

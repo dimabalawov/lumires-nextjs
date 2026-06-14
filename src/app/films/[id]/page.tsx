@@ -21,6 +21,7 @@ import type { SimilarFilmItem } from "@/types/api";
 import type { EditorialFilm } from "@/data/editorialCollections";
 import type { CollectionData, CommunityThread } from "@/types/film";
 import { getFilmsListsByFilm } from "@/lib/api/lists";
+import { fetchTopReply, mapReviewsToThreads } from "@/lib/reviews/community";
 
 interface FilmPageProps {
   params: Promise<{ id: string }>;
@@ -72,6 +73,8 @@ async function fetchAppearsInLists(filmId: string): Promise<CollectionData[]> {
       backdrops: uniqueBackdrops.map(path => tmdbImage(path, "w780")!),
       filmCount: l.films.length,
       author: undefined,
+      isPrivate: false,
+      isMyList: false,
       isLiked: l.isLikedByMe,
       isSaved: l.isSavedByMe,
     };

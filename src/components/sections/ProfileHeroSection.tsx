@@ -148,7 +148,7 @@ export default function ProfileHeroSection({
               <span className="font-manrope text-[15px] text-brand-gold">@{profile.username}</span>
             </div>
 
-            <div className="hidden items-center gap-5 font-mono font-bold text-[16px] uppercase tracking-[0.14em] text-brand-muted lg:flex">
+            <div className="items-center gap-5 font-mono font-bold text-[16px] uppercase tracking-[0.14em] text-brand-muted lg:flex">
               <span>
                 <span className="mr-1.5 font-medium text-brand-gold">{formatCompact(followers)}</span>
                 Followers
@@ -160,15 +160,6 @@ export default function ProfileHeroSection({
               </span>
             </div>
 
-            <div className="mt-2 lg:hidden">
-              <div className="h-px w-full" style={{ background: DIVIDER_BG }} />
-              <div className="grid grid-cols-3 gap-2 py-5">
-                <MobileCountBlock value={followers} label="Followers" />
-                <MobileCountBlock value={profile.followings} label="Following" />
-                <MobileCountBlock value={profile.friends} label="Friends" />
-              </div>
-              <div className="h-px w-full" style={{ background: DIVIDER_BG }} />
-            </div>
           </div>
         </div>
 

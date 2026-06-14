@@ -45,20 +45,18 @@ export default async function ListsPage({ searchParams }: ListsPageProps) {
   } = await supabase.auth.getUser();
   const isAuthed = !!user;
 
-  const [resolvedSearchParams, summary, trending, editorial, featured] = await Promise.all([
-    searchParams,
-    optionalData(getListsSummary()),
-    optionalData(getTrendingLists()),
-    optionalData(getEditorialLists()),
-    getFeaturedCollections(isAuthed),
-  ]);
+  const resolvedSearchParams = await searchParams;
+  const summary = await optionalData(getListsSummary());
+  const trending = await optionalData(getTrendingLists());
+  const editorial = await optionalData(getEditorialLists());
+  const featured = await getFeaturedCollections(isAuthed)
 
   // Hero stats from the live summary, falling back to the static demo numbers.
   const heroStats: FilmsHeroStat[] = summary
     ? [
-        { value: formatCount(summary.listsTotal), label: "lists" },
-        { value: String(summary.listsThisDay), label: "Today" },
-      ]
+      { value: formatCount(summary.listsTotal), label: "lists" },
+      { value: String(summary.listsThisDay), label: "Today" },
+    ]
     : listsHeroStats;
 
   // Trending carousel → ListCardData (posters from poster paths).
@@ -81,6 +79,8 @@ export default async function ListsPage({ searchParams }: ListsPageProps) {
       title: item.title,
       author: item.username,
       filmCount: item.filmCount,
+      isMyList: false,
+      isPrivate: false,
       films: uniqueStills(
         item.films.map((f) => tmdbImage(f.backdropPath, "w780") ?? ""),
         11,

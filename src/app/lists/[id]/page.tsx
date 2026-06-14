@@ -5,14 +5,12 @@ import { notFound } from "next/navigation";
 import Pagination from "@/components/ui/Pagination";
 import ListActions from "@/components/ui/ListActions";
 import ListFilmPosterCard, { type ListFilmCardData } from "@/components/ui/ListFilmPosterCard";
-import ListDetailSort, {
-  LIST_DETAIL_SORTS,
-  type ListDetailSortValue,
-} from "@/components/ui/ListDetailSort";
 import { getList } from "@/lib/api/lists";
 import { tmdbImage } from "@/lib/images/tmdb";
 import { createClient } from "@/lib/supabase/server";
 import type { ListFilmItem } from "@/types/api";
+import ListDetailSort from "@/components/ui/ListDetailSort";
+import { ListDetailSortValue, LIST_DETAIL_SORTS } from "@/types/list";
 
 const PAGE_SIZE = 20;
 
@@ -23,7 +21,7 @@ interface ListDetailPageProps {
 
 export async function generateMetadata({ params }: ListDetailPageProps): Promise<Metadata> {
   const { id } = await params;
-  const list = await getList(id);
+  const list = await getList(id, false);
   if (!list) return { title: "List" };
   return {
     title: `${list.title} · Lists`,
@@ -44,7 +42,7 @@ function toCard(item: ListFilmItem): ListFilmCardData {
 }
 
 function sortFilms(films: ListFilmItem[], sort: ListDetailSortValue): ListFilmItem[] {
-  const copy = [...films];
+  const copy = Array.isArray(films) ? [...films] : [];
   switch (sort) {
     case "title":
       return copy.sort((a, b) => a.title.localeCompare(b.title));
@@ -84,10 +82,10 @@ export default async function ListDetailPage({ params, searchParams }: ListDetai
   const requestedPage = Math.max(1, Number(read("page")) || 1);
 
   const films = list.films ?? [];
-  const filmCount = list.filmCount ?? films.length;
+  const filmCount = list.filmsCount ?? films.totalResults;
   const author = list.username ?? list.authorName;
 
-  const sorted = sortFilms(films, sort);
+  const sorted = sortFilms(films.results, sort);
   const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
   const currentPage = Math.min(requestedPage, totalPages);
   const pageFilms = sorted.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
@@ -132,7 +130,6 @@ export default async function ListDetailPage({ params, searchParams }: ListDetai
           <ListActions
             listId={list.id}
             initialLiked={list.isLikedByMe}
-            initialSaved={list.isSavedByMe}
             isAuthed={isAuthed}
           />
         </div>

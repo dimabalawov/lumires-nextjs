@@ -1,5 +1,5 @@
 import "server-only";
-import { apiRequest, nullOn404 } from "./client";
+import { apiRequest, nullOn404Or403 } from "./client";
 import type {
   LikeToggleResponse,
   ReviewDetail,
@@ -15,8 +15,11 @@ import {
   type PopularReviewsResponse,
   type ReviewsSummary,
 } from "@/types/api";
+import toAvatarUrl from "../images/storage";
+import { tmdbImage } from "../images/tmdb";
 
 export interface GetReviewsParams {
+  userId?: string;
   filter?: RatingEnum;
   category?: ContentFilterEnum;
   sortBy?: ContentOrderEnum;
@@ -24,6 +27,33 @@ export interface GetReviewsParams {
   pageSize?: number;
   /** Fetch per-user (Bearer + no-store) so each item's `isLikedByMe` is accurate. */
   authed?: boolean;
+}
+
+export async function getReviews(
+  userId: string | undefined,
+  {
+    filter = RatingEnum.All,
+    category = ContentFilterEnum.All,
+    sortBy = ContentOrderEnum.MostRecent,
+    page = 1,
+    pageSize = 6,
+    authed = false,
+  }: GetReviewsParams = {},
+): Promise<ReviewsResponse> {
+  const res = await apiRequest<ReviewsResponse>("/reviews", {
+    query: { userId, filter, category, sortBy, page, pageSize },
+    ...(authed ? { auth: true, authExcep: false, cache: "no-store" as const } : { cache: { revalidate: 300 } }),
+  });
+
+  res.results = await Promise.all(
+    res.results.map(async (review) => ({
+      ...review,
+      avatarUrl: await toAvatarUrl(review.avatarUrl),
+      filmPosterPath: tmdbImage(review.filmPosterPath, "w500") ?? "",
+    })),
+  );
+
+  return res;
 }
 
 /**
@@ -83,7 +113,7 @@ export async function getReview(
   reviewId: string,
   authed = false,
 ): Promise<ReviewDetail | null> {
-  return nullOn404(
+  return nullOn404Or403(
     apiRequest<ReviewDetail>(
       `/films/${encodeURIComponent(String(filmId))}/reviews/${encodeURIComponent(reviewId)}`,
       authed ? { auth: true, cache: "no-store" } : { cache: { revalidate: 300 } },

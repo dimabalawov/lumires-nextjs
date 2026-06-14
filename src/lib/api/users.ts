@@ -1,38 +1,33 @@
 
 import "server-only";
-import { PopularList, PopularListsResponse, ProfileFeaturedReview, UserProfile, UserProfileSummary } from "@/types/profile";
+import { PopularList, PopularListsResponse, ProfileFeaturedReview, UserProfile, UserProfileStats, UserProfileSummary } from "@/types/profile";
 import { apiRequest } from "./client";
-import { createClient } from "../supabase/server";
 import { FavoriteFilms } from "@/types/film";
 import { tmdbImage } from "../images/tmdb";
+import { cache } from "react";
+import toAvatarUrl from "../images/storage";
+import { BrowseListsResponse, FilmsResponse } from "@/types/api";
+import { ReviewsResponse } from "@/types/review";
 
-async function toAvatarUrl(path: string | undefined) {
-    if (path === undefined || path === null)
-        return;
+export const getProfile = cache(
+    async (username: string): Promise<UserProfile | null> => {
+        const res = await apiRequest<UserProfile>(`/users/${username}`, {
+            cache: "no-store",
+            auth: true,
+            authExcep: false,
+        });
 
-    const supabase = await createClient();
-    const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+        if (!res) return null;
 
-    return data.publicUrl;
-}
+        const avatarUrl = await toAvatarUrl(res.avatarUrl);
 
-export async function getProfile(username: string): Promise<UserProfile | null> {
-    const res = await apiRequest<UserProfile>(`/users/${username}`, {
-        cache: { revalidate: 120 },
-        auth: true,
-        authExcep: false,
-    });
-
-    if (!res) return null;
-
-    const avatarUrl = await toAvatarUrl(res.avatarUrl);
-
-    return {
-        ...res,
-        avatarUrl,
-        isMe: res.isMe ?? false,
-    };
-}
+        return {
+            ...res,
+            avatarUrl,
+            isMe: res.isMe ?? false,
+        };
+    },
+);
 
 export async function getFavouriteFilms(username: string): Promise<FavoriteFilms> {
 
@@ -78,7 +73,7 @@ export async function getUserPopularLists(username: string): Promise<PopularList
     res.lists = res.lists.map((list) => ({
         ...list,
         films: list.films
-            .slice(0, 4) 
+            .slice(0, 4)
             .map((film) => ({
                 ...film,
                 posterPath: tmdbImage(film.posterPath, "w500") ?? "",
@@ -102,10 +97,68 @@ export async function getProfileSummary(username: string): Promise<UserProfileSu
     };
 }
 
+export async function getProfileStatistics(username: string): Promise<UserProfileStats> {
+    return await apiRequest<UserProfileStats>(`/users/${username}/stats`, {
+        cache: { revalidate: 120 },
+    });
+}
+
 export async function followUser(targetUserId: string): Promise<void> {
     await apiRequest<void>(`/users/${targetUserId}/follow`, {
         method: "POST",
         body: { targetUserId },
         auth: true,
     });
+}
+
+export async function getLikedFilms(
+    username: string,
+    { rating = 0, sortBy = 0, genres, page = 1, pageSize = 20, authed = false }: {
+        rating?: number; sortBy?: number; genres?: string[]; page?: number; pageSize?: number; authed?: boolean;
+    } = {},
+): Promise<FilmsResponse> {
+    return apiRequest<FilmsResponse>(`/users/${encodeURIComponent(username)}/liked/films`, {
+        query: { rating, sortBy, genres, page, pageSize },
+        ...(authed ? { auth: true, cache: "no-store" as const } : { cache: { revalidate: 300 } }),
+    }
+    )
+}
+
+export async function getLikedLists(
+    username: string,
+    { sortBy = "mostRecent", page = 1, pageSize = 10, authed = false } = {},
+): Promise<BrowseListsResponse> {
+    return apiRequest<BrowseListsResponse>(`/users/${encodeURIComponent(username)}/liked/lists`, {
+        query: { sortBy, page, pageSize },
+        ...(authed ? { auth: true, cache: "no-store" as const } : { cache: { revalidate: 300 } }),
+    });
+}
+
+export async function getLikedReviews(
+  username: string,
+  { filter = 0, sortBy = 0, page = 1, pageSize = 6, authed = false }: {
+    filter?: number; sortBy?: number; page?: number; pageSize?: number; authed?: boolean;
+  } = {},
+): Promise<ReviewsResponse> {
+  const res = await apiRequest<ReviewsResponse>(
+    `/users/${encodeURIComponent(username)}/liked/reviews`,
+    {
+      query: { filter, sortBy, page, pageSize },
+      ...(authed ? { auth: true, cache: "no-store" as const } : { cache: { revalidate: 300 } }),
+    }
+  );
+
+
+  res.results = await Promise.all(
+    res.results.map(async (review) => ({
+      ...review,
+      filmPosterPath: tmdbImage(review.filmPosterPath, "w500") ?? "",
+      avatarUrl: await toAvatarUrl(review.avatarUrl),
+    }))
+  );
+
+  console.log(res.results[0].filmPosterPath);
+
+
+  return res;
 }

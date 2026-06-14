@@ -76,9 +76,14 @@ export async function apiRequest<T>(
     }
     else {
       const token = await getAccessToken();
-      if (!token && authExcep) 
-        throw new ApiError(401, "Unauthorized", "No active Supabase session");
-      finalHeaders.Authorization = `Bearer ${token}`;
+
+      if (!token) {
+        if (authExcep) {
+          throw new ApiError(401, "Unauthorized", "No active Supabase session");
+        }
+      } else {
+        finalHeaders.Authorization = `Bearer ${token}`;
+      }
     }
   }
 
@@ -113,12 +118,12 @@ export async function apiRequest<T>(
 }
 
 /** Run a request, returning `null` instead of throwing on a 404. */
-export async function nullOn404<T>(promise: Promise<T>): Promise<T | null> {
+export async function nullOn404Or403<T>(p: Promise<T>): Promise<T | null> {
   try {
-    return await promise;
-  } catch (err) {
-    if (err instanceof ApiError && err.status === 404) return null;
-    throw err;
+    return await p;
+  } catch (e) {
+    if (e instanceof ApiError && (e.status === 404 || e.status === 403)) return null;
+    throw e;
   }
 }
 

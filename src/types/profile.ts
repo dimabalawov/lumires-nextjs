@@ -106,3 +106,10 @@ export interface PopularList {
 export interface PopularListsResponse {
     lists: PopularList[]
 }
+
+export interface UserStatistics {
+    mostWatchedDirectors: string[];
+    mostWatchedDecades: string[];
+    mostWatchedGenres: string[];
+    averageRatings: Record<string, number>;
+}

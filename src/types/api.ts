@@ -312,12 +312,13 @@ export interface BrowseListItem {
   userId?: string; // guid
   username?: string;
   filmsCount?: number; // actual API field (note the "s")
-  filmCount?: number; // tolerated alias; some shapes use the un-pluralised name
   description?: string | null;
   createdAt?: string; // date-time
   isLikedByMe?: boolean;
   isSavedByMe?: boolean;
-  films?: ListFilmPoster[];
+  isPrivate: boolean;
+  isMyList: boolean;
+  films?: ListFilmBackdrop[];
 }
 
 /** GET /lists — sorted/filtered/paginated. Undocumented body; mirrors FilmsResponse. */
@@ -347,6 +348,14 @@ export interface FilmsListsByFilmResponse {
  * `releaseYear` / `genre` / `voteAverage` are best-guess extras used for the
  * detail-grid card meta; callers must tolerate their absence.
  */
+export interface ListFilmItemResponse {
+  results: ListFilmItem[];
+  totalResults: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
 export interface ListFilmItem {
   filmId: number;
   title: string;
@@ -357,17 +366,18 @@ export interface ListFilmItem {
   voteAverage?: number | null; // 0–5
 }
 
+
 export interface ListDetail {
   id: string; // guid
   title: string;
   description: string | null;
   authorName: string;
   username?: string;
-  filmCount?: number;
+  filmsCount?: number;
   isLikedByMe?: boolean;
   isSavedByMe?: boolean;
   createdAt: string; // date-time
-  films: ListFilmItem[];
+  films: ListFilmItemResponse;
 }
 
 /** Body for POST /lists. */
