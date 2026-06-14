@@ -19,7 +19,7 @@ function chunk<T>(items: T[], size: number): T[][] {
 interface DirectorFilmographySectionProps {
   films: EditorialFilm[];
   /** Ids shown while collapsed; the remaining films reveal when "Show all" is clicked. */
-  previewIds?: string[];
+  previewIds?: (string | number)[];
 }
 
 export default function DirectorFilmographySection({
@@ -43,7 +43,7 @@ export default function DirectorFilmographySection({
           <div key={rowIdx} className="border-t border-brand-light/15 pt-5 lg:pt-6">
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
               {row.map((film) => {
-                const isLinkable = /^\d+$/.test(film.id);
+                const isLinkable = /^\d+$/.test(String(film.id));
                 const card = (
                   <>
                     <span className="text-center font-oswald font-light text-brand-light text-[14px] tracking-[0.12em]">

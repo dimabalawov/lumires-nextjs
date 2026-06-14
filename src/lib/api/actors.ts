@@ -1,5 +1,5 @@
 import "server-only";
-import { apiRequest, nullOn404 } from "./client";
+import { apiRequest, nullOn404Or403 } from "./client";
 import type {
   ActorApiResponse,
   ActorStatsResponse,
@@ -12,7 +12,7 @@ import type {
 
 /** GET /actors/{id} - actor biography & metadata. Returns null on 404. */
 export async function getActor(id: string | number): Promise<ActorApiResponse | null> {
-  return nullOn404(
+  return nullOn404Or403(
     apiRequest<ActorApiResponse>(
       `/actors/${encodeURIComponent(String(id))}`,
       { cache: { revalidate: 3600 } },
@@ -24,7 +24,7 @@ export async function getActor(id: string | number): Promise<ActorApiResponse | 
 export async function getActorFilmography(
   id: string | number,
 ): Promise<FilmographyFilm[]> {
-  const data = await nullOn404(
+  const data = await nullOn404Or403(
     apiRequest<FilmographyResponse>(
       `/actors/${encodeURIComponent(String(id))}/filmography`,
       { cache: { revalidate: 3600 } },
@@ -37,7 +37,7 @@ export async function getActorFilmography(
 export async function getActorStats(
   id: string | number,
 ): Promise<ActorStatsResponse | null> {
-  return nullOn404(
+  return nullOn404Or403(
     apiRequest<ActorStatsResponse>(
       `/actors/${encodeURIComponent(String(id))}/stats`,
       { cache: { revalidate: 3600 } },
@@ -49,7 +49,7 @@ export async function getActorStats(
 export async function getActorSimilar(
   id: string | number,
 ): Promise<SimilarActorPerson[]> {
-  const data = await nullOn404(
+  const data = await nullOn404Or403(
     apiRequest<SimilarActorsResponse>(
       `/actors/${encodeURIComponent(String(id))}/similar`,
       { cache: { revalidate: 3600 } },
@@ -65,7 +65,7 @@ export async function getActorSimilar(
 export async function getActorMostReviewed(
   id: string | number,
 ): Promise<DirectorMostReviewedResponse | null> {
-  const data = await nullOn404(
+  const data = await nullOn404Or403(
     apiRequest<DirectorMostReviewedResponse | undefined>(
       `/actors/${encodeURIComponent(String(id))}/films/most-reviewed`,
       { cache: { revalidate: 300 } },
