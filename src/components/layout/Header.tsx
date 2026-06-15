@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/client";
 import Logo from "@/components/ui/Logo";
 import Image from "next/image";
 import { getMeWithAvatarClient } from "@/lib/auth/client";
+import SearchOverlay from "../sections/SearchOverlay";
 
 const navLinks: NavLink[] = [
   { label: "FILMS", href: "/films" },
@@ -27,6 +28,8 @@ export default function Header() {
 
   const [username, setUsername] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  const [searchOpen, setSearchOpen] = useState(false);
 
   async function loadProfile(accessToken: string) {
     setLoading(true);
@@ -148,7 +151,11 @@ export default function Header() {
             </>
           )}
 
-          <button className="text-white cursor-pointer hover:opacity-70 transition-opacity" aria-label="Search">
+          <button
+            onClick={() => setSearchOpen(true)}
+            className="text-white cursor-pointer hover:opacity-70 transition-opacity"
+            aria-label="Search"
+          >
             <svg
               width="22"
               height="22"
@@ -163,6 +170,7 @@ export default function Header() {
               <line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
           </button>
+
         </div>
 
         {/* Mobile: search + hamburger */}
@@ -281,6 +289,8 @@ export default function Header() {
           )}
         </div>
       )}
+      <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
+
     </header>
   );
 }

@@ -1,156 +1,123 @@
 import Image from "next/image";
 import Link from "next/link";
-import { CommunityThread } from "@/types/film";
-import LikeButton from "@/components/ui/LikeButton";
+import MissingAvatar from "@/components/ui/MissingAvatar";
 
-/** Compact 0–5 rating with half-star support (clipped gold overlay). */
-function RatingStars({ rating }: { rating: number }) {
-  return (
-    <span
-      className="inline-flex items-center text-[12px] leading-none text-brand-gold"
-      aria-label={`Rated ${rating} out of 5`}
-    >
-      {Array.from({ length: 5 }).map((_, i) => {
-        const fill = rating >= i + 1 ? "100%" : rating >= i + 0.5 ? "50%" : "0%";
-        return (
-          <span key={i} className="relative inline-block">
-            <span className="text-[#DACBBD] opacity-30">★</span>
-            <span className="absolute inset-0 overflow-hidden" style={{ width: fill }}>
-              ★
-            </span>
-          </span>
-        );
-      })}
-    </span>
-  );
+const LONG_THRESHOLD = 500; // matches the backend LongThreshold
+
+function readMinutes(text: string) {
+  // chars/5 ≈ words, /200 wpm, +1 — same shape as the API's read-time calc
+  return Math.floor(text.length / 5 / 200) + 1;
 }
 
-export default function ThreadCard({
-  thread,
-  isAuthed = false,
-}: {
-  thread: CommunityThread;
-  isAuthed?: boolean;
-}) {
-  const hasReply = Boolean(thread.reply.username || thread.reply.text);
-  // Threads backed by a real review carry film context; show the live,
-  // toggleable like counter. Static/demo threads keep the plain count.
-  const isReview = Boolean(thread.filmId);
+function formatDate(iso: string) {
+  const d = new Date(iso);
+  const month = d.toLocaleString("en-US", { month: "short" }).toUpperCase();
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${month} ${day} · ${d.getFullYear()}`;
+}
 
-  const content = (
-    <div className={`rounded-[5px] p-6 relative ${thread.bgGradient}`}>
-      <div className="flex flex-col">
-        {/* Original post: [avatar rail] [content]. The rail's line grows to fill
-            the post's height, so it always reaches the reply connector below —
-            regardless of how long the review text is. */}
-        <div className="flex gap-4">
-          <div className="flex w-[40px] lg:w-[50px] shrink-0 flex-col items-center">
-            <Image
-              src={thread.avatarUrl}
-              alt={thread.username}
-              width={50}
-              height={50}
-              className="shrink-0 rounded-full object-cover size-[40px] lg:size-[50px]"
-            />
-            {hasReply && <div className="mt-3 w-px grow bg-[#DACBBD] opacity-35" />}
-          </div>
+export default function ThreadCard({ thread }: { thread: ThreadItem }) {
+  const href = `/threads/${thread.id}`;
+  // No explicit "type" on the DTO — derive the badge from length.
+  const badge = thread.text.length >= LONG_THRESHOLD ? "Long-form" : "Thread";
 
-          <div className={`min-w-0 flex-1 flex flex-col gap-1 ${hasReply ? "pb-10" : ""}`}>
-            <span className="font-manrope font-normal text-[18px] leading-[1.333em] tracking-[0.06em] text-[#DCD8D3]">
-              {thread.username}
-            </span>
-            {thread.filmTitle && (
-              <span className="font-manrope font-normal text-[12px] leading-[1.5em] tracking-[0.06em] text-brand-gold underline underline-offset-2">
-                on {thread.filmTitle}
-              </span>
-            )}
-            <p className="mt-1 font-manrope font-normal text-[14px] leading-[1.714em] tracking-[0.06em] text-[#DCD8D3] whitespace-pre-line">
-              {thread.text}
-            </p>
-            <div className="flex items-center gap-4 font-manrope font-medium text-[11px] leading-[1.636em] tracking-[0.06em] text-[#DACBBD]">
-              {typeof thread.rating === "number" && thread.rating > 0 && (
-                <span className="flex items-center gap-1.5">
-                  <RatingStars rating={thread.rating} />
-                  <span>{thread.rating.toFixed(1)}</span>
-                </span>
-              )}
-              <span>{thread.replies} replies</span>
-              {isReview ? (
-                <LikeButton
-                  liked={thread.likedByMe ?? false}
-                  count={thread.likes}
-                  isAuthed={isAuthed}
-                  reviewId={thread.id}
-                  filmId={thread.filmId ?? "-"}
-                  slug={thread.slug ?? "-"}
-                />
-              ) : (
-                <span>{thread.likes} likes</span>
-              )}
-            </div>
-          </div>
-        </div>
+  return (
+    <article className="flex flex-col gap-5 border-t border-brand-gold/10 pt-8 lg:flex-row">
+      {thread.image && (
+        <Link
+          href={href}
+          className="relative block aspect-[4/3] w-full shrink-0 overflow-hidden rounded-sm lg:aspect-auto lg:w-[210px] lg:self-stretch"
+        >
+          <Image src={thread.image} alt="" fill unoptimized sizes="210px" className="object-cover" />
+        </Link>
+      )}
 
-        {/* Reply: indented one level under the original post's text column. A
-            short connector keeps the gutter line going down to the reply
-            avatar's vertical center, matching the rail under the first avatar. */}
-        {hasReply && (
-          <div className="flex gap-4">
-            <div className="flex w-[40px] lg:w-[50px] shrink-0 justify-center">
-              <div className="w-px h-[20px] lg:h-[25px] bg-[#DACBBD] opacity-35" />
-            </div>
-
-            <div className="flex min-w-0 flex-1 gap-4">
+      <div className="min-w-0 flex-1">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-center gap-3">
+            {thread.avatarUrl ? (
               <Image
-                src={thread.reply.avatarUrl}
-                alt={thread.reply.username}
-                width={50}
-                height={50}
-                className="shrink-0 rounded-full object-cover size-[40px] lg:size-[50px]"
+                src={thread.avatarUrl}
+                alt=""
+                width={28}
+                height={28}
+                className="h-7 w-7 rounded-full object-cover"
               />
-
-              <div className="min-w-0 flex-1 flex flex-col gap-1">
-              <span className="font-manrope font-normal text-[18px] leading-[1.333em] tracking-[0.06em] text-[#DCD8D3]">
-                {thread.reply.username}
-              </span>
-              <span className="font-manrope font-normal text-[12px] leading-[1.5em] tracking-[0.06em] text-brand-gold underline underline-offset-2">
-                → reply to {thread.reply.replyTo}
-              </span>
-              <p className="mt-1 font-manrope font-normal text-[14px] leading-[1.714em] tracking-[0.06em] text-[#DCD8D3] whitespace-pre-line">
-                {thread.reply.text}
+            ) : (
+              <MissingAvatar width={28} height={28} username={thread.username} />
+            )}
+            <div className="leading-tight">
+              <Link
+                href={`/users/${thread.username}`}
+                className="font-manrope text-sm text-brand-light hover:text-brand-gold"
+              >
+                @{thread.username}
+              </Link>
+              <p className="font-manrope text-[11px] uppercase tracking-[0.18em] text-brand-muted">
+                {badge} · {readMinutes(thread.text)} min read
               </p>
-                {(thread.reply.likes ?? 0) > 0 && (
-                  <div className="flex items-center gap-4 font-manrope font-medium text-[11px] leading-[1.636em] tracking-[0.06em] text-[#DACBBD]">
-                    <span>{thread.reply.likes} likes</span>
-                  </div>
-                )}
-              </div>
             </div>
           </div>
-        )}
-      </div>
-
-      {thread.replies > 0 && (
-        <div className="mt-2.5">
-          <span className="font-oswald font-light text-base leading-[2em] tracking-[0.06em] uppercase text-[#DACBBD] underline underline-offset-[3px] cursor-pointer inline">
-            see more replies ({thread.replies})→
+          <span className="shrink-0 font-manrope text-[11px] uppercase tracking-[0.18em] text-brand-muted">
+            {formatDate(thread.createdAt)}
           </span>
         </div>
-      )}
-    </div>
+
+        {thread.title && (
+          <Link
+            href={href}
+            className="mt-4 block font-oswald leading-snug text-brand-gold hover:opacity-80"
+            style={{ fontSize: "clamp(18px, 2vw, 22px)" }}
+          >
+            {thread.title}
+          </Link>
+        )}
+
+        <p className="mt-2 line-clamp-3 font-manrope text-[14px] font-light leading-relaxed text-brand-light/75">
+          {thread.text}
+        </p>
+
+        <div className="mt-4 flex items-center gap-6 font-manrope text-[12px] uppercase tracking-[0.12em] text-brand-muted">
+          <span className={thread.isLikedByMe ? "text-brand-gold" : undefined}>
+            ♥ {thread.likesCount} likes
+          </span>
+          <span>{thread.repliesCount} replies</span>
+          <span>share</span>
+        </div>
+
+        {thread.comment && (
+          <div className="mt-4 rounded-sm border border-brand-gold/12 bg-white/[0.02] p-4">
+            <div className="flex items-center gap-2">
+              {thread.comment.avatarUrl ? (
+                <Image
+                  src={thread.comment.avatarUrl}
+                  alt=""
+                  width={20}
+                  height={20}
+                  className="h-5 w-5 rounded-full object-cover"
+                />
+              ) : (
+                <div className="h-5 w-5 rounded-full bg-white/10" />
+              )}
+              <span className="font-manrope text-[13px] text-brand-light">
+                @{thread.comment.username}
+              </span>
+            </div>
+            <p className="mt-2 line-clamp-3 font-manrope text-[13px] font-light leading-relaxed text-brand-light/70">
+              {thread.comment.text}
+            </p>
+          </div>
+        )}
+
+        {thread.repliesCount > 0 && (
+          <Link
+            href={href}
+            className="mt-3 inline-block font-manrope text-[12px] uppercase tracking-[0.18em] text-brand-gold/80 hover:text-brand-gold"
+          >
+            See more replies ({thread.repliesCount}) →
+          </Link>
+        )}
+      </div>
+    </article>
   );
-
-  // When the thread is backed by a real review, the whole card links to it.
-  if (thread.href) {
-    return (
-      <Link
-        href={thread.href}
-        className={`block p-px rounded-[6px] transition-opacity hover:opacity-90 ${thread.borderGradient}`}
-      >
-        {content}
-      </Link>
-    );
-  }
-
-  return <div className={`p-px rounded-[6px] ${thread.borderGradient}`}>{content}</div>;
 }

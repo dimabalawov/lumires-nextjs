@@ -4,7 +4,10 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { tmdbImage } from "@/lib/images/tmdb";
+import { apiRequest } from "@/lib/api/auth.client";
+import { createClient } from "@/lib/supabase/client";
 import type { MyFilmListItem } from "@/types/api";
+import toast from "react-hot-toast";
 
 interface FilmMeta {
   title?: string;
@@ -22,6 +25,21 @@ interface AddToListModalProps {
   /** Fired with the number of the user's lists containing this film, on load and
    * after each toggle — lets the parent reflect the "Add to list" highlight. */
   onMembershipChange?: (countInLists: number) => void;
+}
+
+/** Mirror of the backend ListItemResponse (GET /lists). */
+interface ListItemResponse {
+  id: string;
+  title: string;
+  userId: string;
+  username: string;
+  filmsCount: number;
+  isLikedByMe: boolean;
+  isSavedByMe: boolean;
+  isPrivate: boolean;
+  isMyList: boolean;
+  // containsFilm?: boolean;  // ⚠ NOT in the contract yet — see note under the file
+  films: { backdropPath: string | null }[];
 }
 
 const BORDER = "rgba(155,143,132,0.13)";
@@ -95,8 +113,7 @@ function ListThumbs({ films }: { films: { posterPath: string | null }[] }) {
 /**
  * "Add to list" modal (controlled via open/onClose). Lists the current user's
  * own lists with a checkbox per list (pre-checked when the film is already in
- * it) and toggles membership inline via POST/DELETE /api/lists/{id}/films/{filmId}.
- * Includes an inline "Create a new list" row. Reads from /api/films/{id}/lists/mine.
+ * it) and toggles membership inline. Includes an inline "Create a new list" row.
  */
 export default function AddToListModal({
   open,
@@ -111,8 +128,6 @@ export default function AddToListModal({
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
-  const [pending, setPending] = useState<Record<string, boolean>>({});
-  const [toast, setToast] = useState<string | null>(null);
 
   const [creating, setCreating] = useState(false);
   const [newTitle, setNewTitle] = useState("");
@@ -124,23 +139,50 @@ export default function AddToListModal({
     [onMembershipChange],
   );
 
-  // Load the user's lists each time the modal opens.
+  const [initialMembership, setInitialMembership] = useState<
+    Record<string, boolean>
+  >({});
+
   useEffect(() => {
     if (!open) return;
     let cancelled = false;
+
     (async () => {
       setLoading(true);
       setLoadError(null);
       try {
-        const res = await fetch(`/api/films/${filmId}/lists/mine`, { cache: "no-store" });
-        if (res.status === 401 || res.status === 403) {
+        const supabase = createClient();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        const myId = user?.id;
+
+        if (!myId) {
           if (!cancelled) router.push("/login");
           return;
         }
-        const data = await res.json().catch(() => ({ lists: [] }));
+
+        const res = await apiRequest<{ results: ListItemResponse[] }>(
+          `/lists?UserId=${myId}&FilmId=${filmId}&ContainsFilm=true&PageSize=50`,
+          { auth: true, cache: "no-store" },
+        );
         if (cancelled) return;
-        const next: MyFilmListItem[] = Array.isArray(data.lists) ? data.lists : [];
+
+        const next: MyFilmListItem[] = (res?.results ?? []).map((l) => ({
+          id: l.id,
+          title: l.title,
+          filmsCount: l.filmsCount,
+          isPrivate: l.isPrivate,
+          containsFilm: (l as { containsFilm?: boolean }).containsFilm ?? false,
+          films: l.films.map((f) => ({ posterPath: f.backdropPath })),
+        }));
+
         setLists(next);
+        setInitialMembership(
+          Object.fromEntries(
+            next.map((x) => [x.id, x.containsFilm]),
+          ),
+        );
         reportCount(next);
       } catch {
         if (!cancelled) setLoadError("Couldn't load your lists.");
@@ -148,12 +190,12 @@ export default function AddToListModal({
         if (!cancelled) setLoading(false);
       }
     })();
+
     return () => {
       cancelled = true;
     };
   }, [open, filmId, router, reportCount]);
 
-  // Lock scroll + Escape to close while open.
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -168,61 +210,56 @@ export default function AddToListModal({
     };
   }, [open, onClose]);
 
-  useEffect(() => {
-    if (!toast) return;
-    const t = setTimeout(() => setToast(null), 2500);
-    return () => clearTimeout(t);
-  }, [toast]);
-
-  async function toggleMembership(list: MyFilmListItem) {
-    if (pending[list.id]) return;
-    const adding = !list.containsFilm;
-    setPending((p) => ({ ...p, [list.id]: true }));
-    // optimistic
+  function toggleMembership(list: MyFilmListItem) {
     setLists((prev) => {
       const next = prev.map((l) =>
         l.id === list.id
-          ? { ...l, containsFilm: adding, filmsCount: l.filmsCount + (adding ? 1 : -1) }
+          ? {
+            ...l,
+            containsFilm: !l.containsFilm,
+            filmsCount:
+              l.filmsCount + (l.containsFilm ? -1 : 1),
+          }
           : l,
       );
+
       reportCount(next);
+
       return next;
     });
+  }
+
+  async function handleDone() {
     try {
-      const res = await fetch(`/api/lists/${list.id}/films/${filmId}`, {
-        method: adding ? "POST" : "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: adding ? JSON.stringify({}) : undefined,
+      const operations = lists.flatMap((list) => {
+        const original = initialMembership[list.id] ?? false;
+
+        if (original === list.containsFilm) {
+          return [];
+        }
+
+        return [
+          apiRequest(`/lists/${list.id}/films/${filmId}`, {
+            method: list.containsFilm ? "POST" : "DELETE",
+            auth: true,
+            authExcep: true,
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: {}
+          }),
+        ];
       });
-      if (res.status === 401 || res.status === 403) {
-        router.push("/login");
-        return;
+
+      if (operations.length > 0) {
+        await Promise.all(operations);
       }
-      if (!res.ok) throw new Error(String(res.status));
-      const data = await res.json().catch(() => null);
-      const server = typeof data?.containsFilm === "boolean" ? data.containsFilm : adding;
-      setLists((prev) => {
-        const next = prev.map((l) =>
-          l.id === list.id ? { ...l, containsFilm: server } : l,
-        );
-        reportCount(next);
-        return next;
-      });
-      setToast(adding ? `Added to ${list.title}` : `Removed from ${list.title}`);
-    } catch {
-      // revert
-      setLists((prev) => {
-        const next = prev.map((l) =>
-          l.id === list.id
-            ? { ...l, containsFilm: !adding, filmsCount: l.filmsCount + (adding ? -1 : 1) }
-            : l,
-        );
-        reportCount(next);
-        return next;
-      });
-      setToast("Something went wrong");
-    } finally {
-      setPending((p) => ({ ...p, [list.id]: false }));
+
+      router.refresh();
+      onClose();
+      toast.success("Success!");
+    } catch (err) {
+      console.error(err);
     }
   }
 
@@ -231,21 +268,11 @@ export default function AddToListModal({
     if (title.length < 5 || createBusy) return;
     setCreateBusy(true);
     try {
-      const res = await fetch("/api/lists", {
+      const created = await apiRequest<{ id?: string; filmsListId?: string }>(`/lists`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, isPrivate: false, filmIds: [Number(filmId)] }),
+        auth: true,
+        body: { title, isPrivate: false, filmIds: [Number(filmId)] },
       });
-      if (res.status === 401 || res.status === 403) {
-        router.push("/login");
-        return;
-      }
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        setToast(data.error || "Couldn't create list");
-        return;
-      }
-      const created = await res.json().catch(() => null);
       const id = created?.filmsListId ?? created?.id;
       setLists((prev) => {
         const next: MyFilmListItem[] = [
@@ -264,10 +291,9 @@ export default function AddToListModal({
       });
       setNewTitle("");
       setCreating(false);
-      setToast("List created");
       router.refresh();
+      toast.success("Created new list");
     } catch {
-      setToast("Couldn't create list");
     } finally {
       setCreateBusy(false);
     }
@@ -361,10 +387,8 @@ export default function AddToListModal({
               key={list.id}
               type="button"
               onClick={() => toggleMembership(list)}
-              disabled={pending[list.id]}
-              className={`flex w-full items-center gap-[14px] rounded-[11px] px-3 py-[11px] text-left transition-colors disabled:opacity-60 ${
-                list.containsFilm ? "bg-brand-gold/[0.09]" : "hover:bg-brand-gold/[0.05]"
-              }`}
+              className={`flex w-full items-center gap-[14px] rounded-[11px] px-3 py-[11px] text-left transition-colors disabled:opacity-60 ${list.containsFilm ? "bg-brand-gold/[0.09]" : "hover:bg-brand-gold/[0.05]"
+                }`}
             >
               <ListThumbs films={list.films} />
               <div className="min-w-0 flex-1">
@@ -381,11 +405,10 @@ export default function AddToListModal({
               </div>
               <span
                 aria-hidden
-                className={`grid size-6 shrink-0 place-items-center rounded-[7px] border transition-colors ${
-                  list.containsFilm
-                    ? "border-brand-gold bg-brand-gold text-brand-dark"
-                    : "border-[rgba(155,143,132,0.22)] text-transparent"
-                }`}
+                className={`grid size-6 shrink-0 place-items-center rounded-[7px] border transition-colors ${list.containsFilm
+                  ? "border-brand-gold bg-brand-gold text-brand-dark"
+                  : "border-[rgba(155,143,132,0.22)] text-transparent"
+                  }`}
               >
                 <CheckIcon />
               </span>
@@ -446,7 +469,7 @@ export default function AddToListModal({
             </button>
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleDone}
               className="rounded-[9px] bg-brand-gold px-[22px] py-3 font-manrope text-[12px] font-semibold uppercase tracking-[0.13em] text-[#16100a] transition-opacity hover:opacity-90"
             >
               Done
@@ -454,20 +477,6 @@ export default function AddToListModal({
           </div>
         </div>
       </div>
-
-      {toast && (
-        <div
-          role="status"
-          aria-live="polite"
-          onClick={(e) => e.stopPropagation()}
-          className="fixed bottom-6 right-6 z-[80] flex items-center gap-3 rounded-[10px] border border-brand-gold/40 bg-[#211e1b] px-[17px] py-[11px] shadow-2xl"
-        >
-          <span className="flex size-5 items-center justify-center rounded-full bg-brand-gold text-brand-dark">
-            <CheckIcon />
-          </span>
-          <span className="font-manrope text-[12.5px] text-brand-light">{toast}</span>
-        </div>
-      )}
     </div>
   );
 }

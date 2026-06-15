@@ -4,28 +4,24 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { FilterTabs } from "../ui/FilterTabs";
 
-const filterTabs = [
-  { value: 0, label: "All Films" },
-  { value: 1, label: "Popular" },
-  { value: 2, label: "Top Rated" },
-  { value: 3, label: "New Releases" },
-  { value: 4, label: "Hidden Gems" },
+// Values match the THREADS backend ContentFilterEnum:
+//   All = 0, LongForm = 1, FromFriends = 2, SpoilerFree = 3
+// NOTE: this is NOT the same order as the shared @/types/api ContentFilterEnum
+// used by reviews (there LongForm/FromFriends are swapped), so don't import that
+// one here — the integers would be wrong.
+const categoryTabs = [
+  { value: 0, label: "All Threads" },
+  { value: 1, label: "Long-form" },
+  { value: 2, label: "From Friends" },
+  { value: 3, label: "Spoiler-free" },
 ];
 
-const ratingOptions = [
-  { value: 0, label: "All" },
-  { value: 1, label: "4.5★+" },
-  { value: 2, label: "4★" },
-  { value: 3, label: "3★" },
-  { value: 4, label: "Under 3★" },
-];
-
+// ContentOrderEnum: MostRecent = 0, MostLiked = 1, MostReplies = 2.
+// The threads backend only sorts by these three.
 const sortOptions = [
   { value: 0, label: "Most Recent" },
   { value: 1, label: "Most Liked" },
   { value: 2, label: "Most Replies" },
-  { value: 3, label: "Highest Rated" },
-  { value: 4, label: "Least Rated" },
 ];
 
 const labelClass =
@@ -36,8 +32,9 @@ function Chevron({ open }: { open: boolean }) {
     <svg
       aria-hidden
       viewBox="0 0 12 8"
-      className={`pointer-events-none h-2 w-3 text-brand-muted transition-transform duration-200 ${open ? "rotate-180" : ""
-        }`}
+      className={`pointer-events-none h-2 w-3 text-brand-muted transition-transform duration-200 ${
+        open ? "rotate-180" : ""
+      }`}
     >
       <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="1.2" fill="none" />
     </svg>
@@ -49,14 +46,17 @@ interface FilterSelectOption {
   label: string;
 }
 
-interface FilterSelectProps {
+function FilterSelect({
+  value,
+  options,
+  minWidth = "min-w-[130px]",
+  onChange,
+}: {
   value: string;
   options: FilterSelectOption[];
   minWidth?: string;
   onChange: (value: string) => void;
-}
-
-function FilterSelect({ value, options, minWidth = "min-w-[130px]", onChange }: FilterSelectProps) {
+}) {
   const [open, setOpen] = useState(false);
   const menuId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -64,11 +64,9 @@ function FilterSelect({ value, options, minWidth = "min-w-[130px]", onChange }: 
 
   useEffect(() => {
     if (!open) return;
-
     const closeOnOutsidePointer = (event: PointerEvent) => {
       if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
     };
-
     document.addEventListener("pointerdown", closeOnOutsidePointer);
     return () => document.removeEventListener("pointerdown", closeOnOutsidePointer);
   }, [open]);
@@ -108,10 +106,11 @@ function FilterSelect({ value, options, minWidth = "min-w-[130px]", onChange }: 
                   onChange(option.value);
                   setOpen(false);
                 }}
-                className={`block w-full px-3 py-2 text-left font-manrope text-[12px] font-normal uppercase tracking-[0.08em] transition-colors ${active
+                className={`block w-full px-3 py-2 text-left font-manrope text-[12px] font-normal uppercase tracking-[0.08em] transition-colors ${
+                  active
                     ? "bg-brand-gold text-brand-dark"
                     : "text-brand-light/82 hover:bg-brand-gold/12 hover:text-brand-gold"
-                  }`}
+                }`}
               >
                 {option.label}
               </button>
@@ -123,26 +122,16 @@ function FilterSelect({ value, options, minWidth = "min-w-[130px]", onChange }: 
   );
 }
 
-export interface FilmFiltersValue {
-  content: number;
-  rating: number;
+export interface ThreadFiltersValue {
+  category: number;
   sortBy: number;
-  genre: string; 
 }
 
-interface FilmFiltersProps {
-  value: FilmFiltersValue;
-  genres: string[];
-  userSection?: boolean;
-}
-
-export default function FilmFilters({ value, genres, userSection=false }: FilmFiltersProps) {
+export default function ThreadFilters({ value }: { value: ThreadFiltersValue }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Build the next URL: update one key, drop defaults to keep URLs tidy, and
-  // reset pagination whenever a filter changes.
   const apply = useCallback(
     (key: string, next: string | number) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -158,39 +147,15 @@ export default function FilmFilters({ value, genres, userSection=false }: FilmFi
 
   return (
     <>
-      {!userSection && (
-        <div className="mb-6 flex flex-wrap items-center gap-2 lg:gap-3">
-          <FilterTabs
-            tabs={filterTabs}
-            active={value.content}
-            onChange={(v) => apply("content", v)}
-          />
-        </div>
-      )}
+      <div className="mb-6 flex flex-wrap items-center gap-2 lg:gap-3">
+        <FilterTabs
+          tabs={categoryTabs}
+          active={value.category}
+          onChange={(v) => apply("category", v)}
+        />
+      </div>
 
       <div className="mb-10 lg:mb-12 flex flex-wrap items-center gap-6">
-        <label className="flex items-center gap-3">
-          <span className={labelClass}>Rating</span>
-          <FilterSelect
-            value={String(value.rating)}
-            options={ratingOptions.map((o) => ({ value: String(o.value), label: o.label }))}
-            onChange={(next) => apply("rating", Number(next))}
-          />
-        </label>
-
-        <label className="flex items-center gap-3">
-          <span className={labelClass}>Genres</span>
-          <FilterSelect
-            value={value.genre}
-            options={[
-              { value: "", label: "All" },
-              ...genres.map((genre) => ({ value: genre, label: genre })),
-            ]}
-            minWidth="min-w-[190px]"
-            onChange={(next) => apply("genres", next)}
-          />
-        </label>
-
         <label className="flex items-center gap-3">
           <span className={labelClass}>Sort</span>
           <FilterSelect

@@ -72,13 +72,21 @@ export async function getReviewsByFilm(
     authed = false,
   }: GetReviewsParams = {},
 ): Promise<ReviewsResponse> {
-  return apiRequest<ReviewsResponse>(
+  var res = await apiRequest<ReviewsResponse>(
     `/films/${encodeURIComponent(String(filmId))}/reviews`,
     {
       query: { filter, category, sortBy, page, pageSize },
       ...(authed ? { auth: true, cache: "no-store" as const } : { cache: { revalidate: 300 } }),
     },
   );
+
+  res.results = await Promise.all(
+    res.results.map(async (review) => ({
+      ...review,
+      avatarUrl: (await toAvatarUrl(review.avatarUrl)) ?? "",
+    })))
+
+  return res;
 }
 
 /**

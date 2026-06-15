@@ -9,6 +9,7 @@ import type {
   SimilarDirectorPerson,
   SimilarDirectorsResponse,
 } from "@/types/film";
+import toAvatarUrl from "../images/storage";
 
 /** GET /directors/{id} - director biography & metadata. Returns null on 404. */
 export async function getDirector(id: string | number): Promise<DirectorApiResponse | null> {
@@ -71,5 +72,15 @@ export async function getDirectorMostReviewed(
       { cache: { revalidate: 300 } },
     ),
   );
-  return data ?? null;
+
+  if (data === undefined || data === null)
+    return null;
+
+  const avatar = await toAvatarUrl(data?.avatarUrl) ?? ""
+  return {
+    ...data,
+    avatarUrl: avatar,
+    filmId: data.filmId
+  };
+
 }

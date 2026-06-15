@@ -111,12 +111,16 @@ export default async function DirectorPage({ params }: DirectorPageProps) {
       ) : editorial.similarDirectors ? (
         <DirectorSimilarSection directors={editorial.similarDirectors} />
       ) : null}
-      <DirectorBiographySection
-        name={director.name}
-        bio={api.biography}
-        pullQuote={editorial.pullQuote}
-        topGenres={editorial.topGenres}
-      />
+
+      {api.biography && api.biography.length > 0 && (
+        <DirectorBiographySection
+          name={director.name}
+          bio={api.biography}
+          pullQuote={editorial.pullQuote}
+          topGenres={editorial.topGenres}
+        />
+      )}
+
     </main>
   );
 }

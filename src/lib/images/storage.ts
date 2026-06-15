@@ -1,5 +1,4 @@
-import "server-only";
-import { createClient } from "../supabase/server";
+import { createClient } from "../supabase/client";
 
 export default async function toAvatarUrl(path: string | undefined) {
     if (path === undefined || path === null)

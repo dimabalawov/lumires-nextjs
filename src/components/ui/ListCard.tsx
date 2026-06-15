@@ -94,7 +94,7 @@ export default function ListCard({
         <div className="relative flex h-full w-full">
           {!backdrop && slotFlexes.map((flex, i) => {
             const poster =
-              posters.length ? posters[i % posters.length] : null;
+              posters.length ? posters[i] : null;
             return (
               <div
                 key={`slot-${i}`}

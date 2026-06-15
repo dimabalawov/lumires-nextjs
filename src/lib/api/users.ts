@@ -1,6 +1,6 @@
 
 import "server-only";
-import { PopularList, PopularListsResponse, ProfileFeaturedReview, UserProfile, UserProfileStats, UserProfileSummary } from "@/types/profile";
+import { PopularList, PopularListsResponse, ProfileFeaturedReview, ProfileSettings, UserProfile, UserProfileStats, UserProfileSummary, UserSettingsResponse } from "@/types/profile";
 import { apiRequest } from "./client";
 import { FavoriteFilms } from "@/types/film";
 import { tmdbImage } from "../images/tmdb";
@@ -11,7 +11,7 @@ import { ReviewsResponse } from "@/types/review";
 
 export const getProfile = cache(
     async (username: string): Promise<UserProfile | null> => {
-        const res = await apiRequest<UserProfile>(`/users/${username}`, {
+        const res = await apiRequest<UserProfile>(`/users/${encodeURIComponent(username)}`, {
             cache: "no-store",
             auth: true,
             authExcep: false,
@@ -45,13 +45,17 @@ export async function getFavouriteFilms(username: string): Promise<FavoriteFilms
     return res;
 }
 
-export async function getUserFeaturedReview(username: string): Promise<ProfileFeaturedReview> {
+export async function getUserFeaturedReview(username: string): Promise<ProfileFeaturedReview | null> {
 
     var res = await apiRequest<ProfileFeaturedReview>(`/users/${username}/featured-review`, {
         cache: { revalidate: 120 },
         auth: true,
         authExcep: false
     });
+
+    if (!res) {
+        return null;
+    }
 
     const avatarUrl = await toAvatarUrl(res.avatarUrl);
 
@@ -135,30 +139,36 @@ export async function getLikedLists(
 }
 
 export async function getLikedReviews(
-  username: string,
-  { filter = 0, sortBy = 0, page = 1, pageSize = 6, authed = false }: {
-    filter?: number; sortBy?: number; page?: number; pageSize?: number; authed?: boolean;
-  } = {},
+    username: string,
+    { filter = 0, sortBy = 0, page = 1, pageSize = 6, authed = false }: {
+        filter?: number; sortBy?: number; page?: number; pageSize?: number; authed?: boolean;
+    } = {},
 ): Promise<ReviewsResponse> {
-  const res = await apiRequest<ReviewsResponse>(
-    `/users/${encodeURIComponent(username)}/liked/reviews`,
-    {
-      query: { filter, sortBy, page, pageSize },
-      ...(authed ? { auth: true, cache: "no-store" as const } : { cache: { revalidate: 300 } }),
-    }
-  );
+    const res = await apiRequest<ReviewsResponse>(
+        `/users/${encodeURIComponent(username)}/liked/reviews`,
+        {
+            query: { filter, sortBy, page, pageSize },
+            ...(authed ? { auth: true, cache: "no-store" as const } : { cache: { revalidate: 300 } }),
+        }
+    );
 
 
-  res.results = await Promise.all(
-    res.results.map(async (review) => ({
-      ...review,
-      filmPosterPath: tmdbImage(review.filmPosterPath, "w500") ?? "",
-      avatarUrl: await toAvatarUrl(review.avatarUrl),
-    }))
-  );
+    res.results = await Promise.all(
+        res.results.map(async (review) => ({
+            ...review,
+            filmPosterPath: tmdbImage(review.filmPosterPath, "w500") ?? "",
+            avatarUrl: await toAvatarUrl(review.avatarUrl),
+        }))
+    );
 
-  console.log(res.results[0].filmPosterPath);
-
-
-  return res;
+    return res;
 }
+
+export const getSettings = cache(async (): Promise<UserSettingsResponse | null> => {
+    return apiRequest<UserSettingsResponse>(`/settings`, {
+        cache: "no-store",
+        auth: true,
+        authExcep: true,
+    });
+});
+

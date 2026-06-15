@@ -12,6 +12,7 @@
   --color-brand-light: #dcd8d3;
   --color-brand-gold: #d2a66a;
   --color-brand-muted: #9b8f84;
+  --color-brand-danger: #C95B4A;
   --font-sans: var(--font-oswald), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
   --font-oswald: var(--font-oswald);

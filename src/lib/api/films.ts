@@ -150,3 +150,4 @@ export async function watchFilm(filmId: string | number): Promise<unknown> {
     { method: "POST", body: {}, auth: true },
   );
 }
+
