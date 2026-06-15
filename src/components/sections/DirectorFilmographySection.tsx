@@ -19,7 +19,7 @@ function chunk<T>(items: T[], size: number): T[][] {
 interface DirectorFilmographySectionProps {
   films: EditorialFilm[];
   /** Ids shown while collapsed; the remaining films reveal when "Show all" is clicked. */
-  previewIds?: string[];
+  previewIds?: (string | number)[];
 }
 
 export default function DirectorFilmographySection({

@@ -106,3 +106,73 @@ export interface PopularList {
 export interface PopularListsResponse {
     lists: PopularList[]
 }
+
+export interface UserStatistics {
+    mostWatchedDirectors: string[];
+    mostWatchedDecades: string[];
+    mostWatchedGenres: string[];
+    averageRatings: Record<string, number>;
+}
+
+export type ProfileSettings = {
+    avatarUrl: string | null;
+    displayName: string | null;
+    username: string;
+    tagline: string | null;
+};
+
+export type FavouriteFilmItem = {
+    id: number;
+    title: string;
+    posterPath?: string | null;
+    releaseYear: number | null;
+    genres: string[];
+    voteAverage: number;
+    order: number;
+};
+
+export type FavouriteFilmsResponse = {
+    favouriteFilms: FavouriteFilmItem[];
+};
+
+export type AccountSettings = {
+    emailAddress: string | null;
+    password: string | null;
+};
+
+export enum ProfileVisibility {
+  Everyone = "everyone",
+  Followers = "followersOnly",
+  OnlyMe = "onlyMe",
+}
+
+export type PrivacySettings = {
+    profileVisibility: ProfileVisibility;
+    isAnyoneCanFollow: boolean;
+    isWatchlistPublic: boolean;
+    areLikesPublic: boolean;
+    areRatingsShowInFeeds: boolean;
+};
+
+export type NotificationPreferences = {
+    newFollower: boolean;
+    likesOnContent: boolean;
+    activityFromFollowed: boolean;
+    repliesAndMentions: boolean;
+    savesOnLists: boolean;
+    weeklyDigest: boolean;
+};
+
+export type UserSettingsResponse = {
+    id: string;
+    profileSettings: ProfileSettings;
+    favouriteFilms: FavouriteFilmsResponse;
+    accountSettings: AccountSettings;
+    privacySettings: PrivacySettings;
+    notificationPreferences: NotificationPreferences;
+};
+
+export type FavouriteFilmCommand = {
+  externalId: number;
+  order: number;
+};

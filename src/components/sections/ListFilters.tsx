@@ -32,9 +32,8 @@ function Chevron({ open }: { open: boolean }) {
     <svg
       aria-hidden
       viewBox="0 0 12 8"
-      className={`pointer-events-none h-2 w-3 text-brand-muted transition-transform duration-200 ${
-        open ? "rotate-180" : ""
-      }`}
+      className={`pointer-events-none h-2 w-3 text-brand-muted transition-transform duration-200 ${open ? "rotate-180" : ""
+        }`}
     >
       <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="1.2" fill="none" />
     </svg>
@@ -106,11 +105,10 @@ function FilterSelect({
                   onChange(option.value);
                   setOpen(false);
                 }}
-                className={`block w-full px-3 py-2 text-left font-manrope text-[12px] font-normal uppercase tracking-[0.08em] transition-colors ${
-                  active
+                className={`block w-full px-3 py-2 text-left font-manrope text-[12px] font-normal uppercase tracking-[0.08em] transition-colors ${active
                     ? "bg-brand-gold text-brand-dark"
                     : "text-brand-light/82 hover:bg-brand-gold/12 hover:text-brand-gold"
-                }`}
+                  }`}
               >
                 {option.label}
               </button>
@@ -123,7 +121,7 @@ function FilterSelect({
 }
 
 export interface ListFiltersValue {
-  category: ListCategoryFilter;
+  category?: ListCategoryFilter;
   sortBy: ListSortOrder;
 }
 
@@ -136,6 +134,7 @@ export default function ListFilters({ value }: { value: ListFiltersValue }) {
   // reset pagination whenever a filter changes.
   const apply = useCallback(
     (key: string, next: string, defaultValue: string) => {
+
       const params = new URLSearchParams(searchParams.toString());
       if (next === defaultValue) params.delete(key);
       else params.set(key, next);
@@ -149,25 +148,27 @@ export default function ListFilters({ value }: { value: ListFiltersValue }) {
   return (
     <>
       {/*DIMA FilterTabs*/}
-      <div className="mb-6 flex flex-wrap items-center gap-2 lg:gap-3">
-        {filterTabs.map((tab) => {
-          const active = tab.value === value.category;
-          return (
-            <button
-              key={tab.value}
-              type="button"
-              onClick={() => apply("category", tab.value, DEFAULT_CATEGORY)}
-              className={
-                active
-                  ? "border border-brand-gold/45 text-brand-gold uppercase font-manrope font-normal text-[13px] tracking-[0.2em] px-[18px] py-[10px] rounded-[4px]"
-                  : "border border-transparent text-brand-light hover:opacity-70 uppercase font-manrope font-normal text-[13px] tracking-[0.2em] px-[18px] py-[10px] rounded-[4px] transition-opacity"
-              }
-            >
-              {tab.label}
-            </button>
-          );
-        })}
-      </div>
+      {value.category && (
+        <div className="mb-6 flex flex-wrap items-center gap-2 lg:gap-3">
+          {filterTabs.map((tab) => {
+            const active = tab.value === value.category;
+            return (
+              <button
+                key={tab.value}
+                type="button"
+                onClick={() => apply("category", tab.value, DEFAULT_CATEGORY)}
+                className={
+                  active
+                    ? "border border-brand-gold/45 text-brand-gold uppercase font-manrope font-normal text-[13px] tracking-[0.2em] px-[18px] py-[10px] rounded-[4px]"
+                    : "border border-transparent text-brand-light hover:opacity-70 uppercase font-manrope font-normal text-[13px] tracking-[0.2em] px-[18px] py-[10px] rounded-[4px] transition-opacity"
+                }
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       <div className="mb-10 lg:mb-12 flex flex-wrap items-center gap-6">
         <label className="flex items-center gap-3">

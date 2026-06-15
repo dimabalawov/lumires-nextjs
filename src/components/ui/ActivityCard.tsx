@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import StarRating from "@/components/ui/StarRating";
 import type { ActivityReview } from "@/types/review";
+import MissingAvatar from "./MissingAvatar";
 
 function Diamond() {
   return (
@@ -11,14 +12,28 @@ function Diamond() {
     </svg>
   );
 }
-
-function HeartIcon() {
+function HeartIcon({ liked }: { liked: boolean }) {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M12 21.23l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.41L12 21.23z" />
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill={liked ? "currentColor" : "none"}
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden="true"
+      className={liked ? "text-brand-gold" : "text-brand-muted"}
+    >
+      <path d="M12 21.23l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 
+               2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09
+               C13.09 3.81 14.76 3 16.5 3 
+               19.58 3 22 5.42 22 8.5
+               c0 3.78-3.4 6.86-8.55 11.41L12 21.23z" />
     </svg>
   );
 }
+
+
 
 function CommentIcon() {
   return (
@@ -38,23 +53,25 @@ function CommentIcon() {
   );
 }
 
-function BookmarkIcon() {
+function BookmarkIcon({ saved }: { saved: boolean }) {
   return (
     <svg
       width="14"
       height="14"
       viewBox="0 0 24 24"
-      fill="none"
+      fill={saved ? "currentColor" : "none"}
       stroke="currentColor"
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
+      className="text-brand-muted hover:text-brand-gold"
     >
       <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
     </svg>
   );
 }
+
 
 function ShareDotsIcon() {
   return (
@@ -67,31 +84,32 @@ function ShareDotsIcon() {
 }
 
 const actionClass =
-  "flex items-center gap-2 hover:text-brand-light transition-colors";
+  "cursor-pointer hover:text-brand-gold flex items-center gap-2 hover:text-brand-light transition-colors";
 
 export default function ActivityCard({
   review,
-  divider = true,
+  divider = true
 }: {
   review: ActivityReview;
   divider?: boolean;
 }) {
   return (
     <article
-      className={`grid grid-cols-[auto_1fr_auto] gap-4 lg:gap-6 py-8 ${
-        divider ? "border-t border-[#DACBBD]/10" : ""
-      }`}
+      className={`grid grid-cols-[auto_1fr_auto] gap-4 lg:gap-6 py-8 ${divider ? "border-t border-[#DACBBD]/10" : ""
+        }`}
     >
-      {/* Avatar */}
-      <Image
-        src={review.avatarUrl}
-        alt={review.username}
-        width={50}
-        height={50}
-        className="shrink-0 rounded-full object-cover size-[44px] lg:size-[50px]"
-      />
+      {review.avatarUrl ? (
+        <Image
+          src={review.avatarUrl}
+          alt={review.username}
+          width={50}
+          height={50}
+          className="shrink-0 rounded-full object-cover size-11 lg:size-12.5"
+        />
+      ) : (
+        <MissingAvatar width={50} height={50} username={review.username} />
+      )}
 
-      {/* Content */}
       <div className="min-w-0 flex flex-col gap-3">
         {/* Header line */}
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] font-manrope">
@@ -144,18 +162,28 @@ export default function ActivityCard({
 
         {/* Actions */}
         <div className="mt-1 flex flex-wrap items-center gap-6 font-manrope uppercase text-[12px] tracking-[0.1em] text-brand-muted">
-          <button type="button" className={actionClass}>
-            <span className="text-brand-gold">
-              <HeartIcon />
+          <button type="button"
+            className={`${review.isLikedByMe ? "text-brand-gold" : "text-brand-muted"} 
+            hover:text-brand-gold ${actionClass}`}>
+            <span className="cursor-pointer">
+              <HeartIcon liked={review.isLikedByMe} />
             </span>
+
+
             {review.likes} likes
           </button>
           <button type="button" className={actionClass}>
             <CommentIcon /> reply
           </button>
-          <button type="button" className={actionClass}>
-            <BookmarkIcon /> save
+          <button
+            type="button"
+            className={`${review.isSavedByMe ? "text-brand-gold" : "text-brand-muted"} 
+            hover:text-brand-gold ${actionClass}`}
+          >
+            <BookmarkIcon saved={review.isSavedByMe} />
+            save
           </button>
+
           <button type="button" className={actionClass}>
             <ShareDotsIcon /> share
           </button>
@@ -164,14 +192,28 @@ export default function ActivityCard({
 
       {/* Poster */}
       <div className="relative w-[84px] lg:w-[110px] aspect-[2/3] shrink-0 overflow-hidden rounded-sm">
-        <Image
-          src={review.posterUrl}
-          alt={review.filmTitle}
-          fill
-          sizes="(min-width: 1024px) 110px, 84px"
-          className="object-cover"
-        />
+        {review.filmHref ? (
+          <Link href={review.filmHref}>
+            <Image
+              src={review.posterUrl}
+              alt={review.filmTitle}
+              fill
+              sizes="(min-width: 1024px) 110px, 84px"
+              className="object-cover"
+            />
+          </Link>
+        ) : (
+          <Image
+            src={review.posterUrl}
+            alt={review.filmTitle}
+            fill
+            sizes="(min-width: 1024px) 110px, 84px"
+            className="object-cover"
+          />
+        )}
+
+
       </div>
-    </article>
+    </article >
   );
 }

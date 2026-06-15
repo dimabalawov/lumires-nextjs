@@ -88,7 +88,7 @@ export default function BrowseAllReviewsSection() {
           ))}
         </div>
 
-        <Pagination className="max-w-3xl mx-auto" />
+        <Pagination className="max-w-3xl mx-aFuto" />
       </div>
     </section>
   );

@@ -115,12 +115,16 @@ export default async function ActorPage({ params }: ActorPageProps) {
       ) : editorial.similarActors ? (
         <ActorSimilarSection actors={editorial.similarActors} />
       ) : null}
-      <DirectorBiographySection
-        name={actor.name}
-        bio={api.biography}
-        pullQuote={editorial.pullQuote}
-        topGenres={editorial.topGenres}
-      />
+
+      {api.biography && api.biography.length > 0 && (
+        <DirectorBiographySection
+          name={actor.name}
+          bio={api.biography}
+          pullQuote={editorial.pullQuote}
+          topGenres={editorial.topGenres}
+        />
+      )}
+
     </main>
   );
 }

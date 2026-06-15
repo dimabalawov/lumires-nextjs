@@ -13,15 +13,19 @@ export interface Review {
   id: string;
   userId?: string;
   username: string;
-  avatarUrl: string | null;
+  avatarUrl?: string;
   title?: string | null;
   text: string;
   rating?: number | null;
   repliesCount?: number;
   likesCount?: number;
-  createdAt?: string; // date-time
+  createdAt: string; 
   isLikedByMe?: boolean;
+  isSavedByMe?: boolean;
   isSpoilerFree?: boolean;
+  filmId: number;
+  filmTitle: string;
+  filmPosterPath: string | null;
 }
 
 export interface ReviewsResponse {
@@ -113,7 +117,7 @@ export interface ActivityReview {
   href?: string; // link to the full review page (/review/{reviewId})
   avatarUrl: string;
   username: string;
-  rating: number; // 0..5
+  rating: number | undefined | null; 
   timeAgo: string;
   replies: number;
   filmTitle: string;
@@ -121,5 +125,7 @@ export interface ActivityReview {
   title: string;
   body: string[];
   likes: number;
+  isLikedByMe: boolean;
+  isSavedByMe: boolean;
   posterUrl: string;
 }

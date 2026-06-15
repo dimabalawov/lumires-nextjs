@@ -35,7 +35,7 @@ interface UniqueFilm {
 function uniqueFilms(list: ListDetail): UniqueFilm[] {
   const seen = new Set<string>();
   const out: UniqueFilm[] = [];
-  for (const f of list.films ?? []) {
+  for (const f of list.films.results ?? []) {
     const url = tmdbImage(f.posterPath, "w500");
     if (url && !seen.has(url)) {
       seen.add(url);
@@ -74,11 +74,13 @@ async function toCollection(list: ListDetail): Promise<CollectionData> {
     id: list.id,
     title: list.title,
     author: list.username ?? list.authorName,
-    filmCount: list.filmCount ?? list.films.length,
+    filmCount: list.filmsCount ?? list.films.results.length,
     films: films.map((f) => f.poster),
     backdrops: backdrop ? [backdrop] : undefined,
     isLiked: list.isLikedByMe,
     isSaved: list.isSavedByMe,
+    isMyList: false,
+    isPrivate: false
   };
 }
 
@@ -110,7 +112,7 @@ export async function getFeaturedCollections(
   try {
     const browse = await getLists({ sortBy: "mostFilms", pageSize: 24, authed });
     const candidates = (browse.results ?? [])
-      .filter((l) => (l.filmsCount ?? l.filmCount ?? 0) >= MIN_FILMS)
+      .filter((l) => (l.filmsCount ?? l.filmsCount ?? 0) >= MIN_FILMS)
       .slice(0, limit);
 
     const lists = await Promise.all(candidates.map((l) => getList(l.id, authed).catch(() => null)));
@@ -137,7 +139,7 @@ export async function getFeaturedCollectionRows(): Promise<FeaturedCollectionRow
         position: r.position,
         title: list.title,
         author: list.username ?? list.authorName,
-        filmCount: list.filmCount ?? list.films.length,
+        filmCount: list.filmsCount ?? list.films.results.length,
       } satisfies FeaturedCollectionRow;
     }),
   );

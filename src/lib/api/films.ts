@@ -1,5 +1,5 @@
 import "server-only";
-import { apiRequest, nullOn404 } from "./client";
+import { apiRequest, nullOn404Or403 } from "./client";
 import type { MovieDetail } from "@/types/movie";
 import {
   FilmContentFilter,
@@ -54,7 +54,7 @@ export async function getFilm(
   id: string | number,
   { authed = false }: { authed?: boolean } = {},
 ): Promise<MovieDetail | null> {
-  return nullOn404(
+  return nullOn404Or403(
     apiRequest<MovieDetail>(
       `/films/${encodeURIComponent(String(id))}`,
       authed ? { auth: true, cache: "no-store" } : { cache: { revalidate: 3600 } },
@@ -71,7 +71,7 @@ export async function getFilmsSummary(): Promise<FilmsSummary> {
 export async function getFilmSources(
   id: string | number,
 ): Promise<FilmSourcesResponse | null> {
-  return nullOn404(
+  return nullOn404Or403(
     apiRequest<FilmSourcesResponse>(
       `/films/${encodeURIComponent(String(id))}/sources`,
       { cache: { revalidate: 3600 } },
@@ -83,7 +83,7 @@ export async function getFilmSources(
 export async function getSimilarFilms(
   id: string | number,
 ): Promise<SimilarFilmsResponse | null> {
-  return nullOn404(
+  return nullOn404Or403(
     apiRequest<SimilarFilmsResponse>(
       `/films/${encodeURIComponent(String(id))}/similar`,
       { cache: { revalidate: 3600 } },
@@ -150,3 +150,4 @@ export async function watchFilm(filmId: string | number): Promise<unknown> {
     { method: "POST", body: {}, auth: true },
   );
 }
+

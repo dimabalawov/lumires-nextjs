@@ -36,18 +36,19 @@ export type CacheOption = { revalidate: number } | "no-store";
 
 
 export interface ApiRequestOptions {
-    method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
-    query?: Record<string, QueryValue>;
-    body?: unknown;
-    auth?: boolean;
-    headers?: Record<string, string>;
-    explicitToken?: string;
-    cache?: CacheOption;
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+  query?: Record<string, QueryValue>;
+  body?: unknown;
+  auth?: boolean;
+  authExcep?: boolean;
+  cache?: CacheOption;
+  headers?: Record<string, string>;
+  explicitToken?: string;
 }
 
 export async function apiRequest<T>(
     path: string,
-    { method = "GET", query, body, auth = false, explicitToken = "", cache = "no-store", headers = {} }: ApiRequestOptions = {},
+    { method = "GET", query, body, auth = false, authExcep=false, explicitToken = "", cache = "no-store", headers = {} }: ApiRequestOptions = {},
 ): Promise<T> {
     const url = `${API_BASE_URL}${path}${query ? buildQuery(query) : ""}`;
 
@@ -62,7 +63,10 @@ export async function apiRequest<T>(
             const supabase = createClient();
             const { data } = await supabase.auth.getSession();
             const token = data.session?.access_token;
-            if (!token) throw new ApiError(401, "Unauthorized", "No active Supabase session");
+            if (!token){
+                if(authExcep)
+                    throw new ApiError(401, "Unauthorized", "No active Supabase session");
+            }
             finalHeaders.Authorization = `Bearer ${token}`;
         }
     }

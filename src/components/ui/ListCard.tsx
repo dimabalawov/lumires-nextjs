@@ -31,7 +31,7 @@ export default function ListCard({
 
   const posters = list.films.filter(Boolean);
   const slotFlexes = [FEATURED_FLEX, ...STRIP_FLEXES];
-  const filmCount = list.filmCount || list.films.length;
+  const filmCount = list.filmsCount || list.films.length;
 
   const validBackdrops = (list.backdrops ?? []).filter(
     (url): url is string => typeof url === "string" && url.length > 0
@@ -94,7 +94,7 @@ export default function ListCard({
         <div className="relative flex h-full w-full">
           {!backdrop && slotFlexes.map((flex, i) => {
             const poster =
-              posters.length ? posters[i % posters.length] : null;
+              posters.length ? posters[i] : null;
             return (
               <div
                 key={`slot-${i}`}
@@ -123,14 +123,34 @@ export default function ListCard({
       </div>
 
 
-      <button
-        type="button"
-        onClick={() => router.push(href)}
-        className="mt-4 text-left font-oswald font-normal text-brand-gold leading-[1.2] tracking-[0.01em] hover:opacity-80 transition-opacity"
-        style={{ fontSize: "clamp(20px, 3vw, 32px)" }}
-      >
-        {list.title}
-      </button>
+      <div className="flex justify-between">
+        <button
+          type="button"
+          onClick={() => router.push(href)}
+          className="cursor-pointer mt-4 text-left font-oswald font-normal text-brand-gold leading-[1.2] tracking-[0.01em] hover:opacity-80 transition-opacity"
+          style={{ fontSize: "clamp(20px, 3vw, 32px)" }}
+        >
+          {list.title}
+        </button>
+
+        <div className="flex flex-row gap-2.5 items-center">
+          {list.isPrivate ?
+            (
+              <Image src="/imgs/profile/private.svg" width={15} height={15} alt="Private icon" />
+            )
+            :
+            (
+              <Image src="/imgs/profile/public.svg" width={15} height={15} alt="Private icon" />
+            )
+          }
+          <span className="font-mono uppercase text-[11px] h-fit tracking-[2px] text-brand-gold">
+            {list.isPrivate ? "Private" : "Public"}
+          </span>
+        </div>
+
+
+      </div>
+
 
       <GradientDivider className="mt-2" />
 
@@ -143,7 +163,6 @@ export default function ListCard({
         <ListActions
           listId={list.id}
           initialLiked={list.isLiked}
-          initialSaved={list.isSaved}
           isAuthed={isAuthed}
         />
       </div>

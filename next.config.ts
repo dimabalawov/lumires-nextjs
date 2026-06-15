@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
         hostname: "api.supabase.win",
         pathname: "/storage/v1/object/public/**",
       },
+      {
+        protocol: "https",
+        hostname: "dkhqzxpvnjelqdaiojvr.supabase.co",
+        pathname: "/storage/v1/object/public/**",
+      },
       { protocol: "https", hostname: "image.tmdb.org" },
     ],
   },

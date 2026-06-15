@@ -36,9 +36,8 @@ function Chevron({ open }: { open: boolean }) {
     <svg
       aria-hidden
       viewBox="0 0 12 8"
-      className={`pointer-events-none h-2 w-3 text-brand-muted transition-transform duration-200 ${
-        open ? "rotate-180" : ""
-      }`}
+      className={`pointer-events-none h-2 w-3 text-brand-muted transition-transform duration-200 ${open ? "rotate-180" : ""
+        }`}
     >
       <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="1.2" fill="none" />
     </svg>
@@ -109,11 +108,10 @@ function FilterSelect({ value, options, minWidth = "min-w-[130px]", onChange }: 
                   onChange(option.value);
                   setOpen(false);
                 }}
-                className={`block w-full px-3 py-2 text-left font-manrope text-[12px] font-normal uppercase tracking-[0.08em] transition-colors ${
-                  active
+                className={`block w-full px-3 py-2 text-left font-manrope text-[12px] font-normal uppercase tracking-[0.08em] transition-colors ${active
                     ? "bg-brand-gold text-brand-dark"
                     : "text-brand-light/82 hover:bg-brand-gold/12 hover:text-brand-gold"
-                }`}
+                  }`}
               >
                 {option.label}
               </button>
@@ -129,15 +127,16 @@ export interface FilmFiltersValue {
   content: number;
   rating: number;
   sortBy: number;
-  genre: string; // "" = all
+  genre: string; 
 }
 
 interface FilmFiltersProps {
   value: FilmFiltersValue;
   genres: string[];
+  userSection?: boolean;
 }
 
-export default function FilmFilters({ value, genres }: FilmFiltersProps) {
+export default function FilmFilters({ value, genres, userSection=false }: FilmFiltersProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -159,13 +158,15 @@ export default function FilmFilters({ value, genres }: FilmFiltersProps) {
 
   return (
     <>
-      <div className="mb-6 flex flex-wrap items-center gap-2 lg:gap-3">
-        <FilterTabs
+      {!userSection && (
+        <div className="mb-6 flex flex-wrap items-center gap-2 lg:gap-3">
+          <FilterTabs
             tabs={filterTabs}
             active={value.content}
             onChange={(v) => apply("content", v)}
           />
-      </div>
+        </div>
+      )}
 
       <div className="mb-10 lg:mb-12 flex flex-wrap items-center gap-6">
         <label className="flex items-center gap-3">

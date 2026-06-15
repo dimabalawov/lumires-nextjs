@@ -1,5 +1,5 @@
 import "server-only";
-import { apiRequest, nullOn404 } from "./client";
+import { apiRequest, nullOn404Or403 } from "./client";
 import type {
   DirectorApiResponse,
   DirectorMostReviewedResponse,
@@ -9,10 +9,11 @@ import type {
   SimilarDirectorPerson,
   SimilarDirectorsResponse,
 } from "@/types/film";
+import toAvatarUrl from "../images/storage";
 
 /** GET /directors/{id} - director biography & metadata. Returns null on 404. */
 export async function getDirector(id: string | number): Promise<DirectorApiResponse | null> {
-  return nullOn404(
+  return nullOn404Or403(
     apiRequest<DirectorApiResponse>(
       `/directors/${encodeURIComponent(String(id))}`,
       { cache: { revalidate: 3600 } },
@@ -24,7 +25,7 @@ export async function getDirector(id: string | number): Promise<DirectorApiRespo
 export async function getDirectorFilmography(
   id: string | number,
 ): Promise<FilmographyFilm[]> {
-  const data = await nullOn404(
+  const data = await nullOn404Or403(
     apiRequest<FilmographyResponse>(
       `/directors/${encodeURIComponent(String(id))}/filmography`,
       { cache: { revalidate: 3600 } },
@@ -37,7 +38,7 @@ export async function getDirectorFilmography(
 export async function getDirectorStats(
   id: string | number,
 ): Promise<DirectorStatsResponse | null> {
-  return nullOn404(
+  return nullOn404Or403(
     apiRequest<DirectorStatsResponse>(
       `/directors/${encodeURIComponent(String(id))}/stats`,
       { cache: { revalidate: 3600 } },
@@ -49,7 +50,7 @@ export async function getDirectorStats(
 export async function getDirectorSimilar(
   id: string | number,
 ): Promise<SimilarDirectorPerson[]> {
-  const data = await nullOn404(
+  const data = await nullOn404Or403(
     apiRequest<SimilarDirectorsResponse>(
       `/directors/${encodeURIComponent(String(id))}/similar`,
       { cache: { revalidate: 3600 } },
@@ -65,11 +66,21 @@ export async function getDirectorSimilar(
 export async function getDirectorMostReviewed(
   id: string | number,
 ): Promise<DirectorMostReviewedResponse | null> {
-  const data = await nullOn404(
+  const data = await nullOn404Or403(
     apiRequest<DirectorMostReviewedResponse | undefined>(
       `/directors/${encodeURIComponent(String(id))}/films/most-reviewed`,
       { cache: { revalidate: 300 } },
     ),
   );
-  return data ?? null;
+
+  if (data === undefined || data === null)
+    return null;
+
+  const avatar = await toAvatarUrl(data?.avatarUrl) ?? ""
+  return {
+    ...data,
+    avatarUrl: avatar,
+    filmId: data.filmId
+  };
+
 }

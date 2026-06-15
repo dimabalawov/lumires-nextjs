@@ -25,9 +25,12 @@ export interface CollectionData {
   films: string[]; // up to 11 unique poster paths; the middle one is the centre/featured panel
   backdrops?: string[]; // landscape stills for the centre panel (the featured film's backdrop)
   filmCount?: number; // shown in the "N films by @author" meta on browse-list cards
+  filmsCount?: number; // shown in the "N films by @author" meta on browse-list cards
   author?: string; // handle without leading "@"
   // Per-user list state — present when the card is backed by a live API list, so
   // ListCard can seed its Like/Save buttons. Absent for static/demo data.
+  isPrivate: boolean;
+  isMyList: boolean;
   isLiked?: boolean;
   isSaved?: boolean;
 }
@@ -127,7 +130,7 @@ export interface DirectorMostReviewedResponse {
   reviewsCount: number;
   userId: string;
   username: string;
-  avatarUrl: string | null;
+  avatarUrl?: string;
   title: string;
   text: string;
   likesCount: number;
@@ -300,4 +303,30 @@ export interface CommunityThread {
   reply: CommunityReply;
   bgGradient: string;
   borderGradient: string;
+}
+
+export const TMDB_GENRES: Record<number, string> = {
+  28: "Action",
+  12: "Adventure",
+  16: "Animation",
+  35: "Comedy",
+  80: "Crime",
+  99: "Documentary",
+  18: "Drama",
+  10751: "Family",
+  14: "Fantasy",
+  36: "History",
+  27: "Horror",
+  10402: "Music",
+  9648: "Mystery",
+  10749: "Romance",
+  878: "Science Fiction",
+  10770: "TV Movie",
+  53: "Thriller",
+  10752: "War",
+  37: "Western",
+};
+ 
+export function genreNames(ids: number[]): string[] {
+  return ids.map((id) => TMDB_GENRES[id]).filter((name): name is string => Boolean(name));
 }

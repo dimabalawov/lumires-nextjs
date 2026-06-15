@@ -1,5 +1,5 @@
 import "server-only";
-import { apiRequest, nullOn404 } from "./client";
+import { apiRequest, nullOn404Or403 } from "./client";
 import type { LikeToggleResponse } from "@/types/review";
 import type {
   BrowseListsResponse,
@@ -20,6 +20,7 @@ export interface GetListsParams {
   category?: ListCategoryFilter;
   sortBy?: ListSortOrder;
   /** Restrict to lists that contain this film. */
+  userId?: string;
   filmId?: number;
   page?: number;
   pageSize?: number;
@@ -32,21 +33,27 @@ export interface GetListsParams {
  * undocumented; we type it as BrowseListsResponse (best-guess) and callers
  * parse defensively. Pass `authed` so `isLikedByMe`/`isSavedByMe` are per-user.
  */
-export async function getLists({
-  category = "all",
-  sortBy = "mostRecent",
-  filmId,
-  page = 1,
-  pageSize = 10,
-  authed = false,
-}: GetListsParams = {}): Promise<BrowseListsResponse> {
+export async function getLists(
+  params: GetListsParams = {}
+): Promise<BrowseListsResponse> {
+  const {
+    userId,
+    category = "all",
+    sortBy = "mostRecent",
+    filmId,
+    page = 1,
+    pageSize = 10,
+    authed,
+  } = params;
+
   return apiRequest<BrowseListsResponse>("/lists", {
-    query: { category, sortBy, filmId, page, pageSize },
-    ...(authed
-      ? { auth: true, cache: "no-store" as const }
-      : { cache: { revalidate: 300 } }),
+    query: { userId, category, sortBy, filmId, page, pageSize },
+    cache: "no-store",
+    auth: authed,
+    authExcep: false
   });
 }
+
 
 /** GET /lists/trending/weekly — six trending collections. Served anonymously. */
 export async function getTrendingLists(): Promise<TrendingListsResponse> {
@@ -85,7 +92,7 @@ export async function getList(
   id: string,
   authed = false,
 ): Promise<ListDetail | null> {
-  return nullOn404(
+  return nullOn404Or403(
     apiRequest<ListDetail>(
       `/lists/${encodeURIComponent(id)}`,
       authed ? { auth: true, cache: "no-store" } : { cache: { revalidate: 600 } },
