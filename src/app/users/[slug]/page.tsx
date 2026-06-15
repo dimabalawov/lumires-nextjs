@@ -12,38 +12,34 @@ export default async function ProfilePage({ params }: { params: { slug: string }
   const popularLists = await getUserPopularLists(slug);
 
   return (
-    <section className="section-container flex flex-col gap-12 py-10">
+    <>
+      <section className="section-container flex flex-col gap-12 py-10">
 
-      {favResponse && favResponse.favouriteFilms && favResponse.favouriteFilms.length > 0 && (
-        <>
-          <div className="flex justify-between">
-            <AccentTitle text="Favourite" accent="Films" />
-            <EditFavouritesButton />
-          </div>
-          <FavouriteFilms films={favResponse.favouriteFilms} />
-        </>
-      )}
+        {favResponse && favResponse.favouriteFilms && favResponse.favouriteFilms.length > 0 && (
+          <>
+            <div className="flex justify-between">
+              <AccentTitle text="Favourite" accent="Films" />
+              <EditFavouritesButton />
+            </div>
+            <FavouriteFilms films={favResponse.favouriteFilms} />
+          </>
+        )}
 
-      {featuredReview && (
-        <>
-          <div className="flex justify-between">
-            <AccentTitle text="Featured" accent="Review" />
-          </div>
+        {featuredReview && (
+          <>
+            <div className="flex justify-between">
+              <AccentTitle text="Featured" accent="Review" />
+            </div>
 
-          <PopularReviewCard review={featuredReview} />
-        </>
-      )}
+            <PopularReviewCard review={featuredReview} />
+          </>
+        )}
+
+      </section>
 
       {popularLists && popularLists.lists.length > 0 && (
-        <>
-          <div className="flex justify-between">
-            <AccentTitle text="Popular" accent="Lists" />
-          </div>
-
-          <PopularListsSection lists={popularLists.lists} />
-        </>
+        <PopularListsSection lists={popularLists.lists} />
       )}
-
-    </section>
+    </>
   );
 }

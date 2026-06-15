@@ -3,14 +3,17 @@ import { ApiError } from "@/lib/api/client";
 import { withProfileRetry } from "@/lib/auth/server";
 import { followUser } from "@/lib/api/users";
 
-export async function POST(
-    _req: Request,
-    { params }: { params: Promise<{ id: string }> }
-) {
-    const { id } = await params;
+export async function POST(req: Request) {
+    const { targetUserId } = (await req.json().catch(() => ({}))) as {
+        targetUserId?: string;
+    };
+
+    if (!targetUserId) {
+        return NextResponse.json({ error: "targetUserId is required" }, { status: 400 });
+    }
 
     try {
-        await withProfileRetry(() => followUser(id));
+        await withProfileRetry(() => followUser(targetUserId));
         return NextResponse.json({ ok: true });
     } catch (e) {
         if (e instanceof ApiError) {

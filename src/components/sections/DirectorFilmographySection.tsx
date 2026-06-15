@@ -29,7 +29,9 @@ export default function DirectorFilmographySection({
   const [expanded, setExpanded] = useState(false);
   if (films.length === 0) return null;
 
-  const preview = previewIds ? films.filter((f) => previewIds.includes(f.id)) : films;
+  const preview = previewIds
+    ? films.filter((f) => previewIds.includes(String(f.id)))
+    : films;
   const hasMore = preview.length < films.length;
   const visible = expanded || !hasMore ? films : preview;
   const rows = chunk(visible, ROW_SIZE);
@@ -43,7 +45,7 @@ export default function DirectorFilmographySection({
           <div key={rowIdx} className="border-t border-brand-light/15 pt-5 lg:pt-6">
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
               {row.map((film) => {
-                const isLinkable = /^\d+$/.test(film.id);
+                const isLinkable = /^\d+$/.test(String(film.id));
                 const card = (
                   <>
                     <span className="text-center font-oswald font-light text-brand-light text-[14px] tracking-[0.12em]">

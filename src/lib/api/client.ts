@@ -76,9 +76,9 @@ export async function apiRequest<T>(
     }
     else {
       const token = await getAccessToken();
-      if (!token && authExcep) 
+      if (!token && authExcep)
         throw new ApiError(401, "Unauthorized", "No active Supabase session");
-      finalHeaders.Authorization = `Bearer ${token}`;
+      if (token) finalHeaders.Authorization = `Bearer ${token}`;
     }
   }
 
