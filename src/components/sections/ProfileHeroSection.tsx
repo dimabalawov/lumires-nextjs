@@ -196,7 +196,7 @@ export default function ProfileHeroSection({
 
       <nav className={`${blocked ? "hidden" : ""} mt-12`}>
         <div className="scrollbar-hide mx-[-3%] overflow-x-auto sm:mx-0">
-          <ul className="flex min-w-max items-start justify-start gap-5 py-4">
+          <ul className="flex w-full min-w-max items-start gap-[6px] border-b border-[rgba(155,143,132,0.13)]">
             {TABS.map((tab) => {
               const isActive = tab.key === activeTab;
               const count = tabCounts[tab.key];
@@ -205,30 +205,24 @@ export default function ProfileHeroSection({
                   ? `/users/${profileSlug}`
                   : `/users/${profileSlug}/${tab.key}`;
               return (
-                <li key={tab.key}>
+                <li key={tab.key} className="shrink-0">
                   <Link
                     href={href}
                     className={[
-                      "inline-flex items-center gap-1.5 uppercase whitespace-nowrap rounded-full px-5 py-2 font-manrope text-[11px] tracking-[0.04em] transition-colors border-b-2",
+                      "-mb-px inline-flex items-center gap-[9px] whitespace-nowrap border-b-2 px-[18px] pt-[12px] pb-[14px] font-manrope text-[13px] uppercase tracking-[1.3px] transition-colors",
                       isActive
-                        ? "font-medium text-brand-gold border-brand-gold"
-                        : "text-brand-muted hover:text-brand-gold border-transparent hover:border-brand-gold",
+                        ? "border-brand-gold text-brand-gold"
+                        : "border-transparent text-brand-muted hover:text-brand-gold",
                     ].join(" ")}
                   >
                     {tab.label}
                     {count != null && (
-                      <div
-                        className={[
-                          "border-[0.5px] border-brand-muted rounded-full px-3 h-fit",
-                          isActive ? "text-brand-gold" : "text-brand-muted hover:text-brand-gold",
-                        ].join(" ")}
-                      >
+                      <span className="rounded-full border border-[rgba(155,143,132,0.22)] px-[9px] py-[2px] font-mono text-[11px] tracking-[1.3px]">
                         {count}
-                      </div>
+                      </span>
                     )}
                   </Link>
                 </li>
-
               );
             })}
           </ul>

@@ -1,6 +1,6 @@
 import { CommunityThread } from "@/types/film";
 import { leftColumnThreads, rightColumnThreads } from "@/data/communityThreads";
-import ThreadCard from "@/components/ui/ThreadCard";
+import CommunityThreadCard from "@/components/ui/CommunityThreadCard";
 import { AccentTitle } from "../ui/AccentTitle";
 import { ShowAllLink } from "../ui/ShowAllLink";
 
@@ -14,7 +14,7 @@ function ThreadColumn({
   return (
     <div className="flex-1 min-w-0 flex flex-col gap-8">
       {threads.map((thread) => (
-        <ThreadCard key={thread.id} thread={thread} isAuthed={isAuthed} />
+        <CommunityThreadCard key={thread.id} thread={thread} isAuthed={isAuthed} />
       ))}
     </div>
   );

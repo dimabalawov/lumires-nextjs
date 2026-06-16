@@ -29,7 +29,9 @@ export default function DirectorFilmographySection({
   const [expanded, setExpanded] = useState(false);
   if (films.length === 0) return null;
 
-  const preview = previewIds ? films.filter((f) => previewIds.includes(f.id)) : films;
+  const preview = previewIds
+    ? films.filter((f) => previewIds.includes(String(f.id)))
+    : films;
   const hasMore = preview.length < films.length;
   const visible = expanded || !hasMore ? films : preview;
   const rows = chunk(visible, ROW_SIZE);

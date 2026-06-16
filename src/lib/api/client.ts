@@ -76,7 +76,6 @@ export async function apiRequest<T>(
     }
     else {
       const token = await getAccessToken();
-
       if (!token) {
         if (authExcep) {
           throw new ApiError(401, "Unauthorized", "No active Supabase session");

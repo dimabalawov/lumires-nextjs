@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import MissingAvatar from "@/components/ui/MissingAvatar";
+import type { ThreadItem } from "@/types/threads";
 
 const LONG_THRESHOLD = 500; // matches the backend LongThreshold
 

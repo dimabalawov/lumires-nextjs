@@ -1,12 +1,12 @@
 import Link from "next/link";
 import type { CommunityThread } from "@/types/film";
-import ThreadCard from "@/components/ui/ThreadCard";
+import CommunityThreadCard from "@/components/ui/CommunityThreadCard";
 
 function ReviewColumn({ reviews, isAuthed }: { reviews: CommunityThread[]; isAuthed: boolean }) {
   return (
     <div className="flex-1 min-w-0 flex flex-col gap-8">
       {reviews.map((review) => (
-        <ThreadCard key={review.id} thread={review} isAuthed={isAuthed} />
+        <CommunityThreadCard key={review.id} thread={review} isAuthed={isAuthed} />
       ))}
     </div>
   );
