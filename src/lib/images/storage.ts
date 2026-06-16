@@ -1,6 +1,6 @@
 import { createClient } from "../supabase/client";
 
-export default async function toAvatarUrl(path: string | undefined) {
+export default async function toAvatarUrl(path: string | undefined | null) {
     if (path === undefined || path === null)
         return;
 

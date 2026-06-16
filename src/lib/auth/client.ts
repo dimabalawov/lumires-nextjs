@@ -4,6 +4,7 @@
 import { createClient } from "@/lib/supabase/client";
 import type { MeProfile } from "@/types/api";
 import { apiRequest } from "../api/auth.client";
+import { NotificationMessage, NotificationResponse } from "@/types/notification";
 
 export async function getMeWithAvatarClient(accessToken?: string): Promise<MeProfile | null> {
     const supabase = createClient();
@@ -12,7 +13,7 @@ export async function getMeWithAvatarClient(accessToken?: string): Promise<MePro
     if (!token) return null;
 
     const profile = await apiRequest<MeProfile>("/auth/me", {
-        auth: true, 
+        auth: true,
         explicitToken: token,
         cache: "no-store",
     });

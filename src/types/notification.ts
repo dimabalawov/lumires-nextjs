@@ -1,15 +1,16 @@
 export type NotificationType =
-  | "LikedReview"
-  | "Followed"
-  | "ReviewReplied"
-  | "LikedReviewComment"
-  | "ThreadReplied"
-  | "LikedThread"
-  | "LikedThreadComment"
-  | "LikedFilmsList"
-  | "FollowedBack";
+  | "likedReview"
+  | "followed"
+  | "reviewReplied"
+  | "likedReviewComment"
+  | "threadReplied"
+  | "likedThread"
+  | "likedThreadComment"
+  | "likedFilmsList"
+  | "followedBack";
 
 export interface NotificationMessage {
+  id: string;
   type: NotificationType;
   senderId: string;
   senderName?: string | null;
@@ -17,4 +18,9 @@ export interface NotificationMessage {
   targetId?: string | null;
   targetPayload?: string | null;
   createdAt: string;
+  readAt?: string;
+}
+
+export interface NotificationResponse {
+  notifications: NotificationMessage[]
 }

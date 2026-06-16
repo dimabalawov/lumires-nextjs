@@ -421,7 +421,7 @@ export interface ListMembershipResponse {
 export interface MeProfile {
   id: string; // guid
   email: string;
-  username: string | null;
+  username: string;
   avatarUrl: string | null;
 }
 

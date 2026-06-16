@@ -107,10 +107,6 @@ export default function ProfileActionButton({
     const [menuOpen, setMenuOpen] = useState(false);
     const wrapRef = useRef<HTMLDivElement | null>(null);
 
-    const desired = useRef(isFollowed);
-    const serverFollowed = useRef(isFollowed);
-    const syncing = useRef(false);
-
     useEffect(() => {
         if (!menuOpen) return;
         const onDown = (e: MouseEvent) => {
@@ -128,51 +124,52 @@ export default function ProfileActionButton({
     const baseButton =
         "cursor-pointer px-[14px] text-[11px] py-[7px] border border-brand-gold rounded-xl font-manrope font-semibold uppercase tracking-[0.13em] hover:opacity-90 transition-opacity flex justify-center items-center gap-2";
 
-    async function sync() {
-        if (syncing.current) return;
-        syncing.current = true;
+
+    async function handleFollow() {
+        const next = !isFollowed;
+
+        setIsFollowed(next);
+        onRelationshipChange?.({
+            following: next,
+            blocked: isBlocked,
+        });
+
         try {
-            while (desired.current !== serverFollowed.current) {
-                await apiRequest<void>(`/users/${profile.id}/follow`, {
+            await apiRequest<void>(
+                `/users/${profile.id}/${next ? "follow" : "unfollow"}`,
+                {
                     method: "POST",
                     body: { targetUserId: profile.id },
                     auth: true,
                     cache: "no-store",
-                });
-                serverFollowed.current = desired.current;
-                setIsFollowed(desired.current);
-                toast.success(desired.current ? "Following" : "Unfollowed");
-            }
+                }
+            );
+
+            toast.success(next ? "Following" : "Unfollowed");
         } catch (e: any) {
-            desired.current = serverFollowed.current;
-            setIsFollowed(serverFollowed.current);
-            onRelationshipChange?.({ following: serverFollowed.current, blocked: isBlocked });
+            setIsFollowed(!next);
+
+            onRelationshipChange?.({
+                following: !next,
+                blocked: isBlocked,
+            });
 
             if (e?.status === 401 || e?.status === 403) {
                 router.push("/login");
                 return;
             }
-            if (e?.status === 404) toast.error("User not found.");
-            else if (e?.status === 409) toast.error("Already following or blocked.");
-            else toast.error("Something went wrong.");
-        } finally {
-            syncing.current = false;
-        }
-    }
 
-    function handleFollow() {
-        const next = !desired.current;
-        desired.current = next;
-        setIsFollowed(next);
-        onRelationshipChange?.({ following: next, blocked: isBlocked });
-        void sync();
+            if (e?.status === 404) {
+                toast.error("User not found.");
+            } else {
+                toast.error("Something went wrong.");
+            }
+        }
     }
 
     async function handleBlock() {
         setMenuOpen(false);
         setIsBlocked(true);
-        desired.current = false;
-        serverFollowed.current = false;
         setIsFollowed(false);
         onRelationshipChange?.({ following: false, blocked: true });
         try {

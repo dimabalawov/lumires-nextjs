@@ -75,7 +75,6 @@ export default function IdentityForm({ initial }: { initial: UserSettingsRespons
             if (fileToUpload) {
                 uploadedPath = await uploadAvatar(fileToUpload);
                 setAvatarPath(uploadedPath);
-                console.log(uploadedPath);
             }
 
             await updateProfileSettings({

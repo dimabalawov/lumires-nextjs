@@ -1,9 +1,9 @@
 "use client";
 
-import { AccountSettings, FavouriteFilmCommand, NotificationPreferences, PrivacySettings, ProfileSettings } from "@/types/profile";
+import { AccountSettings, FavouriteFilmCommand, FriendsResponse, NotificationPreferences, PrivacySettings, ProfileSettings } from "@/types/profile";
 import { apiRequest } from "./auth.client";
 import { createClient } from "../supabase/client";
-import { FavoriteFilms } from "@/types/film";
+import toAvatarUrl from "../images/storage";
 
 
 export async function updateProfileSettings(profileSettings: ProfileSettings) {
@@ -57,11 +57,28 @@ export async function deleteAccount() {
 }
 
 export async function updateFavouriteFilms(
-  payload: { favouriteFilms: FavouriteFilmCommand[] }
+    payload: { favouriteFilms: FavouriteFilmCommand[] }
 ): Promise<void> {
-  return apiRequest<void>("/settings/favourite-films", {
-    method: "PUT",
-    body: payload,
-    auth: true,
-  });
+    return apiRequest<void>("/settings/favourite-films", {
+        method: "PUT",
+        body: payload,
+        auth: true,
+    });
+}
+
+export async function getFriends(username: string): Promise<FriendsResponse> {
+    var res = await apiRequest<FriendsResponse>(`/users/${username}/friends`, {
+        auth: true,
+        authExcep: false,
+        cache: 'no-store'
+    });
+
+    res.friends = await Promise.all(
+        res.friends.map(async (friend) => ({
+            ...friend,
+            avatarUrl: (await toAvatarUrl(friend.avatarUrl)) ?? "",
+        }))
+    );
+
+    return res;
 }

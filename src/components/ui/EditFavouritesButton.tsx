@@ -1,12 +1,20 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export function EditFavouritesButton() {
+  const router = useRouter();
+
+  function navigateToFavourites() {
+    router.push("/settings/favourite-films");
+  }
+
   return (
     <button
       type="button"
-      className="flex items-center gap-3 text-brand-gold uppercase 
+      onClick={navigateToFavourites}
+      className="cursor-pointer flex items-center gap-3 text-brand-gold uppercase 
         font-manrope font-semibold text-[11px] h-fit py-2 border border-brand-gold bg-brand-gold/10 px-2 rounded"
     >
       <Image src="/imgs/profile/config.svg" alt="" width={20} height={20} />

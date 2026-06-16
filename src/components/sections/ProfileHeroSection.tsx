@@ -6,6 +6,7 @@ import { RelationshipStatus, RelationshipType, UserProfileSummary, type Pronouns
 import ProfileActionButton from "../ui/ProfileActionButton";
 import { usePathname } from "next/navigation";
 import { useRef, useState } from "react";
+import FollowersModal from "./FollowersModal";
 
 const CARD_BG =
   "linear-gradient(160deg, rgba(210,166,106,0.06) 0%, rgba(18,16,14,0) 45%), linear-gradient(180deg, #1E1813 0%, #15120F 85%)";
@@ -93,6 +94,14 @@ export default function ProfileHeroSection({
     prevRel.current = next;
   }
 
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTab, setModalTab] = useState<"followers" | "followings" | "friends">("followers");
+
+  function openModal(tab: "followers" | "followings" | "friends") {
+    setModalTab(tab);
+    setModalOpen(true);
+  }
+
 
   const tabCounts: Record<string, number | undefined> = {
     reviews: profile.reviewsWritten,
@@ -149,12 +158,12 @@ export default function ProfileHeroSection({
             </div>
 
             <div className="items-center gap-5 font-mono font-bold text-[16px] uppercase tracking-[0.14em] text-brand-muted lg:flex">
-              <span>
+              <span className="cursor-pointer hover:text-brand-gold" onClick={() => openModal("followers")}>
                 <span className="mr-1.5 font-medium text-brand-gold">{formatCompact(followers)}</span>
                 Followers
               </span>
               <span className="text-brand-muted/60">·</span>
-              <span>
+              <span className="cursor-pointer hover:text-brand-gold" onClick={() => openModal("followings")}>
                 <span className="mr-1.5 font-medium text-brand-gold">{formatCompact(profile.followings)}</span>
                 Following
               </span>
@@ -225,6 +234,14 @@ export default function ProfileHeroSection({
           </ul>
         </div>
       </nav>
+
+      {modalOpen && (
+        <FollowersModal
+          username={profileSlug}
+          initialTab={modalTab}
+          onClose={() => setModalOpen(false)}
+        />
+      )}
     </section>
   );
 }

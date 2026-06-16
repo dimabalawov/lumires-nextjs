@@ -1,14 +1,21 @@
 import type { NotificationMessage } from "@/types/notification";
-import { getSenderUrl, getTargetUrl } from "./routes";
 import { toast } from "./toast";
-import { getNotificationText } from "./getNotificationText";
+import toAvatarUrl from "@/lib/images/storage";
+import { notificationConfig } from "./config";
 
-export function handleNotification(n: NotificationMessage) {
+export async function handleNotification(n: NotificationMessage) {
   const senderName = n.senderName ?? "Someone";
-  const senderAvatar = n.senderAvatar ?? undefined;
-  const senderUrl = getSenderUrl(n);
-  const targetUrl = getTargetUrl(n);
-  const text = getNotificationText(n.type);
+  const senderAvatar = (await toAvatarUrl(n.senderAvatar)) ?? null;
+
+  const config = notificationConfig[n.type];
+
+  const senderUrl = config?.senderUrl?.(n) ?? undefined;
+  const targetUrl = config?.targetUrl?.(n) ?? null;
+
+  const text =
+    config?.text ?? "interacted with your content";
+
+
 
   toast({
     title: senderName,

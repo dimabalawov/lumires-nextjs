@@ -3,7 +3,7 @@ type ToastInput = {
     message: string;
     type?: string;
     senderUrl?: string;
-    senderAvatar?: string;
+    senderAvatar: string | null;
     targetUrl?: string | null;
     targetPayload?: string | null;
 };

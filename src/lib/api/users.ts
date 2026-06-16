@@ -165,10 +165,18 @@ export async function getLikedReviews(
 }
 
 export const getSettings = cache(async (): Promise<UserSettingsResponse | null> => {
-    return apiRequest<UserSettingsResponse>(`/settings`, {
+    var res =  await apiRequest<UserSettingsResponse>(`/settings`, {
         cache: "no-store",
         auth: true,
         authExcep: true,
     });
+
+    res.favouriteFilms.favouriteFilms = res.favouriteFilms.favouriteFilms.map((film) => ({
+        ...film,
+        posterPath: tmdbImage(film.posterPath, "w500") ?? ""
+    }))
+
+    return res;
+    
 });
 

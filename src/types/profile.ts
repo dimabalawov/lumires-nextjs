@@ -176,3 +176,24 @@ export type FavouriteFilmCommand = {
   externalId: number;
   order: number;
 };
+
+export interface FriendItem {
+  relationshipId: string;   
+  sourceUserId: string;     
+  targetUserId: string;     
+  otherUserId: string;      
+  username: string;
+  avatarUrl?: string | null;
+  status: RelationshipStatus;
+  type: RelationshipType;
+  followerCount: number;
+}
+
+// Response modxel
+export interface FriendsResponse {
+  friends: FriendItem[];
+  totalFollowers: number;
+  totalFollowings: number;
+  totalFriends: number;
+  isMe: boolean;
+}

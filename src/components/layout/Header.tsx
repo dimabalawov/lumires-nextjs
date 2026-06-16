@@ -9,6 +9,11 @@ import Logo from "@/components/ui/Logo";
 import Image from "next/image";
 import { getMeWithAvatarClient } from "@/lib/auth/client";
 import SearchOverlay from "../sections/SearchOverlay";
+import { NotificationMessage } from "@/types/notification";
+import NotificationBell from "../ui/NotificationBell";
+import { getNotifications, markRead } from "@/lib/api/notifications.client";
+import { subscribe } from "@/lib/signalr/notifications/service";
+import HeaderNav from "../ui/HeaderNav";
 
 const navLinks: NavLink[] = [
   { label: "FILMS", href: "/films" },
@@ -28,13 +33,19 @@ export default function Header() {
 
   const [username, setUsername] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [notifications, setNotifications] = useState<NotificationMessage[] | null>(null)
 
   const [searchOpen, setSearchOpen] = useState(false);
 
   async function loadProfile(accessToken: string) {
     setLoading(true);
     try {
+      let notifyResponse = null;
       const profile = await getMeWithAvatarClient(accessToken);
+      if (profile) {
+        notifyResponse = await getNotifications(profile.username);
+        setNotifications(notifyResponse.notifications);
+      }
       setUsername(profile?.username ?? null);
       setAvatarUrl(profile?.avatarUrl ?? null);
     } catch {
@@ -52,6 +63,17 @@ export default function Header() {
     setAvatarUrl(null);
 
     router.refresh();
+  }
+
+  async function handleMarkAllRead() {
+    setNotifications((prev) =>
+      prev ? prev.map((n) => ({ ...n, readAt: new Date().toISOString() })) : prev
+    );
+
+    if (notifications && notifications.length > 0) {
+      const notificationIds = notifications.map((n) => n.id);
+      await markRead(username ?? "", notificationIds);
+    }
   }
 
   useEffect(() => {
@@ -80,6 +102,14 @@ export default function Header() {
     return () => data.subscription.unsubscribe();
   }, []);
 
+  useEffect(() => {
+    const unsubscribe = subscribe((notification) => {
+      setNotifications((prev) => [notification, ...(prev ?? [])]);
+    });
+
+    return unsubscribe;
+  }, []);
+
   return (
     <header className="absolute top-0 left-0 w-full z-50">
       <div className="absolute inset-0 bg-linear-to-b from-black/90 via-black/70 to-transparent pointer-events-none h-[200%]" />
@@ -93,21 +123,10 @@ export default function Header() {
           <Logo />
         </Link>
 
-        {/* Desktop nav */}
-        <div className="hidden lg:flex items-center gap-8">
-          {navLinks.map((link) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              className="text-white uppercase font-light text-base tracking-[0.12em] hover:opacity-70 transition-opacity"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
+        <HeaderNav/>
 
         {/* Desktop auth + search */}
-        <div className="hidden lg:flex items-center gap-5">
+        <div className="hidden lg:flex items-center gap-6">
           {loading ? (
             <div className="w-10 h-10 rounded-full bg-white/10 animate-pulse" />
           ) : username ? (
@@ -151,9 +170,17 @@ export default function Header() {
             </>
           )}
 
+          {username && (
+            <NotificationBell
+              count={notifications?.length ?? 0}
+              notifications={notifications ?? []}
+              onMarkAllRead={handleMarkAllRead}
+            />
+          )}
+
           <button
             onClick={() => setSearchOpen(true)}
-            className="text-white cursor-pointer hover:opacity-70 transition-opacity"
+            className="text-brand-gold cursor-pointer hover:opacity-70 transition-opacity"
             aria-label="Search"
           >
             <svg

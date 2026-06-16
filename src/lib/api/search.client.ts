@@ -25,14 +25,10 @@ export async function searchArchive(
         cache: "no-store",
     });
 
-    console.log(res);
-
     res.actors = res.actors?.map((actor) => ({
         ...actor,
         profilePath: actor.profilePath ? tmdbImage(actor.profilePath, "w342") : null,
     }));
-
-    console.log(res.directors);
 
     res.directors = res.directors?.map((director) => ({
         ...director,
