@@ -57,6 +57,30 @@ export async function getReviews(
 }
 
 /**
+ * GET /reviews/recent — most recent reviews across the whole site (paginated).
+ * The API does not document the 200 body; typed as the app's ReviewsResponse
+ * shape (same item fields as GET /reviews). Resolves avatar + poster URLs.
+ */
+export async function getRecentReviews(
+  { page = 1, pageSize = 6 }: { page?: number; pageSize?: number } = {},
+): Promise<ReviewsResponse> {
+  const res = await apiRequest<ReviewsResponse>("/reviews/recent", {
+    query: { page, pageSize },
+    cache: { revalidate: 120 },
+  });
+
+  res.results = await Promise.all(
+    res.results.map(async (review) => ({
+      ...review,
+      avatarUrl: await toAvatarUrl(review.avatarUrl),
+      filmPosterPath: tmdbImage(review.filmPosterPath, "w500") ?? "",
+    })),
+  );
+
+  return res;
+}
+
+/**
  * GET /films/{filmId}/reviews — paginated reviews for a film.
  * The API does not document the 200 body; we type it as the app's existing
  * ReviewsResponse shape (best-guess until real data lands).

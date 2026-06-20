@@ -1,4 +1,4 @@
- {
+{
   "x-generator": "NSwag v14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))",
   "openapi": "3.1.1",
   "info": {
@@ -11,121 +11,290 @@
     }
   ],
   "paths": {
-    "/users/summary": {
-      "get": {
+    "/threads/{threadId}/replies/{replyId}": {
+      "put": {
         "tags": [
-          "Users"
+          "Threads"
         ],
-        "summary": "GetUsersSummary",
-        "description": "Gives total members in the system and recently online ones.",
-        "operationId": "lumiresApiFeaturesUsersGetUsersSummaryEndpoint",
-        "responses": {
-          "200": {
-            "description": "Users summary is successfully retrieved"
-          }
-        }
-      }
-    },
-    "/users/{username}/summary": {
-      "get": {
-        "tags": [
-          "Users"
-        ],
-        "summary": "GetUserProfileSummary",
-        "description": "Gives user`s summary from his profile.\"\"\";\n\nReturns 404 Not Found if user`s does not exist.",
-        "operationId": "lumiresApiFeaturesUsersGetUserProfileSummaryEndpoint",
+        "summary": "UpdateThreadComment",
+        "description": "Updates a comment for a specific thread.\n\nReturns No Content 204.\n\nIf the thread was not found - returns 404 Not Found.\n\nIf some of the fields are not valid - returns 400 Bad Request.\n\nIf its not yours - 403 Forbidden\n\n### Notes\n\n- **Authorization Bearer** — Is required\n- **TargetedUserId** — Optional, used when replying to a specific comment",
+        "operationId": "lumiresApiFeaturesThreadsUpdateThreadCommentEndpoint",
         "parameters": [
           {
-            "name": "username",
+            "name": "threadId",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "guid"
+            },
+            "examples": {
+              "default": {
+                "value": "019ed025-375b-77f4-bd34-11d7c0aefd75"
+              }
+            }
+          },
+          {
+            "name": "replyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "examples": {
+              "default": {
+                "value": "a3f1c9e2-7b4a-4c1f-9d2a-123456789abc"
+              }
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "Command",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Command"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "204": {
+            "description": "Comment is successfully updated"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          },
+          {
+            "Bearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Threads"
+        ],
+        "summary": "DeleteReviewComment",
+        "description": "Deletes a specific review comment.\n\nIf the review or comment was not found - returns 404 Not Found.\n\nIf some of the fields are not valid - returns 400 Bad Request.\n\nIf its not yours - 403 Forbidden\n\n### Notes\n\n- **Authorization Bearer** — Is required",
+        "operationId": "lumiresApiFeaturesThreadsDeleteThreadCommentEndpoint",
+        "parameters": [
+          {
+            "name": "threadId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "examples": {
+              "default": {
+                "value": "019ed025-37aa-73a1-b7ed-28065af9a716"
+              }
+            }
+          },
+          {
+            "name": "replyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "examples": {
+              "default": {
+                "value": "019ed025-37aa-710b-9f12-54aab2d4da51"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Review comment is successfully deleted"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          },
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/threads/{threadId}": {
+      "put": {
+        "tags": [
+          "Threads"
+        ],
+        "summary": "UpdateThread",
+        "description": "Updates a thread.\n\nReturns 204 No Content.\n\nIf some of the fields are not valid - returns 400 Bad Request.\n\nIf thread is not yours - 403 Forbidden.\n\n### Notes\n\n- **Authorization Bearer** — Is required",
+        "operationId": "lumiresApiFeaturesThreadsUpdateThreadEndpoint",
+        "parameters": [
+          {
+            "name": "threadId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "examples": {
+              "default": {
+                "value": "019ed025-376e-708c-a8e4-a0ff5d4f51c4"
+              }
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "Command",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Command2"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "204": {
+            "description": "Thread is successfully updated"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          },
+          {
+            "Bearer": []
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Threads"
+        ],
+        "summary": "GetThread",
+        "description": "Get a thread.\n\nReturns the thread and replies to this thread.\n\nIf the thread was not found - returns 404 Not Found.\n",
+        "operationId": "lumiresApiFeaturesThreadsGetThreadEndpoint",
+        "parameters": [
+          {
+            "name": "threadId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "examples": {
+              "default": {
+                "value": "7e432661-94e2-474d-b0de-ef2d83005791"
+              }
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Users summary is successfully retrieved"
+            "description": "Thread is successfully retrieved"
+          },
+          "404": {
+            "description": "Not Found"
           }
         }
-      }
-    },
-    "/users/{username}": {
-      "get": {
+      },
+      "delete": {
         "tags": [
-          "Users"
+          "Threads"
         ],
-        "summary": "GetUsersProfile",
-        "description": "Gives user`s details from his profile. Determines if this profile is yourself.\"\"\";\n\nReturns 404 Not Found if user`s does not exist.",
-        "operationId": "lumiresApiFeaturesUsersGetUserProfileEndpoint",
+        "summary": "DeleteThread",
+        "description": "Deletes a specific thread.\n\nIf the thread was not found - returns 404 Not Found.\n\nIf some of the fields are not valid - returns 400 Bad Request.\n\nIf its not yours - 403 Forbidden\n\n### Notes\n\n- **Authorization Bearer** — Is required",
+        "operationId": "lumiresApiFeaturesThreadsDeleteThreadEndpoint",
         "parameters": [
           {
-            "name": "username",
+            "name": "threadId",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "guid"
+            },
+            "examples": {
+              "default": {
+                "value": "019ed025-37aa-78fd-8b66-22f331a5a004"
+              }
             }
           }
         ],
         "responses": {
-          "200": {
-            "description": "Users summary is successfully retrieved"
+          "204": {
+            "description": "Thread is successfully deleted"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
           }
-        }
-      }
-    },
-    "/users/{username}/favourite-films": {
-      "get": {
-        "tags": [
-          "Users"
-        ],
-        "summary": "GetUserFavouriteFilms",
-        "operationId": "lumiresApiFeaturesUsersGetUserFavouriteFilmsEndpoint",
-        "parameters": [
+        },
+        "security": [
           {
-            "name": "username",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
+            "JWTBearerAuth": []
+          },
+          {
+            "Bearer": []
           }
-        ],
-        "responses": {
-          "200": {
-            "description": "Favourite films are successfully retrieved"
-          }
-        }
-      }
-    },
-    "/users/trending": {
-      "get": {
-        "tags": [
-          "Users"
-        ],
-        "summary": "GetTrendingUsersByReviewComments",
-        "operationId": "lumiresApiFeaturesUsersGetTrendingUsersByReviewCommentsEndpoint",
-        "responses": {
-          "200": {
-            "description": "Users are successfully retrieved"
-          }
-        }
-      }
-    },
-    "/users/most-active": {
-      "get": {
-        "tags": [
-          "Users"
-        ],
-        "summary": "GetThisWeekMostActiveUsers",
-        "operationId": "lumiresApiFeaturesUsersGetThisWeekMostActiveUsersEndpoint",
-        "responses": {
-          "200": {
-            "description": "Users are successfully retrieved"
-          }
-        }
+        ]
       }
     },
     "/threads/{threadId}/replies/{replyId}/like": {
@@ -301,6 +470,22 @@
             }
           },
           {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "guid"
+            },
+            "examples": {
+              "default": {
+                "value": null
+              }
+            }
+          },
+          {
             "name": "page",
             "in": "query",
             "required": true,
@@ -348,7 +533,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Command2"
+                "$ref": "#/components/schemas/Command6"
               }
             }
           },
@@ -374,40 +559,6 @@
             "Bearer": []
           }
         ]
-      }
-    },
-    "/threads/{threadId}": {
-      "get": {
-        "tags": [
-          "Threads"
-        ],
-        "summary": "GetThread",
-        "description": "Get a thread.\n\nReturns the thread and replies to this thread.\n\nIf the thread was not found - returns 404 Not Found.\n",
-        "operationId": "lumiresApiFeaturesThreadsGetThreadEndpoint",
-        "parameters": [
-          {
-            "name": "threadId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "guid"
-            },
-            "examples": {
-              "default": {
-                "value": "7e432661-94e2-474d-b0de-ef2d83005791"
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Thread is successfully retrieved"
-          },
-          "404": {
-            "description": "Not Found"
-          }
-        }
       }
     },
     "/threads/trending/weekly": {
@@ -470,7 +621,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Command"
+                "$ref": "#/components/schemas/Command5"
               }
             }
           },
@@ -515,7 +666,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Command3"
+                "$ref": "#/components/schemas/Command7"
               }
             }
           },
@@ -557,7 +708,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Command4"
+                "$ref": "#/components/schemas/Command8"
               }
             }
           },
@@ -599,7 +750,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Command5"
+                "$ref": "#/components/schemas/Command9"
               }
             }
           },
@@ -641,7 +792,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Command6"
+                "$ref": "#/components/schemas/Command10"
               }
             }
           },
@@ -651,6 +802,77 @@
         "responses": {
           "204": {
             "description": "Favourite films are successfully updated"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          },
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/settings/account": {
+      "put": {
+        "tags": [
+          "Settings"
+        ],
+        "summary": "UpdateAccountSettings",
+        "description": "Updates account settings of self.\n\nCan return 403 if jwt is not corresponding with a current user\n\n### Notes\n\n- **Authorization Bearer** — Is required",
+        "operationId": "lumiresApiFeaturesSettingsUpdateAccountSettingsEndpoint",
+        "requestBody": {
+          "x-name": "Command",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Command11"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "204": {
+            "description": "account settings are successfully updated"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          },
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/settings": {
+      "get": {
+        "tags": [
+          "Settings"
+        ],
+        "summary": "GetUserSettings",
+        "description": "Get user settings\n\nReturns 404 if user is not found\n\nCan return 403 if jwt is not corresponding with a current user\n",
+        "operationId": "lumiresApiFeaturesSettingsGetUserSettingsEndpoint",
+        "responses": {
+          "204": {
+            "description": "Settings are retrieved"
           },
           "400": {
             "description": "Bad Request"
@@ -762,22 +984,21 @@
         }
       }
     },
-    "/films/{filmId}/reviews/{reviewId}/replies/{replyId}/like": {
-      "post": {
+    "/films/{filmId}/reviews/{reviewId}/replies/{replyId}": {
+      "put": {
         "tags": [
           "Reviews"
         ],
-        "summary": "LikeReviewComment",
-        "description": "Likes a review comment with a current user id.\n\nIf already liked - remove like.\n\nCan return 429 if too more than 4 request were made in a span of 2 seconds from a current user.\n\nReturns button state (is liked or not) and likes count\n\n### Notes\n\n- **Authorization Bearer** — Is required",
-        "operationId": "lumiresApiFeaturesReviewsLikeReviewCommentEndpoint",
+        "summary": "UpdateReviewComment",
+        "description": "Updates a comment for a specific review.\n\nReturns 204 No content.\n\nIf the review was not found - returns 404 Not Found.\n\nIf some of the fields are not valid - returns 400 Bad Request.\n\n### Notes\n\n- **Authorization Bearer** — Is required\n- **TargetedUserId** — Optional, used when replying to a specific comment",
+        "operationId": "lumiresApiFeaturesReviewsUpdateReviewCommentEndpoint",
         "parameters": [
           {
             "name": "filmId",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
@@ -785,7 +1006,13 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "guid"
+            },
+            "examples": {
+              "default": {
+                "value": "a3f1c9e2-7b4a-4c1f-9d2a-123456789abc"
+              }
             }
           },
           {
@@ -798,23 +1025,39 @@
             },
             "examples": {
               "default": {
-                "value": "a3f1c9e2-7b4a-4c1f-9d2a-123456789abc"
+                "value": "019ed025-37c4-7948-bb1b-94fa860721bc"
               }
             }
           }
         ],
+        "requestBody": {
+          "x-name": "Command",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Command12"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
         "responses": {
-          "200": {
-            "description": "Review is successfully liked"
+          "204": {
+            "description": "Comment is successfully review"
+          },
+          "400": {
+            "description": "Bad Request"
           },
           "401": {
             "description": "Unauthorized"
           },
+          "403": {
+            "description": "Forbidden"
+          },
           "404": {
             "description": "Not Found"
-          },
-          "429": {
-            "description": "Too Many Requests"
           }
         },
         "security": [
@@ -825,176 +1068,71 @@
             "Bearer": []
           }
         ]
-      }
-    },
-    "/films/{filmId}/reviews/{reviewId}/like": {
-      "post": {
-        "tags": [
-          "Reviews"
-        ],
-        "summary": "LikeReview",
-        "description": "Likes a review with a current user id.\n\nIf already liked - remove like.\n\nCan return 429 if too more than 4 request were made in a span of 2 seconds from a current user.\n\nReturns button state (is liked or not) and likes count\n\n### Notes\n\n- **Authorization Bearer** — Is required",
-        "operationId": "lumiresApiFeaturesReviewsLikeReviewEndpoint",
-        "parameters": [
-          {
-            "name": "filmId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "reviewId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "guid"
-            },
-            "examples": {
-              "default": {
-                "value": "a3f1c9e2-7b4a-4c1f-9d2a-123456789abc"
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Review is successfully liked"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "429": {
-            "description": "Too Many Requests"
-          }
-        },
-        "security": [
-          {
-            "JWTBearerAuth": []
-          },
-          {
-            "Bearer": []
-          }
-        ]
-      }
-    },
-    "/films/{filmId}/reviews/trending": {
-      "get": {
-        "tags": [
-          "Reviews"
-        ],
-        "summary": "GetTrendingReviewsByFilm",
-        "description": "Get trending reviews by a film\n\n### Notes\n\n- **Sending lang is optional**",
-        "operationId": "lumiresApiFeaturesReviewsGetTrendingReviewsByFilmEndpoint",
-        "parameters": [
-          {
-            "name": "filmId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Reviews are successfully retrieved"
-          }
-        }
-      }
-    },
-    "/reviews/trending/weekly": {
-      "get": {
-        "tags": [
-          "Reviews"
-        ],
-        "summary": "GetThisWeekTrendingReviews",
-        "description": "Get this week trending reviews\n\n### Notes\n\n- **Sending lang is optional**",
-        "operationId": "lumiresApiFeaturesReviewsGetThisWeekTrendingReviewsEndpoint",
-        "responses": {
-          "200": {
-            "description": "Reviews are successfully retrieved"
-          }
-        }
-      }
-    },
-    "/reviews/summary": {
-      "get": {
-        "tags": [
-          "Reviews"
-        ],
-        "summary": "GetReviewsSummary",
-        "description": "Returns key statistics for the Reviews section homepage.\n\nUsed to display:\n- \"X Reviews this week\"\n- \"X Reviews today\"\n\non the main banner \"Read The Reviews.\"",
-        "operationId": "lumiresApiFeaturesReviewsGetReviewsSummaryEndpoint",
-        "responses": {
-          "200": {
-            "description": "Reviews summary returned successfully.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response2"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Server Error"
-          }
-        }
-      }
-    },
-    "/reviews/preview": {
-      "get": {
-        "tags": [
-          "Reviews"
-        ],
-        "summary": "GetReviewsPreview",
-        "description": "Get reviews preview for a main page.",
-        "operationId": "lumiresApiFeaturesReviewsGetReviewsPreviewEndpoint",
-        "responses": {
-          "200": {
-            "description": "Reviews are successfully retrieved"
-          }
-        }
-      }
-    },
-    "/films/{filmId}/reviews/preview": {
-      "get": {
-        "tags": [
-          "Reviews"
-        ],
-        "summary": "GetReviewsByMoviePreview",
-        "description": "Get top 4 popular reviews for a specific movie with the most liked reply to each.\nIf movie doesnt exist - returns empty collection.\n",
-        "operationId": "lumiresApiFeaturesReviewsGetReviewsByFilmPreviewEndpoint",
-        "parameters": [
-          {
-            "name": "filmId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Reviews preview successfully retrieved"
-          },
-          "404": {
-            "description": "Not Found"
-          }
-        }
       }
     },
     "/films/{filmId}/reviews": {
+      "put": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "CreateReview",
+        "description": "Creates a review for a specific movie.\n\nReturns 204 No Content.\n\nIf the movie or review was not found - returns 404 Not Found.\n\nIf its not yours review - returns 403 Forbidden\n\nIf some of the fields are not valid - returns 400 Bad Request.\n\n### Notes\n\n- **Authorization Bearer** — Is required",
+        "operationId": "lumiresApiFeaturesReviewsUpdateReviewEndpoint",
+        "parameters": [
+          {
+            "name": "filmId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "examples": {
+              "default": {
+                "value": 550
+              }
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "Command",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Command13"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "204": {
+            "description": "Review is successfully updated"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          },
+          {
+            "Bearer": []
+          }
+        ]
+      },
       "get": {
         "tags": [
           "Reviews"
@@ -1149,7 +1287,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Command8"
+                "$ref": "#/components/schemas/Command17"
               }
             }
           },
@@ -1178,6 +1316,384 @@
             "Bearer": []
           }
         ]
+      }
+    },
+    "/films/{filmId}/reviews/{reviewId}/replies/{replyId}/like": {
+      "post": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "LikeReviewComment",
+        "description": "Likes a review comment with a current user id.\n\nIf already liked - remove like.\n\nCan return 429 if too more than 4 request were made in a span of 2 seconds from a current user.\n\nReturns button state (is liked or not) and likes count\n\n### Notes\n\n- **Authorization Bearer** — Is required",
+        "operationId": "lumiresApiFeaturesReviewsLikeReviewCommentEndpoint",
+        "parameters": [
+          {
+            "name": "filmId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "reviewId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "replyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "examples": {
+              "default": {
+                "value": "a3f1c9e2-7b4a-4c1f-9d2a-123456789abc"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Review is successfully liked"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "429": {
+            "description": "Too Many Requests"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          },
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/films/{filmId}/reviews/{reviewId}/like": {
+      "post": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "LikeReview",
+        "description": "Likes a review with a current user id.\n\nIf already liked - remove like.\n\nCan return 429 if too more than 4 request were made in a span of 2 seconds from a current user.\n\nReturns button state (is liked or not) and likes count\n\n### Notes\n\n- **Authorization Bearer** — Is required",
+        "operationId": "lumiresApiFeaturesReviewsLikeReviewEndpoint",
+        "parameters": [
+          {
+            "name": "filmId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "reviewId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "examples": {
+              "default": {
+                "value": "a3f1c9e2-7b4a-4c1f-9d2a-123456789abc"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Review is successfully liked"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "429": {
+            "description": "Too Many Requests"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          },
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/users/{username}/liked/reviews": {
+      "get": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "GetUserLikedReviews",
+        "description": "Get user liked reviews sorted & filtered & paginated.\n\nReturns the reviews DTO and pagination info.\n",
+        "operationId": "lumiresApiFeaturesReviewsGetUserLikedReviewsEndpoint",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "default": {
+                "value": null
+              }
+            }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/RatingEnum"
+                }
+              ]
+            },
+            "examples": {
+              "default": {
+                "value": "all"
+              }
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/ContentOrderEnum"
+                }
+              ]
+            },
+            "examples": {
+              "default": {
+                "value": "mostRecent"
+              }
+            }
+          },
+          {
+            "name": "tagIds",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string",
+                "format": "guid"
+              }
+            },
+            "examples": {
+              "default": {
+                "value": null
+              }
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "examples": {
+              "default": {
+                "value": 1
+              }
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "examples": {
+              "default": {
+                "value": 5
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reviews are successfully retrieved"
+          }
+        }
+      }
+    },
+    "/users/{username}/featured-review": {
+      "get": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "GetUserFeaturedReview",
+        "description": "Get user the most popular review.\n\nCan return 204 No Content if no review.\n\n### Notes\n\n- **Language header**",
+        "operationId": "lumiresApiFeaturesReviewsGetUserFeaturedReviewEndpoint",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "default": {
+                "value": "username"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Review is retrieved"
+          },
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/films/{filmId}/reviews/trending": {
+      "get": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "GetTrendingReviewsByFilm",
+        "description": "Get trending reviews by a film\n\n### Notes\n\n- **Sending lang is optional**",
+        "operationId": "lumiresApiFeaturesReviewsGetTrendingReviewsByFilmEndpoint",
+        "parameters": [
+          {
+            "name": "filmId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reviews are successfully retrieved"
+          }
+        }
+      }
+    },
+    "/reviews/trending/weekly": {
+      "get": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "GetThisWeekTrendingReviews",
+        "description": "Get this week trending reviews\n\n### Notes\n\n- **Sending lang is optional**",
+        "operationId": "lumiresApiFeaturesReviewsGetThisWeekTrendingReviewsEndpoint",
+        "responses": {
+          "200": {
+            "description": "Reviews are successfully retrieved"
+          }
+        }
+      }
+    },
+    "/reviews/summary": {
+      "get": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "GetReviewsSummary",
+        "description": "Returns key statistics for the Reviews section homepage.\n\nUsed to display:\n- \"X Reviews this week\"\n- \"X Reviews today\"\n\non the main banner \"Read The Reviews.\"",
+        "operationId": "lumiresApiFeaturesReviewsGetReviewsSummaryEndpoint",
+        "responses": {
+          "200": {
+            "description": "Reviews summary returned successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response2"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    },
+    "/reviews/preview": {
+      "get": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "GetReviewsPreview",
+        "description": "Get reviews preview for a main page.",
+        "operationId": "lumiresApiFeaturesReviewsGetReviewsPreviewEndpoint",
+        "responses": {
+          "200": {
+            "description": "Reviews are successfully retrieved"
+          }
+        }
+      }
+    },
+    "/films/{filmId}/reviews/preview": {
+      "get": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "GetReviewsByMoviePreview",
+        "description": "Get top 4 popular reviews for a specific movie with the most liked reply to each.\nIf movie doesnt exist - returns empty collection.\n",
+        "operationId": "lumiresApiFeaturesReviewsGetReviewsByFilmPreviewEndpoint",
+        "parameters": [
+          {
+            "name": "filmId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reviews preview successfully retrieved"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
       }
     },
     "/reviews": {
@@ -1249,6 +1765,22 @@
                 "null"
               ],
               "format": "int32"
+            },
+            "examples": {
+              "default": {
+                "value": null
+              }
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "guid"
             },
             "examples": {
               "default": {
@@ -1473,13 +2005,190 @@
         }
       }
     },
+    "/films/{filmId}/reviews/{reviewId}/replies/{replyId}/replies": {
+      "get": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "GetCommentReplies",
+        "description": "Get the nested replies of a review comment, paginated and ordered by creation date",
+        "operationId": "lumiresApiFeaturesReviewsGetCommentRepliesEndpoint",
+        "parameters": [
+          {
+            "name": "filmId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "reviewId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            }
+          },
+          {
+            "name": "replyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Comment replies are successfully retrieved"
+          }
+        }
+      }
+    },
+    "/reviews/{reviewId}/replies/{replyId}": {
+      "delete": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "DeleteReviewComment",
+        "description": "Deletes a specific review comment.\n\nIf the review or comment was not found - returns 404 Not Found.\n\nIf some of the fields are not valid - returns 400 Bad Request.\n\nIf its not yours - 403 Forbidden\n\n### Notes\n\n- **Authorization Bearer** — Is required",
+        "operationId": "lumiresApiFeaturesReviewsDeleteReviewCommentEndpoint",
+        "parameters": [
+          {
+            "name": "reviewId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "examples": {
+              "default": {
+                "value": "019ed025-37ea-7884-91ab-3a7b70ae67f8"
+              }
+            }
+          },
+          {
+            "name": "replyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "examples": {
+              "default": {
+                "value": "019ed025-37ea-7e3e-822d-3e1e9ab9c2d7"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Review comment is successfully deleted"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          },
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/reviews/{reviewId}": {
+      "delete": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "DeleteReview",
+        "description": "Deletes a specific review.\n\nIf the review was not found - returns 404 Not Found.\n\nIf some of the fields are not valid - returns 400 Bad Request.\n\nIf its not yours - 403 Forbidden\n\n### Notes\n\n- **Authorization Bearer** — Is required",
+        "operationId": "lumiresApiFeaturesReviewsDeleteReviewEndpoint",
+        "parameters": [
+          {
+            "name": "reviewId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "examples": {
+              "default": {
+                "value": "019ed025-37ea-7976-81b5-25bf31ed608e"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Review is successfully deleted"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          },
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
     "/films/{filmId}/reviews/{reviewId}/reply": {
       "post": {
         "tags": [
           "Reviews"
         ],
         "summary": "CreateReviewComment",
-        "description": "Creates a comment for a specific review.\n\nReturns the created comment DTO.\n\nIf the review was not found - returns 404 Not Found.\n\nIf some of the fields are not valid - returns 400 Bad Request.\n\n### Notes\n\n- **Authorization Bearer** — Is required\n- **TargetedUserId** — Optional, used when replying to a specific comment",
+        "description": "Creates a comment for a specific review.\n\nReturns the created comment DTO.\n\nIf the review was not found - returns 404 Not Found.\n\nIf some of the fields are not valid - returns 400 Bad Request.\n\n### Notes\n\n- **Authorization Bearer** — Is required\n- **TargetedUserId** — Optional, the user being @mentioned in the reply\n- **ParentCommentId** — Optional, set when replying to an existing comment (nested replies)",
         "operationId": "lumiresApiFeaturesReviewsCreateReviewCommentEndpoint",
         "parameters": [
           {
@@ -1511,7 +2220,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Command7"
+                "$ref": "#/components/schemas/Command16"
               }
             }
           },
@@ -1561,7 +2270,7 @@
             },
             "examples": {
               "default": {
-                "value": "019eacf5-c09c-7847-ba32-453657f45665"
+                "value": "019ed025-37f4-782d-9a35-0dc3ed28e23a"
               }
             }
           }
@@ -1615,7 +2324,7 @@
             },
             "examples": {
               "default": {
-                "value": "019eacf5-c09c-7482-b478-365dd927f9cf"
+                "value": "019ed025-37f5-7969-ac7a-e83e826d80f6"
               }
             }
           }
@@ -1669,7 +2378,7 @@
             },
             "examples": {
               "default": {
-                "value": "019eacf5-c09d-7d2b-9fdb-3373808c57c1"
+                "value": "019ed025-3802-7baa-8677-794985ce7dda"
               }
             }
           }
@@ -1729,7 +2438,7 @@
             },
             "examples": {
               "default": {
-                "value": "019eacf5-c09d-7e29-8185-040dae6c7a94"
+                "value": "019ed025-3802-7b07-8af2-46504569e174"
               }
             }
           }
@@ -1796,9 +2505,8 @@
                     "value": {
                       "genres": [
                         {
-                          "id": "019eacf5-c09d-75ae-a2c7-aa4834263d77",
-                          "name": "Action",
-                          "languageCode": "en-UK"
+                          "id": 15,
+                          "name": "Action"
                         }
                       ]
                     }
@@ -1834,9 +2542,8 @@
                     "value": {
                       "genres": [
                         {
-                          "id": "019eacf5-c09e-795f-be4c-7f738b656076",
-                          "name": "Action",
-                          "languageCode": "en-UK"
+                          "id": 15,
+                          "name": "Action"
                         }
                       ]
                     }
@@ -1849,6 +2556,119 @@
             "description": "Server Error"
           }
         }
+      }
+    },
+    "/lists/{listId}": {
+      "put": {
+        "tags": [
+          "Lists"
+        ],
+        "summary": "UpdateFilmsList",
+        "description": "Updates a films list for the authenticated user.\n\nOptionally accepts a list of movie IDs to add to the collection on creation.\n\n### Body\n\n- **Title** — Collection title\n- **Description** — Optional description\n- **IsPrivate** — Whether the collection is private\n- **MovieIds** — Optional list of TMDB movie IDs to add",
+        "operationId": "lumiresApiFeaturesFilmsListsUpdateFilmsListEndpoint",
+        "parameters": [
+          {
+            "name": "listId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "examples": {
+              "default": {
+                "value": "019ed025-3816-77a9-adc7-f8322f7c9496"
+              }
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "Command",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Command22"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "204": {
+            "description": "List is updated"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          },
+          {
+            "Bearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Lists"
+        ],
+        "summary": "DeleteFilmsList",
+        "description": "Deletes a specific list.\n\nIf the list was not found - returns 404 Not Found.\n\nIf some of the fields are not valid - returns 400 Bad Request.\n\nIf its not yours - 403 Forbidden\n\n### Notes\n\n- **Authorization Bearer** — Is required",
+        "operationId": "lumiresApiFeaturesFilmsListsDeleteFilmsListEndpoint",
+        "parameters": [
+          {
+            "name": "listId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "examples": {
+              "default": {
+                "value": "019ed025-3833-77bf-bf78-40e93fd160af"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "List is successfully deleted"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          },
+          {
+            "Bearer": []
+          }
+        ]
       }
     },
     "/lists/{listId}/save": {
@@ -1870,7 +2690,7 @@
             },
             "examples": {
               "default": {
-                "value": "019eacf5-c09e-7aeb-b974-337fb4fcdee5"
+                "value": "019ed025-3816-7e9b-b814-2e820f2608ac"
               }
             }
           }
@@ -1887,6 +2707,114 @@
           },
           "404": {
             "description": "Not Found"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          },
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/lists/{listId}/films/{filmId}": {
+      "delete": {
+        "tags": [
+          "Lists"
+        ],
+        "summary": "RemoveFilmFromFilmList",
+        "description": "Removes a film to a film list for the authenticated user.\n",
+        "operationId": "lumiresApiFeaturesFilmsListsRemoveFilmFromFilmListEndpoint",
+        "parameters": [
+          {
+            "name": "listId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            }
+          },
+          {
+            "name": "filmId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          },
+          {
+            "Bearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Lists"
+        ],
+        "summary": "AddFilmToFilmList",
+        "description": "Adds a new film to a film list for the authenticated user.\n",
+        "operationId": "lumiresApiFeaturesFilmsListsAddFilmToFilmListEndpoint",
+        "parameters": [
+          {
+            "name": "listId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            }
+          },
+          {
+            "name": "filmId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Server Error"
           }
         },
         "security": [
@@ -1918,7 +2846,7 @@
             },
             "examples": {
               "default": {
-                "value": "019eacf5-c09f-7be7-a70a-cb622e16ff56"
+                "value": "019ed025-3816-7ce1-a2fe-8d20f87efdc2"
               }
             }
           }
@@ -1947,6 +2875,106 @@
         ]
       }
     },
+    "/users/{username}/popular-lists": {
+      "get": {
+        "tags": [
+          "Lists"
+        ],
+        "summary": "GetUserPopularLists",
+        "description": "Get user most popular lists .\n",
+        "operationId": "lumiresApiFeaturesFilmsListsGetUserPopularListsEndpoint",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Collection retrieved successfully."
+          }
+        }
+      }
+    },
+    "/users/{username}/liked/lists": {
+      "get": {
+        "tags": [
+          "Lists"
+        ],
+        "summary": "GetUserLikedFilmsLists",
+        "description": "Get user liked lists sorted.\n\nReturns the reviews DTO and pagination info.\n",
+        "operationId": "lumiresApiFeaturesFilmsListsGetUserLikedFilmsListsEndpoint",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "default": {
+                "value": null
+              }
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/ListContentOrderEnum"
+                }
+              ]
+            },
+            "examples": {
+              "default": {
+                "value": "mostRecent"
+              }
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "examples": {
+              "default": {
+                "value": 1
+              }
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "examples": {
+              "default": {
+                "value": 5
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Collection retrieved successfully."
+          }
+        }
+      }
+    },
     "/lists/trending/weekly": {
       "get": {
         "tags": [
@@ -1968,9 +2996,9 @@
                     "value": {
                       "items": [
                         {
-                          "id": "019eacf5-c0a0-74b2-bf0e-67a81646c8eb",
+                          "id": "019ed025-381a-7951-bcab-a503d71c9a89",
                           "title": "Some title",
-                          "userId": "019eacf5-c0a0-7798-b08b-20b1ece798c5",
+                          "userId": "019ed025-381a-77e5-88ae-ed596c6cb68d",
                           "username": "username",
                           "filmCount": 25,
                           "isLikedByMe": true,
@@ -1994,6 +3022,48 @@
         }
       }
     },
+    "/films/{filmId}/lists/mine": {
+      "get": {
+        "tags": [
+          "Lists"
+        ],
+        "operationId": "lumiresApiFeaturesFilmsListsGetMyListsForFilmEndpoint",
+        "parameters": [
+          {
+            "name": "filmId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response6"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          },
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
     "/lists/summary": {
       "get": {
         "tags": [
@@ -2008,7 +3078,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response6"
+                  "$ref": "#/components/schemas/Response7"
                 }
               }
             }
@@ -2049,14 +3119,14 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response7"
+                  "$ref": "#/components/schemas/Response8"
                 },
                 "examples": {
                   "default": {
                     "value": {
                       "filmsLists": [
                         {
-                          "id": "019eacf5-c0a1-7cf4-a677-483a39b014dc",
+                          "id": "019ed025-381b-7d22-b43e-91e00dbbe33d",
                           "isLikedByMe": true,
                           "isSavedByMe": false,
                           "films": [
@@ -2067,6 +3137,7 @@
                               "backdropPath": "some-other-backdrop"
                             }
                           ],
+                          "filmCount": 10,
                           "name": "My favourite movies"
                         }
                       ]
@@ -2112,7 +3183,7 @@
               "nullable": true,
               "allOf": [
                 {
-                  "$ref": "#/components/schemas/ListContentOrderEnum"
+                  "$ref": "#/components/schemas/ListContentOrderEnum2"
                 }
               ]
             },
@@ -2131,6 +3202,37 @@
                 "null"
               ],
               "format": "int32"
+            },
+            "examples": {
+              "default": {
+                "value": null
+              }
+            }
+          },
+          {
+            "name": "containsFilm",
+            "in": "query",
+            "schema": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "examples": {
+              "default": {
+                "value": null
+              }
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "guid"
             },
             "examples": {
               "default": {
@@ -2186,7 +3288,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Command15"
+                "$ref": "#/components/schemas/Command27"
               }
             }
           },
@@ -2199,14 +3301,14 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response9"
+                  "$ref": "#/components/schemas/Response10"
                 },
                 "examples": {
                   "default": {
                     "value": {
-                      "filmsListId": "756cafe7-3cc5-4b77-bcbb-d96d101ffb04",
+                      "filmsListId": "ba6d6e53-525c-4fdc-9672-36cfa21c5fb1",
                       "title": "My Favourite Movies",
-                      "createdAt": "2026-06-09T15:17:27.3343321+00:00"
+                      "createdAt": "2026-06-16T11:16:00.6974917+00:00"
                     }
                   }
                 }
@@ -2249,11 +3351,24 @@
             "schema": {
               "type": "string",
               "format": "guid"
-            },
-            "examples": {
-              "default": {
-                "value": "9aa2b2eb-4e26-49ea-b23a-a8edc346cb24"
-              }
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
             }
           }
         ],
@@ -2284,16 +3399,16 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response8"
+                  "$ref": "#/components/schemas/Response9"
                 },
                 "examples": {
                   "default": {
                     "value": {
                       "items": [
                         {
-                          "id": "019eacf5-c0a4-7631-a65f-b0faf0b777b8",
+                          "id": "019ed025-382d-79de-9633-20c7e4d6d47a",
                           "title": "My favourite movies",
-                          "userId": "019eacf5-c0a4-790f-98b0-8e9f653c8c4a",
+                          "userId": "019ed025-382d-7d5a-a1b1-9b26eed1afcb",
                           "username": "username",
                           "filmCount": 2,
                           "isLikedByMe": true,
@@ -2336,7 +3451,7 @@
             },
             "examples": {
               "default": {
-                "value": "019eacf5-c0a5-7619-b327-c8d1a9979534"
+                "value": "019ed025-382d-70af-aefa-9ed33c76aa79"
               }
             }
           }
@@ -2365,13 +3480,393 @@
         ]
       }
     },
+    "/user/{username}/watchlist/films": {
+      "get": {
+        "tags": [
+          "Watchlist"
+        ],
+        "summary": "GetUserWatchlist",
+        "description": "Get a user's watchlist films sorted, filtered & paginated.\n\nYou can pass or not filters and sorting options.\n\nAlso you can pass them in any casing (lowercased or uppercased)\n\nIf the watchlist is private and the requester is not the owner - returns 403 Forbidden.\n\nIf the user was not found - returns 404 Not Found.",
+        "operationId": "lumiresApiFeaturesUsersGetUserWatchlistEndpoint",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "default": {
+                "value": null
+              }
+            }
+          },
+          {
+            "name": "rating",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/RatingEnum"
+                }
+              ]
+            },
+            "examples": {
+              "default": {
+                "value": "all"
+              }
+            }
+          },
+          {
+            "name": "genres",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "examples": {
+              "default": {
+                "value": [
+                  "action,thriller"
+                ]
+              }
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/FilmContentOrder"
+                }
+              ]
+            },
+            "examples": {
+              "default": {
+                "value": "leastRated"
+              }
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "examples": {
+              "default": {
+                "value": 1
+              }
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "examples": {
+              "default": {
+                "value": 5
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Watchlist films are successfully retrieved"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/users/summary": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "GetUsersSummary",
+        "description": "Gives total members in the system and recently online ones.",
+        "operationId": "lumiresApiFeaturesUsersGetUsersSummaryEndpoint",
+        "responses": {
+          "200": {
+            "description": "Users summary is successfully retrieved"
+          }
+        }
+      }
+    },
+    "/users/{username}/summary": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "GetUserProfileSummary",
+        "description": "Gives user`s summary from his profile.\"\"\";\n\nReturns 404 Not Found if user`s does not exist.",
+        "operationId": "lumiresApiFeaturesUsersGetUserProfileSummaryEndpoint",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Users summary is successfully retrieved"
+          }
+        }
+      }
+    },
+    "/users/{username}/stats": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "GetUserProfileStat",
+        "description": "Gives user`s short statistics from his profile\"\"\";\n\nReturns 404 Not Found if user`s does not exist.",
+        "operationId": "lumiresApiFeaturesUsersGetUserProfileStatEndpoint",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Users stat is successfully retrieved"
+          }
+        }
+      }
+    },
+    "/users/{username}": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "GetUsersProfile",
+        "description": "Gives user`s details from his profile. Determines if this profile is yourself.\"\"\";\n\nReturns 404 Not Found if user`s does not exist.",
+        "operationId": "lumiresApiFeaturesUsersGetUserProfileEndpoint",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Users summary is successfully retrieved"
+          }
+        }
+      }
+    },
+    "/users/{username}/notifications": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "GetUserNotifications",
+        "description": "Gives user`s notifications\"\"\";\n\nReturns 404 Not Found if user`s does not exist.",
+        "operationId": "lumiresApiFeaturesUsersGetUserNotificationsEndpoint",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User`s notifications are successfully retrieved"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/users/trending": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "GetTrendingUsersByReviewComments",
+        "operationId": "lumiresApiFeaturesUsersGetTrendingUsersByReviewCommentsEndpoint",
+        "responses": {
+          "200": {
+            "description": "Users are successfully retrieved"
+          }
+        }
+      }
+    },
+    "/users/most-active": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "GetThisWeekMostActiveUsers",
+        "operationId": "lumiresApiFeaturesUsersGetThisWeekMostActiveUsersEndpoint",
+        "responses": {
+          "200": {
+            "description": "Users are successfully retrieved"
+          }
+        }
+      }
+    },
+    "/user/{username}/liked/films": {
+      "get": {
+        "tags": [
+          "Films"
+        ],
+        "summary": "GetUserProfileLikedFilms",
+        "description": "Get films sorted, filtered & paginated.\n\nYou can pass or not filters and sorting options.\n\nAlso you can pass them in any casing (lowercased or uppercased)\n\n",
+        "operationId": "lumiresApiFeaturesUsersGetUserLikedFilmsEndpoint",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "default": {
+                "value": null
+              }
+            }
+          },
+          {
+            "name": "rating",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/RatingEnum"
+                }
+              ]
+            },
+            "examples": {
+              "default": {
+                "value": "all"
+              }
+            }
+          },
+          {
+            "name": "genres",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "examples": {
+              "default": {
+                "value": [
+                  "action,thriller"
+                ]
+              }
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/FilmContentOrder2"
+                }
+              ]
+            },
+            "examples": {
+              "default": {
+                "value": "leastRated"
+              }
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "examples": {
+              "default": {
+                "value": 1
+              }
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "examples": {
+              "default": {
+                "value": 5
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Films are successfully retrieved"
+          }
+        }
+      }
+    },
     "/films/{filmId}/watch": {
       "post": {
         "tags": [
           "Films"
         ],
         "summary": "WatchFilm",
-        "description": "Marks a specific movie as a watched only once.\n\nIf the film was not found - returns 404 Not Found.\n\nIf some of the fields are not valid - returns 400 Bad Request.\n\nIf already watched - 204 No Content\n\n### Notes\n\n- **Authorization Bearer** — Is required",
+        "description": "Toggles the watched state of a specific movie for the current user.\n\nIf the film was not marked as watched, it is marked as watched and the response is `{ \"isWatched\": true }`.\n\nIf the film was already marked as watched, the mark is removed and the response is `{ \"isWatched\": false }`.\n\nIf the film was not found - returns 404 Not Found.\n\nIf some of the fields are not valid - returns 400 Bad Request.\n\n### Notes\n\n- **Authorization Bearer** — Is required",
         "operationId": "lumiresApiFeaturesFilmsWatchFilmEndpoint",
         "parameters": [
           {
@@ -2390,8 +3885,15 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": "Film is successfully marked as watched"
+          "200": {
+            "description": "Watched state toggled successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response11"
+                }
+              }
+            }
           },
           "400": {
             "description": "Bad Request"
@@ -2539,7 +4041,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Command19"
+                "$ref": "#/components/schemas/Command32"
               }
             }
           },
@@ -2584,12 +4086,12 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "guid"
+              "type": "integer",
+              "format": "int32"
             },
             "examples": {
               "default": {
-                "value": "019eacf5-c0c7-77f5-826c-bf9931ff0544"
+                "value": 550
               }
             }
           }
@@ -2616,6 +4118,144 @@
             "Bearer": []
           }
         ]
+      }
+    },
+    "/users/{username}/watchlist": {
+      "get": {
+        "tags": [
+          "Films"
+        ],
+        "summary": "GetUserWatchlist",
+        "description": "Get watchlist sorted, filtered & paginated.\n\nYou can pass or not filters and sorting options.\n\nAlso you can pass them in any casing (lowercased or uppercased)\n",
+        "operationId": "lumiresApiFeaturesFilmsGetUserWatchlistEndpoint",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "default": {
+                "value": null
+              }
+            }
+          },
+          {
+            "name": "rating",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/RatingEnum"
+                }
+              ]
+            },
+            "examples": {
+              "default": {
+                "value": "all"
+              }
+            }
+          },
+          {
+            "name": "genres",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "examples": {
+              "default": {
+                "value": [
+                  "action,thriller"
+                ]
+              }
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/FilmContentOrder3"
+                }
+              ]
+            },
+            "examples": {
+              "default": {
+                "value": "leastRated"
+              }
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "examples": {
+              "default": {
+                "value": 1
+              }
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "examples": {
+              "default": {
+                "value": 5
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Films are successfully retrieved"
+          }
+        }
+      }
+    },
+    "/users/{username}/favourite-films": {
+      "get": {
+        "tags": [
+          "Films"
+        ],
+        "summary": "GetUserFavouriteFilms",
+        "operationId": "lumiresApiFeaturesFilmsGetUserFavouriteFilmsEndpoint",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Favourite films are successfully retrieved"
+          }
+        }
       }
     },
     "/films/trending": {
@@ -2646,7 +4286,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response10"
+                  "$ref": "#/components/schemas/Response12"
                 },
                 "examples": {
                   "default": {
@@ -2697,7 +4337,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response11"
+                  "$ref": "#/components/schemas/Response13"
                 },
                 "examples": {
                   "default": {
@@ -2748,7 +4388,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response12"
+                  "$ref": "#/components/schemas/Response14"
                 },
                 "examples": {
                   "default": {
@@ -2756,7 +4396,7 @@
                       "items": [
                         {
                           "filmId": 550,
-                          "id": "019eacf5-c0cb-7978-9355-e9d30c8367dc",
+                          "id": "019ed025-384b-72dc-8737-646d575cd73f",
                           "title": "Fight Club",
                           "quote": "Loved this so much",
                           "slug": "fight-club-1999",
@@ -2767,7 +4407,7 @@
                         },
                         {
                           "filmId": 550,
-                          "id": "019eacf5-c0cc-79f7-8d43-5e8c8d44ac30",
+                          "id": "019ed025-3854-77f2-89f6-092f80b3f5f4",
                           "title": "The Godfather",
                           "quote": "Loved this even more",
                           "slug": "the-godfather-1972",
@@ -3007,7 +4647,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response13"
+                  "$ref": "#/components/schemas/Response15"
                 }
               }
             }
@@ -3048,7 +4688,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response14"
+                  "$ref": "#/components/schemas/Response16"
                 },
                 "examples": {
                   "default": {
@@ -3158,7 +4798,7 @@
               "nullable": true,
               "allOf": [
                 {
-                  "$ref": "#/components/schemas/FilmContentOrder"
+                  "$ref": "#/components/schemas/FilmContentOrder4"
                 }
               ]
             },
@@ -3241,7 +4881,7 @@
           "Films"
         ],
         "summary": "GetFilm",
-        "description": "Returns film model with localized details.\n\nIf the film isn't in the local database, it fetches it from TMDB and triggers an import with all its localized versions.\n\n### Route parameters\n\n- **Id** — TMDB film identifier\n\n### Headers\n\n- **Accept-Language** — Preferred language (e.g., `uk-UA`, `en-US`)",
+        "description": "Returns film model with localized details.\n\nIf the film isn't in the local database, it fetches it from TMDB and triggers an import with all its localized versions.\n\n### Route parameters\n\n- **Id** — TMDB film identifier\n\n### Headers\n\n- **Accept-Language** — Preferred language (e.g., `uk-UA`, `en-US`)\n- **Authorization Bearer** — Optional. When supplied, `isLikedByMe`, `isWatchedByMe` and `myRating` reflect the current user's state; otherwise `isLikedByMe`/`isWatchedByMe` are `false` and `myRating` is `null`. `myRating` is also `null` when the authenticated user hasn't rated the film.",
         "operationId": "lumiresApiFeaturesFilmsGetFilmEndpoint",
         "parameters": [
           {
@@ -3442,6 +5082,100 @@
         ]
       }
     },
+    "/films/{filmId}/watchlist": {
+      "delete": {
+        "tags": [
+          "Watchlist"
+        ],
+        "summary": "DeleteFromWatchlist",
+        "description": "Removes a specific film from the current user's watchlist.\n\nIf the film was not found - returns 404 Not Found.\n\nIf some of the fields are not valid - returns 400 Bad Request.\n\n### Notes\n\n- **Authorization Bearer** — Is required",
+        "operationId": "lumiresApiFeaturesFilmsDeleteFromWatchlistEndpoint",
+        "parameters": [
+          {
+            "name": "filmId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "examples": {
+              "default": {
+                "value": 550
+              }
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Film is successfully removed from the watchlist"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          },
+          {
+            "Bearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Watchlist"
+        ],
+        "summary": "AddFilmToWatchlist",
+        "description": "Adds a specific film to the current user's watchlist only once.\n\nIf the film was not found - returns 404 Not Found.\n\nIf some of the fields are not valid - returns 400 Bad Request.\n\nIf already in the watchlist - 204 No Content\n\n### Notes\n\n- **Authorization Bearer** — Is required",
+        "operationId": "lumiresApiFeaturesFilmsAddFilmToWatchlistEndpoint",
+        "parameters": [
+          {
+            "name": "filmId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "examples": {
+              "default": {
+                "value": 550
+              }
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Film is successfully added to the watchlist"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          },
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
     "/directors/{id}/similar": {
       "get": {
         "tags": [
@@ -3472,7 +5206,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response15"
+                  "$ref": "#/components/schemas/Response17"
                 }
               }
             }
@@ -3510,10 +5244,54 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response16"
+                  "$ref": "#/components/schemas/Response18"
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/directors/{id}/stats": {
+      "get": {
+        "tags": [
+          "People"
+        ],
+        "summary": "GetDirectorStats",
+        "description": "Returns aggregate stats for a director sourced from TMDB:\n\n- **FilmsCount** — number of films credited as director\n- **AverageRating** — mean rating (0–5 scale) across the director's\n  films that have at least one vote, rounded to 1 decimal\n- **Awards** — total **Nominations** and **Wins**\n\n### Awards source\n\nTMDB exposes no awards API, so award counts are scraped from the public\nTMDB website awards page. This is best-effort: if the page is unavailable,\n`Awards` is returned as `null` while film stats are still returned.\n\n### Route parameters\n\n- **Id** — TMDB person identifier\n\n### Headers\n\n- **Accept-Language** — Preferred language culture (e.g., `uk-UA`, `en-US`)",
+        "operationId": "lumiresApiFeaturesFilmPeopleGetDirectorStatsEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "examples": {
+              "default": {
+                "value": 108
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Director stats retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response19"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Director not found."
+          },
+          "500": {
+            "description": "Internal server error."
           }
         }
       }
@@ -3548,13 +5326,57 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response17"
+                  "$ref": "#/components/schemas/Response20"
                 }
               }
             }
           },
           "404": {
             "description": "Director not found."
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      }
+    },
+    "/actors/{id}/stats": {
+      "get": {
+        "tags": [
+          "People"
+        ],
+        "summary": "GetActorStats",
+        "description": "Returns aggregate stats for an actor sourced from TMDB:\n\n- **FilmsCount** — number of films credited as cast\n- **AverageRating** — mean rating (0–5 scale) across the actor's\n  films that have at least one vote, rounded to 1 decimal\n- **Awards** — total **Nominations** and **Wins**\n\n### Awards source\n\nTMDB exposes no awards API, so award counts are scraped from the public\nTMDB website awards page. This is best-effort: if the page is unavailable,\n`Awards` is returned as `null` while film stats are still returned.\n\n### Route parameters\n\n- **Id** — TMDB person identifier\n\n### Headers\n\n- **Accept-Language** — Preferred language culture (e.g., `uk-UA`, `en-US`)",
+        "operationId": "lumiresApiFeaturesFilmPeopleGetActorStatsEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "examples": {
+              "default": {
+                "value": 287
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Actor stats retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response21"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Actor not found."
           },
           "500": {
             "description": "Internal server error."
@@ -3592,7 +5414,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response18"
+                  "$ref": "#/components/schemas/Response22"
                 }
               }
             }
@@ -3620,7 +5442,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response19"
+                  "$ref": "#/components/schemas/Response23"
                 },
                 "examples": {
                   "default": {
@@ -3666,7 +5488,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Command22"
+                "$ref": "#/components/schemas/Command37"
               }
             }
           },
@@ -3700,80 +5522,6 @@
   },
   "components": {
     "schemas": {
-      "Query": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "Query2": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "Query3": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "Query4": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "Query5": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "Response": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "threadsThisWeek": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "threadsThisDay": {
-            "type": "integer",
-            "format": "int64"
-          }
-        }
-      },
-      "Query6": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "ContentFilterEnum": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "All",
-          "LongForm",
-          "FromFriends",
-          "SpoilerFree"
-        ],
-        "enum": [
-          "all",
-          "longForm",
-          "fromFriends",
-          "spoilerFree"
-        ]
-      },
-      "ContentOrderEnum": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "MostRecent",
-          "MostLiked",
-          "MostReplies",
-          "HighestRated"
-        ],
-        "enum": [
-          "mostRecent",
-          "mostLiked",
-          "mostReplies",
-          "highestRated"
-        ]
-      },
-      "Query7": {
-        "type": "object",
-        "additionalProperties": false
-      },
       "Command": {
         "type": "object",
         "additionalProperties": false,
@@ -3865,7 +5613,168 @@
           }
         ]
       },
+      "Query": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Query2": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Response": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "threadsThisWeek": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "threadsThisDay": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "Query3": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "ContentFilterEnum": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "All",
+          "LongForm",
+          "FromFriends",
+          "SpoilerFree"
+        ],
+        "enum": [
+          "all",
+          "longForm",
+          "fromFriends",
+          "spoilerFree"
+        ]
+      },
+      "ContentOrderEnum": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "MostRecent",
+          "MostLiked",
+          "MostReplies",
+          "HighestRated"
+        ],
+        "enum": [
+          "mostRecent",
+          "mostLiked",
+          "mostReplies",
+          "highestRated"
+        ]
+      },
+      "Query4": {
+        "type": "object",
+        "additionalProperties": false
+      },
       "Command3": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Command4": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Command5": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 5,
+            "nullable": false,
+            "examples": [
+              "Totally agree with your take on the third act."
+            ]
+          },
+          "targetedUserId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "guid",
+            "examples": [
+              null
+            ]
+          },
+          "isSpoilerFree": {
+            "type": "boolean",
+            "examples": [
+              true
+            ]
+          }
+        },
+        "examples": [
+          {
+            "text": "Totally agree with your take on the third act.",
+            "targetedUserId": null,
+            "isSpoilerFree": true
+          }
+        ]
+      },
+      "Command6": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "title": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 255,
+            "minLength": 5,
+            "examples": [
+              "My thoughts on Inception"
+            ]
+          },
+          "image": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 500,
+            "minLength": 0,
+            "examples": [
+              "some-image"
+            ]
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 0,
+            "examples": [
+              "A mind-bending masterpiece that challenges the boundaries of reality."
+            ]
+          },
+          "isSpoilerFree": {
+            "type": "boolean",
+            "examples": [
+              true
+            ]
+          }
+        },
+        "examples": [
+          {
+            "title": "My thoughts on Inception",
+            "image": "some-image",
+            "text": "A mind-bending masterpiece that challenges the boundaries of reality.",
+            "isSpoilerFree": true
+          }
+        ]
+      },
+      "Command7": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -3947,7 +5856,7 @@
           "other"
         ]
       },
-      "Command4": {
+      "Command8": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -3982,7 +5891,7 @@
           "onlyMe"
         ]
       },
-      "Command5": {
+      "Command9": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -4006,7 +5915,7 @@
           }
         }
       },
-      "Command6": {
+      "Command10": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -4074,7 +5983,19 @@
           }
         }
       },
-      "Query8": {
+      "Command11": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "Query5": {
         "type": "object",
         "additionalProperties": false
       },
@@ -4098,111 +6019,7 @@
           "members"
         ]
       },
-      "Query9": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "Query10": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "Query11": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "Response2": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "reviewsThisWeek": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "reviewsThisDay": {
-            "type": "integer",
-            "format": "int64"
-          }
-        }
-      },
-      "Query12": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "Query13": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "RatingEnum": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "All",
-          "MoreThanFourHalf",
-          "FourStars",
-          "ThreeStars",
-          "UnderThree"
-        ],
-        "enum": [
-          "all",
-          "moreThanFourHalf",
-          "fourStars",
-          "threeStars",
-          "underThree"
-        ]
-      },
-      "ContentFilterEnum2": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "All",
-          "LongForm",
-          "SpoilerFree",
-          "FromFriends"
-        ],
-        "enum": [
-          "all",
-          "longForm",
-          "spoilerFree",
-          "fromFriends"
-        ]
-      },
-      "Query14": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "ContentFilterEnum3": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "All",
-          "FromFriends",
-          "LongForm",
-          "SpoilerFree"
-        ],
-        "enum": [
-          "all",
-          "fromFriends",
-          "longForm",
-          "spoilerFree"
-        ]
-      },
-      "Query15": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "Query16": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "Query17": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "Query18": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "Command7": {
+      "Command12": {
         "type": "object",
         "additionalProperties": false,
         "required": [
@@ -4243,7 +6060,240 @@
           }
         ]
       },
-      "Command8": {
+      "Command13": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "reviewId": {
+            "type": "string",
+            "format": "guid",
+            "examples": [
+              "019ed025-37c4-7e78-b311-174027fee4b8"
+            ]
+          },
+          "title": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 255,
+            "minLength": 5,
+            "examples": [
+              "My thoughts on Inception"
+            ]
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 0,
+            "examples": [
+              "A mind-bending masterpiece that challenges the boundaries of reality."
+            ]
+          },
+          "rating": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "float",
+            "examples": [
+              5
+            ]
+          },
+          "isSpoilerFree": {
+            "type": "boolean",
+            "examples": [
+              true
+            ]
+          }
+        },
+        "examples": [
+          {
+            "reviewId": "019ed025-37c4-7e78-b311-174027fee4b8",
+            "title": "My thoughts on Inception",
+            "text": "A mind-bending masterpiece that challenges the boundaries of reality.",
+            "rating": 5,
+            "isSpoilerFree": true
+          }
+        ]
+      },
+      "Query6": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Query7": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Query8": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "RatingEnum": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "All",
+          "MoreThanFourHalf",
+          "FourStars",
+          "ThreeStars",
+          "UnderThree"
+        ],
+        "enum": [
+          "all",
+          "moreThanFourHalf",
+          "fourStars",
+          "threeStars",
+          "underThree"
+        ]
+      },
+      "Query9": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Query10": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Response2": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "reviewsThisWeek": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "reviewsThisDay": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "Query11": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Query12": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "ContentFilterEnum2": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "All",
+          "LongForm",
+          "SpoilerFree",
+          "FromFriends"
+        ],
+        "enum": [
+          "all",
+          "longForm",
+          "spoilerFree",
+          "fromFriends"
+        ]
+      },
+      "Query13": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "ContentFilterEnum3": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "All",
+          "FromFriends",
+          "LongForm",
+          "SpoilerFree"
+        ],
+        "enum": [
+          "all",
+          "fromFriends",
+          "longForm",
+          "spoilerFree"
+        ]
+      },
+      "Query14": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Query15": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Query16": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Query17": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Query18": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Command14": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Command15": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Command16": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 5,
+            "nullable": false,
+            "examples": [
+              "Totally agree with your take on the third act."
+            ]
+          },
+          "targetedUserId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "guid",
+            "examples": [
+              null
+            ]
+          },
+          "parentCommentId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "guid",
+            "examples": [
+              null
+            ]
+          },
+          "isSpoilerFree": {
+            "type": "boolean",
+            "examples": [
+              true
+            ]
+          }
+        },
+        "examples": [
+          {
+            "text": "Totally agree with your take on the third act.",
+            "targetedUserId": null,
+            "parentCommentId": null,
+            "isSpoilerFree": true
+          }
+        ]
+      },
+      "Command17": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -4292,19 +6342,19 @@
           }
         ]
       },
-      "Command9": {
+      "Command18": {
         "type": "object",
         "additionalProperties": false
       },
-      "Command10": {
+      "Command19": {
         "type": "object",
         "additionalProperties": false
       },
-      "Command11": {
+      "Command20": {
         "type": "object",
         "additionalProperties": false
       },
-      "Command12": {
+      "Command21": {
         "type": "object",
         "additionalProperties": false
       },
@@ -4325,13 +6375,10 @@
         "additionalProperties": false,
         "properties": {
           "id": {
-            "type": "string",
-            "format": "guid"
+            "type": "integer",
+            "format": "int32"
           },
           "name": {
-            "type": "string"
-          },
-          "languageCode": {
             "type": "string"
           }
         }
@@ -4347,34 +6394,100 @@
           "genres": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/GenreItem2"
+              "$ref": "#/components/schemas/GenreItem"
             }
           }
         }
       },
-      "GenreItem2": {
+      "Command22": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "title",
+          "filmIds"
+        ],
         "properties": {
-          "id": {
+          "title": {
             "type": "string",
-            "format": "guid"
+            "maxLength": 255,
+            "minLength": 5,
+            "nullable": false,
+            "examples": [
+              "My Favourite Movies"
+            ]
           },
-          "name": {
-            "type": "string"
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 2000,
+            "minLength": 0,
+            "examples": [
+              "A list of movies I love."
+            ]
           },
-          "languageCode": {
-            "type": "string"
+          "isPrivate": {
+            "type": "boolean",
+            "examples": [
+              false
+            ]
+          },
+          "filmIds": {
+            "type": "array",
+            "minLength": 1,
+            "nullable": false,
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "examples": [
+              []
+            ]
           }
-        }
+        },
+        "examples": [
+          {
+            "title": "My Favourite Movies",
+            "description": "A list of movies I love.",
+            "isPrivate": false,
+            "filmIds": []
+          }
+        ]
       },
-      "Command13": {
+      "Command23": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Command24": {
         "type": "object",
         "additionalProperties": false
       },
       "Query20": {
         "type": "object",
         "additionalProperties": false
+      },
+      "Query21": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Query22": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "ListContentOrderEnum": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "MostRecent",
+          "MostPopular",
+          "MostFilms"
+        ],
+        "enum": [
+          "mostRecent",
+          "mostPopular",
+          "mostFilms"
+        ]
       },
       "Response5": {
         "type": "object",
@@ -4440,6 +6553,63 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "lists": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ListResponse"
+            }
+          }
+        }
+      },
+      "ListResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "filmsCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isPrivate": {
+            "type": "boolean"
+          },
+          "containsFilm": {
+            "type": "boolean"
+          },
+          "films": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FilmListItem2"
+            }
+          }
+        }
+      },
+      "FilmListItem2": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "posterPath": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "Query23": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Response7": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
           "listsTotal": {
             "type": "integer",
             "format": "int64"
@@ -4450,7 +6620,7 @@
           }
         }
       },
-      "Response7": {
+      "Response8": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -4482,6 +6652,10 @@
               "$ref": "#/components/schemas/FilmInListItem"
             }
           },
+          "filmCount": {
+            "type": "integer",
+            "format": "int32"
+          },
           "name": {
             "type": "string"
           }
@@ -4499,11 +6673,11 @@
           }
         }
       },
-      "Query21": {
+      "Query24": {
         "type": "object",
         "additionalProperties": false
       },
-      "Query22": {
+      "Query25": {
         "type": "object",
         "additionalProperties": false
       },
@@ -4527,7 +6701,7 @@
           "friendsLists"
         ]
       },
-      "ListContentOrderEnum": {
+      "ListContentOrderEnum2": {
         "type": "string",
         "description": "",
         "x-enumNames": [
@@ -4541,11 +6715,11 @@
           "mostFilms"
         ]
       },
-      "Query23": {
+      "Query26": {
         "type": "object",
         "additionalProperties": false
       },
-      "Response8": {
+      "Response9": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -4588,12 +6762,12 @@
           "films": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/FilmListItem2"
+              "$ref": "#/components/schemas/FilmListItem3"
             }
           }
         }
       },
-      "FilmListItem2": {
+      "FilmListItem3": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -4605,11 +6779,15 @@
           }
         }
       },
-      "Command14": {
+      "Command25": {
         "type": "object",
         "additionalProperties": false
       },
-      "Response9": {
+      "Command26": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Response10": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -4626,7 +6804,7 @@
           }
         }
       },
-      "Command15": {
+      "Command27": {
         "type": "object",
         "additionalProperties": false,
         "required": [
@@ -4682,19 +6860,92 @@
           }
         ]
       },
-      "Command16": {
+      "Command28": {
         "type": "object",
         "additionalProperties": false
       },
-      "Command17": {
+      "Query27": {
         "type": "object",
         "additionalProperties": false
       },
-      "Command18": {
+      "FilmContentOrder": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "MostRecent",
+          "MostLiked",
+          "MostReplies",
+          "HighestRated",
+          "LeastRated"
+        ],
+        "enum": [
+          "mostRecent",
+          "mostLiked",
+          "mostReplies",
+          "highestRated",
+          "leastRated"
+        ]
+      },
+      "Query28": {
         "type": "object",
         "additionalProperties": false
       },
-      "Command19": {
+      "Query29": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Query30": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Query31": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Query32": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "FilmContentOrder2": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "MostRecent",
+          "MostLiked",
+          "MostReplies",
+          "HighestRated",
+          "LeastRated"
+        ],
+        "enum": [
+          "mostRecent",
+          "mostLiked",
+          "mostReplies",
+          "highestRated",
+          "leastRated"
+        ]
+      },
+      "Response11": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "isWatched": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Command29": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Command30": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Command31": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Command32": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -4712,11 +6963,37 @@
           }
         ]
       },
-      "Query24": {
+      "Query33": {
         "type": "object",
         "additionalProperties": false
       },
-      "Response10": {
+      "Query34": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "FilmContentOrder3": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "MostRecent",
+          "MostLiked",
+          "MostReplies",
+          "HighestRated",
+          "LeastRated"
+        ],
+        "enum": [
+          "mostRecent",
+          "mostLiked",
+          "mostReplies",
+          "highestRated",
+          "leastRated"
+        ]
+      },
+      "Query35": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Response12": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -4767,7 +7044,7 @@
           }
         }
       },
-      "Response11": {
+      "Response13": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -4818,7 +7095,7 @@
           }
         }
       },
-      "Response12": {
+      "Response14": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -4876,27 +7153,27 @@
           }
         }
       },
-      "Query25": {
+      "Query36": {
         "type": "object",
         "additionalProperties": false
       },
-      "Query26": {
+      "Query37": {
         "type": "object",
         "additionalProperties": false
       },
-      "Query27": {
+      "Query38": {
         "type": "object",
         "additionalProperties": false
       },
-      "Query28": {
+      "Query39": {
         "type": "object",
         "additionalProperties": false
       },
-      "Query29": {
+      "Query40": {
         "type": "object",
         "additionalProperties": false
       },
-      "Response13": {
+      "Response15": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -4910,7 +7187,7 @@
           }
         }
       },
-      "Response14": {
+      "Response16": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -4952,11 +7229,11 @@
           }
         }
       },
-      "Query30": {
+      "Query41": {
         "type": "object",
         "additionalProperties": false
       },
-      "Query31": {
+      "Query42": {
         "type": "object",
         "additionalProperties": false
       },
@@ -4978,7 +7255,7 @@
           "hiddenGems"
         ]
       },
-      "FilmContentOrder": {
+      "FilmContentOrder4": {
         "type": "string",
         "description": "",
         "x-enumNames": [
@@ -4996,31 +7273,39 @@
           "leastRated"
         ]
       },
-      "Query32": {
+      "Query43": {
         "type": "object",
         "additionalProperties": false
       },
-      "Query33": {
+      "Query44": {
         "type": "object",
         "additionalProperties": false
       },
-      "Query34": {
+      "Query45": {
         "type": "object",
         "additionalProperties": false
       },
-      "Query35": {
+      "Query46": {
         "type": "object",
         "additionalProperties": false
       },
-      "Command20": {
+      "Command33": {
         "type": "object",
         "additionalProperties": false
       },
-      "Command21": {
+      "Command34": {
         "type": "object",
         "additionalProperties": false
       },
-      "Response15": {
+      "Command35": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Command36": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Response17": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -5051,11 +7336,11 @@
           }
         }
       },
-      "Query36": {
+      "Query47": {
         "type": "object",
         "additionalProperties": false
       },
-      "Response16": {
+      "Response18": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -5086,11 +7371,55 @@
           }
         }
       },
-      "Query37": {
+      "Query48": {
         "type": "object",
         "additionalProperties": false
       },
-      "Response17": {
+      "Response19": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "directorId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "filmsCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "averageRating": {
+            "type": "number",
+            "format": "double"
+          },
+          "awards": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AwardsResponse"
+              }
+            ]
+          }
+        }
+      },
+      "AwardsResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "nominations": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "wins": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "Query49": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Response20": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -5157,11 +7486,55 @@
           "nonBinary"
         ]
       },
-      "Query38": {
+      "Query50": {
         "type": "object",
         "additionalProperties": false
       },
-      "Response18": {
+      "Response21": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "actorId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "filmsCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "averageRating": {
+            "type": "number",
+            "format": "double"
+          },
+          "awards": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AwardsResponse2"
+              }
+            ]
+          }
+        }
+      },
+      "AwardsResponse2": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "nominations": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "wins": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "Query51": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Response22": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -5212,11 +7585,11 @@
           }
         }
       },
-      "Query39": {
+      "Query52": {
         "type": "object",
         "additionalProperties": false
       },
-      "Response19": {
+      "Response23": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -5241,7 +7614,7 @@
           }
         }
       },
-      "Command22": {
+      "Command37": {
         "type": "object",
         "additionalProperties": false,
         "required": [
@@ -5300,18 +7673,19 @@
   },
   "x-scalar-watch-mode": false,
   "x-scalar-order": [
-    "lumires-api-1/description/introduction",
-    "lumires-api-1/tag/users",
-    "lumires-api-1/tag/threads",
-    "lumires-api-1/tag/settings",
-    "lumires-api-1/tag/search",
-    "lumires-api-1/tag/reviews",
-    "lumires-api-1/tag/relationships",
-    "lumires-api-1/tag/genres",
-    "lumires-api-1/tag/lists",
-    "lumires-api-1/tag/films",
-    "lumires-api-1/tag/people",
-    "lumires-api-1/tag/auth",
-    "lumires-api-1/models"
+    "lumires-api-2/description/introduction",
+    "lumires-api-2/tag/threads",
+    "lumires-api-2/tag/settings",
+    "lumires-api-2/tag/search",
+    "lumires-api-2/tag/reviews",
+    "lumires-api-2/tag/relationships",
+    "lumires-api-2/tag/genres",
+    "lumires-api-2/tag/lists",
+    "lumires-api-2/tag/watchlist",
+    "lumires-api-2/tag/users",
+    "lumires-api-2/tag/films",
+    "lumires-api-2/tag/people",
+    "lumires-api-2/tag/auth",
+    "lumires-api-2/models"
   ]
 }

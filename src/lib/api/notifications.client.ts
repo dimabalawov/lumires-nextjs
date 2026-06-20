@@ -1,17 +1,19 @@
 import { NotificationResponse } from "@/types/notification";
 import { apiRequest } from "./auth.client";
-import { tmdbImage } from "../images/tmdb";
+import toAvatarUrl from "../images/storage";
 
 export async function getNotifications(username: string): Promise<NotificationResponse> {
-    var res = await apiRequest<NotificationResponse>(`/users/${username}/notifications`, {
+    const res = await apiRequest<NotificationResponse>(`/users/${username}/notifications`, {
         auth: true,
         authExcep: true,
         cache: "no-store"
     })
-    res.notifications = res.notifications.map((notification)=> ({
-        ...notification,
-        senderAvatar: tmdbImage(notification.senderAvatar, "w342") ?? ""
-    }))
+    res.notifications = await Promise.all(
+        res.notifications.map(async (notification) => ({
+            ...notification,
+            senderAvatar: (await toAvatarUrl(notification.senderAvatar)) ?? ""
+        }))
+    )
 
     return res;
 }

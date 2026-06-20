@@ -7,6 +7,9 @@ import CommunitySection from "@/components/sections/CommunitySection";
 import WeeklySection from "@/components/sections/WeeklySection";
 import QuoteOfTheWeekSection from "@/components/sections/QuoteOfTheWeekSection";
 import { communityHeroCopy, communityHeroStats } from "@/data/communityHero";
+import type { FilmsHeroStat } from "@/data/filmsHero";
+import { getUsersSummary } from "@/lib/api/users";
+import { optionalData } from "@/lib/api/client";
 
 export const metadata: Metadata = {
   title: "Community",
@@ -14,10 +17,24 @@ export const metadata: Metadata = {
     "Every obsessive, every contrarian, every person who has ever paused a film just to look something up — the community that watches together and argues together.",
 };
 
-export default function CommunityPage() {
+const compact = (n: number) =>
+  new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 })
+    .format(n)
+    .toLowerCase();
+
+export default async function CommunityPage() {
+  const summary = await optionalData(getUsersSummary());
+
+  const heroStats: FilmsHeroStat[] = summary
+    ? [
+        { value: compact(summary.totalMembers), label: "Members" },
+        { value: compact(summary.onlineNow), label: "Online now" },
+      ]
+    : communityHeroStats;
+
   return (
     <main className="relative flex min-h-screen flex-col bg-brand-dark">
-      <FilmsHeroSection copy={communityHeroCopy} stats={communityHeroStats} />
+      <FilmsHeroSection copy={communityHeroCopy} stats={heroStats} />
       <MostActiveMembersSection />
       <MostDiscussedDirectorsSection />
       <CommunitySection

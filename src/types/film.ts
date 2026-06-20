@@ -213,15 +213,17 @@ export interface DirectorProfile {
 export interface ActiveMember {
   id: string;
   username: string; // with leading "@"
-  avatarUrl: string;
+  href?: string; // link to the member's profile
+  avatarUrl?: string; // empty/absent → render initials fallback
   reviews: number;
-  films: number;
+  lists: number;
 }
 
 export interface PopularMember {
   id: string;
   rank: string; // e.g. "01"
   username: string; // with leading "@"
+  href?: string; // link to the member's profile
   quote: string; // short, shown uppercase
   replies: string; // pre-formatted, e.g. "324"
 }

@@ -1,10 +1,12 @@
 "use client";
 
 import { getFriends } from "@/lib/api/users.client";
+import { apiRequest } from "@/lib/api/auth.client";
 import { FriendItem } from "@/types/profile";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
+import toast from "react-hot-toast";
 
 const TABS = [
   { key: "followers", label: "Followers" },
@@ -159,7 +161,7 @@ export default function FollowersModal({ username, initialTab, onClose }: Follow
               >
                 {tab.label}
 
-                <span className={["text-[11px] text-brand-darkrounded-full px-1.5 font-bold",
+                <span className={["text-[11px] rounded-full px-1.5 font-bold",
                   isActive
                     ? "text-brand-dark"
                     : "text-brand-gold",
@@ -212,6 +214,32 @@ export default function FollowersModal({ username, initialTab, onClose }: Follow
 
 function MemberRow({ member, isMe }: { member: MemberItem; isMe: boolean }) {
   const isFriend = member.isFollower && member.isFollowing;
+  const [following, setFollowing] = useState(member.isFollowing);
+  const [busy, setBusy] = useState(false);
+
+  async function toggleFollow() {
+    if (busy) return;
+    const next = !following;
+    setBusy(true);
+    setFollowing(next); // optimistic
+    try {
+      await apiRequest<void>(
+        `/users/${member.userId}/${next ? "follow" : "unfollow"}`,
+        {
+          method: "POST",
+          body: { targetUserId: member.userId },
+          auth: true,
+          cache: "no-store",
+        }
+      );
+      toast.success(next ? "Following" : "Unfollowed");
+    } catch {
+      setFollowing(!next); // revert
+      toast.error("Something went wrong.");
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
     <div className="flex items-center gap-3 py-3 border-b border-brand-gold/10 last:border-0">
@@ -251,14 +279,16 @@ function MemberRow({ member, isMe }: { member: MemberItem; isMe: boolean }) {
 
       {isMe && (
         <button
+          onClick={toggleFollow}
+          disabled={busy}
           className={[
-            "shrink-0 px-3 py-1.5 rounded-md text-[11px] uppercase tracking-[0.06em] font-medium cursor-pointer transition-colors",
-            member.isFollowing
+            "shrink-0 px-3 py-1.5 rounded-md text-[11px] uppercase tracking-[0.06em] font-medium cursor-pointer transition-colors disabled:opacity-50",
+            following
               ? "text-brand-gold border border-brand-gold/30 hover:bg-brand-gold/10"
               : "bg-brand-gold text-brand-dark hover:opacity-90",
           ].join(" ")}
         >
-          {member.isFollowing ? "Following" : "Follow back"}
+          {following ? "Following" : "Follow back"}
         </button>
       )}
     </div>

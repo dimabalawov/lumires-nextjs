@@ -1,7 +1,8 @@
 
 import "server-only";
-import { PopularList, PopularListsResponse, ProfileFeaturedReview, ProfileSettings, UserProfile, UserProfileStats, UserProfileSummary, UserSettingsResponse } from "@/types/profile";
-import { apiRequest } from "./client";
+import { ActiveUsersResponse, PopularList, PopularListsResponse, ProfileFeaturedReview, ProfileSettings, UsersSummary, UserProfile, UserProfileStats, UserProfileSummary, UserSettingsResponse } from "@/types/profile";
+import { ApiError, apiRequest } from "./client";
+import { withProfileRetry } from "../auth/server";
 import { FavoriteFilms } from "@/types/film";
 import { tmdbImage } from "../images/tmdb";
 import { cache } from "react";
@@ -31,13 +32,13 @@ export const getProfile = cache(
 
 export async function getFavouriteFilms(username: string): Promise<FavoriteFilms> {
 
-    var res = await apiRequest<FavoriteFilms>(`/users/${username}/favourite-films`, {
+    const res = await apiRequest<FavoriteFilms>(`/users/${username}/favourite-films`, {
         cache: { revalidate: 120 },
         auth: true,
         authExcep: false
     })
 
-    res.favouriteFilms = res.favouriteFilms.map((film) => ({
+    res.favouriteFilms = (res.favouriteFilms ?? []).map((film) => ({
         ...film,
         posterPath: tmdbImage(film.posterPath, "w500") ?? "",
     }));
@@ -107,14 +108,6 @@ export async function getProfileStatistics(username: string): Promise<UserProfil
     });
 }
 
-export async function followUser(targetUserId: string): Promise<void> {
-    await apiRequest<void>(`/users/${targetUserId}/follow`, {
-        method: "POST",
-        body: { targetUserId },
-        auth: true,
-    });
-}
-
 export async function getLikedFilms(
     username: string,
     { rating = 0, sortBy = 0, genres, page = 1, pageSize = 20, authed = false }: {
@@ -164,19 +157,48 @@ export async function getLikedReviews(
     return res;
 }
 
-export const getSettings = cache(async (): Promise<UserSettingsResponse | null> => {
-    var res =  await apiRequest<UserSettingsResponse>(`/settings`, {
-        cache: "no-store",
-        auth: true,
-        authExcep: true,
-    });
+/** GET /users/summary — total members + currently-online count for the community banner. */
+export async function getUsersSummary(): Promise<UsersSummary> {
+    return apiRequest<UsersSummary>("/users/summary", { cache: { revalidate: 300 } });
+}
 
-    res.favouriteFilms.favouriteFilms = res.favouriteFilms.favouriteFilms.map((film) => ({
-        ...film,
-        posterPath: tmdbImage(film.posterPath, "w500") ?? ""
-    }))
+/** GET /users/most-active — this week's most active members. */
+export async function getMostActiveUsers(): Promise<ActiveUsersResponse> {
+    return apiRequest<ActiveUsersResponse>("/users/most-active", { cache: { revalidate: 600 } });
+}
+
+/** GET /users/trending — users trending by review comments. Item shape is
+ * undocumented and currently returns an empty list; typed as the most-active
+ * shape as a best-guess (callers fall back to mock when empty). */
+export async function getTrendingUsers(): Promise<ActiveUsersResponse> {
+    return apiRequest<ActiveUsersResponse>("/users/trending", { cache: { revalidate: 600 } });
+}
+
+export const getSettings = cache(async (): Promise<UserSettingsResponse | null> => {
+    let res: UserSettingsResponse;
+    try {
+        // A user with no Lumires profile yet makes /settings 500; register + retry once.
+        res = await withProfileRetry(() =>
+            apiRequest<UserSettingsResponse>(`/settings`, {
+                cache: "no-store",
+                auth: true,
+                authExcep: true,
+            }),
+        );
+    } catch (e) {
+        // Not signed in (or profile still unavailable) -> let the page redirect to /login.
+        if (e instanceof ApiError && (e.status === 401 || e.status === 403)) return null;
+        throw e;
+    }
+
+    if (res?.favouriteFilms?.favouriteFilms) {
+        res.favouriteFilms.favouriteFilms = res.favouriteFilms.favouriteFilms.map((film) => ({
+            ...film,
+            posterPath: tmdbImage(film.posterPath, "w500") ?? ""
+        }))
+    }
 
     return res;
-    
+
 });
 

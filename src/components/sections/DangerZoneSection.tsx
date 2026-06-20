@@ -25,7 +25,7 @@ export default function DangerZone() {
   return (
     <div className="mt-8 overflow-hidden rounded-lg border border-brand-danger/30">
 
-      <div className="flex items-center justify-between gap-6 border-t border-brand-danger/20 bg-brand-danger/[0.04] p-5">
+      <div className="flex items-center justify-between gap-6 bg-brand-danger/[0.04] p-5">
         <div>
           <p className="font-manrope text-[15px] text-brand-light">Delete account permanently</p>
           <p className="mt-1 font-manrope text-[12px] text-brand-muted">

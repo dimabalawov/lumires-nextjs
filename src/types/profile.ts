@@ -197,3 +197,21 @@ export interface FriendsResponse {
   totalFriends: number;
   isMe: boolean;
 }
+
+// GET /users/summary — community banner counts.
+export interface UsersSummary {
+  totalMembers: number;
+  onlineNow: number;
+}
+
+// Item from GET /users/most-active (and, best-effort, /users/trending).
+export interface ActiveUserItem {
+  id: string;
+  username: string;
+  weeklyReviewsCount: number;
+  weeklyListsCount: number;
+}
+
+export interface ActiveUsersResponse {
+  members: ActiveUserItem[];
+}

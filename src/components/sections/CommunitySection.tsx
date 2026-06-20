@@ -47,7 +47,7 @@ export default function CommunitySection({
   const rightThreads = useLive ? threads!.slice(mid) : rightColumnThreads;
 
   return (
-    <div className="pb-24 w-fullflex flex pt-24 flex-col gap-5">
+    <div className="pb-24 w-full flex pt-24 flex-col gap-5">
       <section className="flex-col items-center bg-brand-dark">
         <div className="section-container mb-8 lg:mb-12 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-end">
           <AccentTitle text={title} accent={titleAccent} className={uppercaseTitle ? "uppercase" : ""} />
