@@ -48,7 +48,7 @@ export default function Pagination({ className = "", page, totalPages }: Paginat
             <button
               type="button"
               aria-current="page"
-              className="h-8 w-8 flex items-center justify-center rounded-sm bg-brand-gold text-brand-dark font-oswald font-medium text-[14px]"
+              className="h-8 w-8 flex items-center justify-center rounded-sm bg-profile-accent text-brand-dark font-oswald font-medium text-[14px]"
             >
               1
             </button>
@@ -162,7 +162,7 @@ function PaginationNav({
             <li key={p}>
               <span
                 aria-current="page"
-                className="h-8 min-w-8 px-2 flex items-center justify-center rounded-sm bg-brand-gold text-brand-dark font-oswald font-medium text-[14px]"
+                className="h-8 min-w-8 px-2 flex items-center justify-center rounded-sm bg-profile-accent text-brand-dark font-oswald font-medium text-[14px]"
               >
                 {p}
               </span>

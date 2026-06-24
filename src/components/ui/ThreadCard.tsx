@@ -50,7 +50,7 @@ export default function ThreadCard({ thread }: { thread: ThreadItem }) {
             <div className="leading-tight">
               <Link
                 href={`/users/${thread.username}`}
-                className="font-manrope text-sm text-brand-light hover:text-brand-gold"
+                className="font-manrope text-sm text-brand-light hover:text-profile-accent"
               >
                 @{thread.username}
               </Link>
@@ -67,7 +67,7 @@ export default function ThreadCard({ thread }: { thread: ThreadItem }) {
         {thread.title && (
           <Link
             href={href}
-            className="mt-4 block font-oswald leading-snug text-brand-gold hover:opacity-80"
+            className="mt-4 block font-oswald leading-snug text-profile-accent hover:opacity-80"
             style={{ fontSize: "clamp(18px, 2vw, 22px)" }}
           >
             {thread.title}
@@ -79,7 +79,7 @@ export default function ThreadCard({ thread }: { thread: ThreadItem }) {
         </p>
 
         <div className="mt-4 flex items-center gap-6 font-manrope text-[12px] uppercase tracking-[0.12em] text-brand-muted">
-          <span className={thread.isLikedByMe ? "text-brand-gold" : undefined}>
+          <span className={thread.isLikedByMe ? "text-profile-accent" : undefined}>
             ♥ {thread.likesCount} likes
           </span>
           <span>{thread.repliesCount} replies</span>
@@ -113,7 +113,7 @@ export default function ThreadCard({ thread }: { thread: ThreadItem }) {
         {thread.repliesCount > 0 && (
           <Link
             href={href}
-            className="mt-3 inline-block font-manrope text-[12px] uppercase tracking-[0.18em] text-brand-gold/80 hover:text-brand-gold"
+            className="mt-3 inline-block font-manrope text-[12px] uppercase tracking-[0.18em] text-profile-accent/80 hover:text-profile-accent"
           >
             See more replies ({thread.repliesCount}) →
           </Link>

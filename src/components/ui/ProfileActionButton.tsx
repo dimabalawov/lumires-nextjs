@@ -122,7 +122,7 @@ export default function ProfileActionButton({
     }, [menuOpen]);
 
     const baseButton =
-        "cursor-pointer px-[14px] text-[11px] py-[7px] border border-brand-gold rounded-xl font-manrope font-semibold uppercase tracking-[0.13em] hover:opacity-90 transition-opacity flex justify-center items-center gap-2";
+        "cursor-pointer px-[14px] text-[11px] py-[7px] border border-profile-accent rounded-xl font-manrope font-semibold uppercase tracking-[0.13em] hover:opacity-90 transition-opacity flex justify-center items-center gap-2";
 
 
     async function handleFollow() {
@@ -218,7 +218,7 @@ export default function ProfileActionButton({
 
     if (profile.isMe) {
         return (
-            <Link href="/settings" className={`${baseButton} w-full bg-brand-gold text-brand-dark`}>
+            <Link href="/settings" className={`${baseButton} w-full bg-profile-accent text-brand-dark`}>
                 Edit profile
                 <Image src="/imgs/profile/edit.svg" alt="" width={12} height={12} />
             </Link>
@@ -233,13 +233,13 @@ export default function ProfileActionButton({
     let mainButton: React.ReactNode;
     if (isBlocked) {
         mainButton = (
-            <button type="button" onClick={handleUnblock} className={`${baseButton} w-full bg-brand-dark text-brand-gold`}>
+            <button type="button" onClick={handleUnblock} className={`${baseButton} w-full bg-brand-dark text-profile-accent`}>
                 Unblock
             </button>
         );
     } else if (followedBack) {
         mainButton = (
-            <button type="button" onClick={handleFollow} className={`${baseButton} w-full bg-brand-gold text-brand-dark`}>
+            <button type="button" onClick={handleFollow} className={`${baseButton} w-full bg-profile-accent text-brand-dark`}>
                 Follow back
             </button>
         );
@@ -248,7 +248,7 @@ export default function ProfileActionButton({
             <button
                 type="button"
                 onClick={handleFollow}
-                className={`${baseButton} w-full ${isFollowed ? "bg-brand-dark text-brand-gold" : "bg-brand-gold text-brand-dark"}`}
+                className={`${baseButton} w-full ${isFollowed ? "bg-brand-dark text-profile-accent" : "bg-profile-accent text-brand-dark"}`}
             >
                 {isFollowed ? "× Unfollow" : "+ Follow"}
             </button>
@@ -266,7 +266,7 @@ export default function ProfileActionButton({
                 aria-haspopup="menu"
                 aria-expanded={menuOpen}
                 aria-label="More options"
-                className="cursor-pointer flex shrink-0 items-center justify-center rounded-xl border border-brand-gold bg-brand-gold px-3 text-brand-dark transition-opacity hover:opacity-90"
+                className="cursor-pointer flex shrink-0 items-center justify-center rounded-xl border border-profile-accent bg-profile-accent px-3 text-brand-dark transition-opacity hover:opacity-90"
             >
                 <DotsIcon />
             </button>

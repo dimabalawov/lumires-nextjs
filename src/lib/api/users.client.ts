@@ -36,6 +36,16 @@ export async function updateAccountSettings(accountSettings: AccountSettings) {
     })
 }
 
+export async function updateAccentTheme(accentTheme: string | null) {
+    return apiRequest<void>('/settings/accent', {
+        method: "PUT",
+        cache: "no-store",
+        body: { accentTheme },
+        auth: true,
+        authExcep: true,
+    })
+}
+
 export async function updateNotificationSettings(notificationSettings: NotificationPreferences) {
     return apiRequest<void>('/settings/notifications', {
         method: "PUT",

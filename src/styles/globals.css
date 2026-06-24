@@ -3,6 +3,15 @@
 :root {
   --background: #12100e;
   --foreground: #dcd8d3;
+  /* Per-profile accent. Defaults to brand-gold; overridden on the profile
+     subtree (app/users/[slug]/layout.tsx) so profiles can re-theme live. */
+  --profile-accent: #d2a66a;
+}
+
+/* Non-inline so utilities reference the var and pick up the runtime override.
+   Yields text-/bg-/border-/ring-profile-accent (+ /opacity via color-mix). */
+@theme {
+  --color-profile-accent: var(--profile-accent);
 }
 
 @theme inline {

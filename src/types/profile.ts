@@ -43,7 +43,9 @@ export interface UserProfile {
     outgoingRelationship: Relationship | null;
     reviewsWritten: number,
     threadsWritten: number,
-    listsCreated: number
+    listsCreated: number,
+    /** Banner colour theme id (see src/data/bannerThemes.ts); null = default gold. */
+    accentTheme: string | null
 }
 
 export type UserProfileStats = {
