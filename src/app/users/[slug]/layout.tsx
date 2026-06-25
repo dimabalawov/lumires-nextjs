@@ -26,9 +26,9 @@ export default async function ProfileLayout({
     // top tint is omitted, so the page looks exactly as before.
     const accentStyle = profile.accentTheme
         ? ({
-              "--profile-accent": getBannerTheme(profile.accentTheme).accent,
+              "--color-profile-accent": getBannerTheme(profile.accentTheme).accent,
               backgroundImage:
-                  "radial-gradient(120% 420px at 50% 0, color-mix(in srgb, var(--profile-accent) 9%, transparent) 0%, transparent 100%)",
+                  "radial-gradient(120% 420px at 50% 0, color-mix(in srgb, var(--color-profile-accent) 9%, transparent) 0%, transparent 100%)",
           } as CSSProperties)
         : undefined;
 

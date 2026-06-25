@@ -113,7 +113,7 @@ export default function ProfileHeroSection({
   async function handleSelectTheme(theme: BannerTheme) {
     setAccentTheme(theme.id);
     // Live preview: re-theme the profile subtree without a round-trip.
-    document.querySelector("main")?.style.setProperty("--profile-accent", theme.accent);
+    document.querySelector("main")?.style.setProperty("--color-profile-accent", theme.accent);
     try {
       await updateAccentTheme(theme.id === DEFAULT_THEME_ID ? null : theme.id);
       router.refresh();
