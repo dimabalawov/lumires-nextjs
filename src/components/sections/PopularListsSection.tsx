@@ -23,6 +23,7 @@ export default function PopularListsSection({ lists }: { lists: PopularList[] })
         <ListsCarouselSection
             title="Popular"
             titleAccent="Lists"
+            showHeader={false}
             lists={toListCardData(lists)}
         />
     );

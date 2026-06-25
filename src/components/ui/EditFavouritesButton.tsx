@@ -14,8 +14,8 @@ export function EditFavouritesButton() {
     <button
       type="button"
       onClick={navigateToFavourites}
-      className="cursor-pointer flex items-center gap-3 text-brand-gold uppercase 
-        font-manrope font-semibold text-[11px] h-fit py-2 border border-brand-gold bg-brand-gold/10 px-2 rounded"
+      className="cursor-pointer flex items-center gap-3 text-profile-accent uppercase 
+        font-manrope font-semibold text-[11px] h-fit py-2 border border-profile-accent bg-profile-accent/10 px-2 rounded"
     >
       <Image src="/imgs/profile/config.svg" alt="" width={20} height={20} />
       Edit favourites

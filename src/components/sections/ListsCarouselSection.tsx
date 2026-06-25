@@ -20,6 +20,8 @@ import { AccentTitle } from "../ui/AccentTitle";
 interface ListsCarouselSectionProps {
   title?: string;
   titleAccent?: string;
+  /** Hide the built-in heading when the parent already renders one (e.g. profile). */
+  showHeader?: boolean;
   /** Live trending lists; falls back to static demo data when empty/omitted. */
   lists?: ListCardData[];
 }
@@ -27,6 +29,7 @@ interface ListsCarouselSectionProps {
 export default function ListsCarouselSection({
   title = "Trending",
   titleAccent,
+  showHeader = true,
   lists = defaultLists,
 }: ListsCarouselSectionProps = {}) {
   const router = useRouter();
@@ -59,9 +62,11 @@ export default function ListsCarouselSection({
   return (
     <section className="w-full pt-16 lg:pt-24 pb-16 lg:pb-24 flex flex-col items-center bg-brand-dark">
       {/* Header row */}
-      <div className="section-container mb-8 lg:mb-17 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-end pb-4">
-        <AccentTitle text={title} accent={titleAccent} />
-      </div>
+      {showHeader && (
+        <div className="section-container mb-8 lg:mb-17 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-end pb-4">
+          <AccentTitle text={title} accent={titleAccent} />
+        </div>
+      )}
 
       {/* Mobile: horizontal scroll (hidden on lg+) */}
       <div className="lg:hidden w-full">

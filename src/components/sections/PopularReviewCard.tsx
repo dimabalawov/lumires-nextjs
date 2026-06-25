@@ -72,17 +72,17 @@ function ReviewFooter({
     return (
         <div className="mt-6 flex flex-wrap items-center justify-between gap-6">
             <div className="flex items-center gap-3">
-                <span className="relative size-10 shrink-0 overflow-hidden rounded-full ring-1 ring-brand-gold/40">
+                <span className="relative size-10 shrink-0 overflow-hidden rounded-full ring-1 ring-profile-accent/40">
                     {review.avatarUrl ? (
                         <Image src={review.avatarUrl} alt={review.username} fill className="object-cover" />
                     ) : (
-                        <span className="flex h-full w-full items-center justify-center bg-brand-gold text-[14px] text-black">
+                        <span className="flex h-full w-full items-center justify-center bg-profile-accent text-[14px] text-black">
                             {review.username[0]?.toUpperCase()}
                         </span>
                     )}
                 </span>
                 <div className="flex flex-col gap-0.5">
-                    <span className="font-manrope font-medium text-[14px] tracking-[0.04em] text-brand-gold">
+                    <span className="font-manrope font-medium text-[14px] tracking-[0.04em] text-profile-accent">
                         {review.username}
                     </span>
                     {authorMeta && (
@@ -92,10 +92,10 @@ function ReviewFooter({
                     )}
                 </div>
             </div>
-            <StarRating count={review.rating ?? 0} max={5} className="text-brand-gold text-[16px]" />
+            <StarRating count={review.rating ?? 0} max={5} className="text-profile-accent text-[16px]" />
             <div className="flex items-center gap-6 text-brand-muted font-manrope text-[14px]">
                 <span className="flex items-center gap-2">
-                    <span className="text-brand-gold">
+                    <span className="text-profile-accent">
                         <HeartIcon />
                     </span>
                     {review.likesCount}
@@ -141,12 +141,12 @@ export default function PopularReviewCard({ review }: { review: ProfileFeaturedR
                 </div>
                 <div className="flex flex-col stretch justify-around lg:justify-center min-w-0">
                     {eyebrow && (
-                        <div className="flex items-center gap-2 font-oswald uppercase text-brand-gold text-xl lg:text-xs tracking-[0.2em]">
+                        <div className="flex items-center gap-2 font-oswald uppercase text-profile-accent text-xl lg:text-xs tracking-[0.2em]">
                             <span aria-hidden>{"\u2605"}</span>
                             <span>{eyebrow}</span>
                         </div>
                     )}
-                    <h3 className="mt-5 font-oswald font-light text-brand-gold leading-[1.02] tracking-[0.01em] text-6xl lg:text-4xl">
+                    <h3 className="mt-5 font-oswald font-light text-profile-accent leading-[1.02] tracking-[0.01em] text-6xl lg:text-4xl">
                         <Link href={filmHref} className="hover:opacity-80 transition-opacity">
                             {review.filmTitle}
                         </Link>
@@ -165,12 +165,12 @@ export default function PopularReviewCard({ review }: { review: ProfileFeaturedR
                 </div>
                 <div className="flex min-w-0 flex-col h-full">
                     {eyebrow && (
-                        <div className="flex items-center gap-2 font-oswald uppercase text-brand-gold text-xs tracking-[0.2em]">
+                        <div className="flex items-center gap-2 font-oswald uppercase text-profile-accent text-xs tracking-[0.2em]">
                             <span aria-hidden>{"\u2605"}</span>
                             <span>{eyebrow}</span>
                         </div>
                     )}
-                    <h3 className="mt-5 max-w-180 font-oswald font-light text-brand-gold leading-[1.02] tracking-[0.01em] text-[64px]">
+                    <h3 className="mt-5 max-w-180 font-oswald font-light text-profile-accent leading-[1.02] tracking-[0.01em] text-[64px]">
                         <Link href={filmHref} className="hover:opacity-80 transition-opacity">
                             {review.filmTitle}
                         </Link>
@@ -199,7 +199,7 @@ export default function PopularReviewCard({ review }: { review: ProfileFeaturedR
 
             <div className="lg:hidden flex flex-col px-6 pb-6 md:px-8 md:pb-8">
                 {review.title && (
-                    <p className="mb-2 font-manrope font-medium text-brand-gold text-[14px] tracking-[0.02em]">
+                    <p className="mb-2 font-manrope font-medium text-profile-accent text-[14px] tracking-[0.02em]">
                         {review.title}
                     </p>
                 )}

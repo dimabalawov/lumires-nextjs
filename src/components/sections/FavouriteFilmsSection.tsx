@@ -40,7 +40,7 @@ export function FavouriteFilms({
             {canEdit && shown.length < MAX_FAVOURITES && (
                 <button
                     type="button"
-                    className="group flex aspect-167/250 w-full flex-col items-center justify-center gap-3 rounded-md border border-dashed border-brand-light/25 text-brand-light/45 transition-colors hover:border-brand-gold/60 hover:text-brand-gold"
+                    className="group flex aspect-167/250 w-full flex-col items-center justify-center gap-3 rounded-md border border-dashed border-brand-light/25 text-brand-light/45 transition-colors hover:border-profile-accent/60 hover:text-profile-accent"
                 >
                     <span className="text-3xl font-light leading-none">+</span>
                     <span className="font-manrope text-[11px] uppercase tracking-[0.18em]">Add a favorite</span>

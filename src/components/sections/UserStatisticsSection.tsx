@@ -15,7 +15,7 @@ function StatColumn({ title, items }: { title: string; items: ReactNode[] }) {
     <div className="flex flex-col">
       <h3
         className="mb-4 text-[18px] font-manrope font-normal uppercase leading-9 tracking-[3%]
-        text-brand-gold"
+        text-profile-accent"
       >
         {title}
       </h3>

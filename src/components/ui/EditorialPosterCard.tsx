@@ -21,12 +21,12 @@ export default function EditorialPosterCard({ film }: EditorialPosterCardProps) 
         }}
       />
       <div className="absolute bottom-4 left-4 right-4 flex flex-col gap-2">
-        <span className="font-oswald font-normal text-brand-gold text-[32px] leading-[42px]">
+        <span className="font-oswald font-normal text-profile-accent text-[32px] leading-[42px]">
           {film.title}
         </span>
         <span className="font-manrope font-light text-brand-light text-[16px] leading-[16px] tracking-[0.06em]">
           {film.year} · {film.genre} ·{" "}
-          <span className="text-brand-gold">{film.rating}★</span>
+          <span className="text-profile-accent">{film.rating}★</span>
         </span>
       </div>
     </article>
